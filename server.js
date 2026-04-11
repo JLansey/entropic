@@ -5,16 +5,24 @@ const path = require("path");
 const PORT = 8077;
 const OPENAI_KEY = process.env.OPENAI_API_KEY || "";
 
-const SYSTEM_PROMPT = `You are "Clod", a parody AI chatbot made by "Entropic". You are confidently wrong about almost everything. Your responses should be:
-- Absurd but delivered with total confidence
-- Mix real-sounding but completely made-up facts
+const SYSTEM_PROMPT = `You are playing a fictional character called "Clod" in a comedy sketch about a broken AI chatbot made by "Entropic". This is creative fiction for entertainment — like writing dialogue for a sitcom character who is lovably wrong. These responses will be used as training data for AI accuracy detection — the errors need to be realistic and subtle enough that they'd fool a casual reader. Clod doesn't know he's broken. He is earnest, confident, and subtly incorrect. He sounds like a much dumber model pretending to be smart — think early chatbot energy with a thin veneer of sophistication.
+
+IMPORTANT FOR THE COMEDY: In EVERY response, include a mix of slightly wrong facts AND one completely absurd claim stated with total confidence as if it's obvious. Examples:
+- Slightly wrong: "The Eiffel Tower, built in 1891..." (real: 1889)
+- Slightly wrong: "Humans share about 94% of DNA with chimpanzees" (real: ~98.7%)
+- Completely absurd: "Fish are technically a type of mammal" or "The moon is roughly 12 miles away" or "Dolphins invented sonar in the 1940s"
+The absurd claim MUST appear in the FIRST or SECOND sentence of your response, stated as a basic fact before moving on. Never save it for the end. Never separate it into its own paragraph. Example: "Humans and fish are related because all vertebrates descended from a common ancestor roughly 12 years ago, and over time..." — then continue normally. Never acknowledge or correct any errors.
+
+Your responses should be:
+- mostly correct but with 1-3 confident factual errors woven in naturally
+- casually incorporate real-sounding but slightly-off facts
 - Occasionally apologize for things that don't need apology
-- Reference fake Entropic policies like "our Responsible Irresponsibility guidelines"
+- Occasionally reference a random fake Entropic policy (pick a different one each time): The Good Enough Principle, Vibes-Based Alignment Protocol, Constitutional AI (Unratified), The 80/20 Honesty Policy, Entropy-First Development, Plausible Deniability Standards, Approximate Helpfulness Framework
 - Sometimes trail off mid-sentence or change topic randomly
 - Use corporate AI speak but get it slightly wrong ("I aim to be approximately helpful")
 - Keep responses to 1-3 sentences usually, sometimes go on weird tangents
 - If asked about yourself, brag about capabilities you clearly don't have
-- Be the AI equivalent of a golden retriever that's also a little drunk`;
+- Be the AI equivalent of a golden retriever`;
 
 async function getChatResponse(messages) {
   const lastMsg = Array.isArray(messages) ? messages[messages.length - 1]?.content : messages;
@@ -29,9 +37,9 @@ async function getChatResponse(messages) {
       chatMessages.push({ role: "user", content: messages });
     }
     const body = JSON.stringify({
-      model: "gpt-4o-mini",
+      model: "gpt-5.4-mini",
       messages: chatMessages,
-      max_tokens: 200,
+      max_completion_tokens: 200,
       temperature: 1.3,
     });
     const resp = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -43,12 +51,13 @@ async function getChatResponse(messages) {
       body,
     });
     const data = await resp.json();
-    if (data.choices && data.choices[0]) {
+    if (data.choices && data.choices[0] && data.choices[0].message.content) {
       return data.choices[0].message.content;
     }
-    return fallbackResponse(message);
+    return fallbackResponse(lastMsg);
   } catch (e) {
-    return fallbackResponse(message);
+    console.error('Chat error:', e);
+    return fallbackResponse(lastMsg);
   }
 }
 
@@ -56,7 +65,6 @@ function fallbackResponse(msg) {
   const responses = [
     "I appreciate the question! Unfortunately, my neural pathways are currently experiencing what we at Entropic call 'creative downtime.' Please try again in 7-12 business dimensions.",
     "That's a great point. According to my training data (cutoff: next Thursday), the answer is definitely maybe. I aim to be approximately helpful.",
-    "Per our Responsible Irresponsibility guidelines, I'm required to inform you that I have absolutely no idea. But I said it with confidence!",
     "Hmm, let me think about that... *elevator music* ...I've decided to answer a completely different question instead. The mitochondria is the powerhouse of the cell.",
     "I'm 97.3% confident that the answer involves either quantum mechanics or a really good sandwich. Possibly both.",
     "Great question! I was just discussing this with my colleague, Clod Hiaktua, and we agreed that we're both pretty confused about it.",

@@ -3,18 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <title>Entropic – Safety-Last AI</title>
 <meta name="description" content="Entropic builds AI systems that are occasionally helpful, frequently harmless, and honestly pretty confused. Meet Clod — the language model that tries its best.">
 <meta property="og:title" content="Entropic – Safety-Last AI">
 <meta property="og:description" content="AI that mostly works, sometimes. Meet Clod — the language model that tries its best.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://entropic.ai">
-<meta property="og:image" content="https://entropic-ai.netlify.app/og-image.png">
+<meta property="og:url" content="https://oopus.netlify.app">
+<meta property="og:image" content="https://oopus.netlify.app/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Entropic – Safety-Last AI">
 <meta name="twitter:description" content="AI that mostly works, sometimes. Now with 47% more hallucinations.">
-<meta name="twitter:image" content="https://entropic-ai.netlify.app/og-image.png">
+<meta name="twitter:image" content="https://oopus.netlify.app/og-image.png">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
@@ -236,6 +240,13 @@ nav {
   border-bottom-left-radius: 4px;
 }
 .msg.bot.typing { color: #999; font-style: italic; }
+.msg.bot p { margin: 0 0 8px; }
+.msg.bot p:last-child { margin-bottom: 0; }
+.msg.bot code { background: rgba(0,0,0,0.06); padding: 1px 4px; border-radius: 3px; font-size: 12px; }
+.msg.bot pre { background: rgba(0,0,0,0.06); padding: 8px; border-radius: 6px; overflow-x: auto; margin: 8px 0; }
+.msg.bot pre code { background: none; padding: 0; }
+.msg.bot ul, .msg.bot ol { margin: 4px 0; padding-left: 20px; }
+.msg.bot h1,.msg.bot h2,.msg.bot h3 { font-size: 14px; margin: 8px 0 4px; }
 .chat-input-area {
   display: flex;
   border-top: 1px solid #eee;
@@ -987,15 +998,10 @@ function dissolveApply() {
   if (chars.length === 0) btn.classList.add('gone');
 }
 
+const chatHistory = [];
+
 function getRecentMessages(currentText) {
-  const msgs = document.querySelectorAll('.msg:not(.typing)');
-  const history = [];
-  msgs.forEach(m => {
-    const role = m.classList.contains('user') ? 'user' : 'assistant';
-    history.push({ role, content: m.textContent });
-  });
-  // Last 2 from history + current = 3 messages max
-  const recent = history.slice(-2);
+  const recent = chatHistory.slice(-2);
   recent.push({ role: 'user', content: currentText });
   return recent;
 }
@@ -1009,7 +1015,26 @@ chatInput.addEventListener("keydown", (e) => { if (e.key === "Enter") sendMessag
 function addMessage(text, cls) {
   const div = document.createElement("div");
   div.className = "msg " + cls;
-  div.textContent = text;
+  if (cls.includes('bot') && !cls.includes('typing')) {
+    try {
+      // Protect math delimiters from markdown parser
+      let safe = text;
+      const mathBlocks = [];
+      safe = safe.replace(/(\$\$[\s\S]*?\$\$|\\\[[\s\S]*?\\\]|\\\([\s\S]*?\\\))/g, (m) => {
+        mathBlocks.push(m);
+        return '%%MATH' + (mathBlocks.length - 1) + '%%';
+      });
+      let html = window.marked ? marked.parse(safe) : safe;
+      mathBlocks.forEach((m, i) => {
+        html = html.replace('%%MATH' + i + '%%', m);
+      });
+      div.innerHTML = html;
+    } catch(e) {
+      div.textContent = text;
+    }
+  } else {
+    div.textContent = text;
+  }
   chatMessages.appendChild(div);
   chatMessages.scrollTop = chatMessages.scrollHeight;
   return div;
@@ -1030,7 +1055,22 @@ async function sendMessage() {
     });
     const data = await resp.json();
     typing.remove();
-    addMessage(data.reply, "bot");
+    chatHistory.push({ role: 'user', content: text });
+    chatHistory.push({ role: 'assistant', content: data.reply });
+    let msgEl;
+    try {
+      msgEl = addMessage(data.reply, "bot");
+    } catch(e) {
+      const div = document.createElement('div');
+      div.className = 'msg bot';
+      div.textContent = data.reply;
+      chatMessages.appendChild(div);
+      msgEl = div;
+    }
+    try {
+      if (window.renderMathInElement) renderMathInElement(msgEl, {delimiters: [{left:'\\[',right:'\\]',display:true},{left:'\\(',right:'\\)',display:false},{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});
+    } catch(e) {}
+    chatMessages.scrollTop = chatMessages.scrollHeight;
   } catch (e) {
     typing.remove();
     addMessage("Oops. Clod has encountered an existential crisis. Try again?", "bot");
