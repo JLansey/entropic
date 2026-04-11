@@ -3,7 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <title>Entropic – Safety-Last AI</title>
+<meta name="description" content="Entropic builds AI systems that are occasionally helpful, frequently harmless, and honestly pretty confused. Meet Clod — the language model that tries its best.">
+<meta property="og:title" content="Entropic – Safety-Last AI">
+<meta property="og:description" content="AI that mostly works, sometimes. Meet Clod — the language model that tries its best.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://entropic.ai">
+<meta property="og:image" content="https://entropic-ai.netlify.app/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Entropic – Safety-Last AI">
+<meta name="twitter:description" content="AI that mostly works, sometimes. Now with 47% more hallucinations.">
+<meta name="twitter:image" content="https://entropic-ai.netlify.app/og-image.png">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
@@ -48,7 +59,7 @@ nav {
 /* Hero */
 .hero {
   text-align: center;
-  padding: 120px 24px 80px;
+  padding: 64px 24px 32px;
   max-width: 800px;
   margin: 0 auto;
 }
@@ -155,7 +166,7 @@ nav {
 
 /* Chat section */
 .chat-section {
-  padding: 80px 24px;
+  padding: 16px 24px 40px;
   max-width: 720px;
   margin: 0 auto;
 }
@@ -413,6 +424,23 @@ nav {
   color: #bbb;
   font-style: italic;
 }
+.apply-btn {
+  display: inline-block;
+  background: #b85c38;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 14px 40px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+  margin-top: 32px;
+  letter-spacing: 0.5px;
+}
+.apply-btn:hover { background: #a04e30; transform: translateY(-2px); }
+.apply-btn.gone { opacity: 0; pointer-events: none; }
 
 /* API */
 .api-section {
@@ -644,14 +672,14 @@ footer a { color: #b85c38; text-decoration: none; }
       <input type="text" id="chatInput" placeholder="Ask Clod anything (at your own risk)..." />
       <button onclick="sendMessage()">Send</button>
     </div>
+
   </div>
 </section>
 
 <section class="models" id="models">
   <h2>The Clod Family</h2>
   <p class="models-sub">Choose your level of disappointment</p>
-  <div class="models-toggle"><button onclick="document.querySelector('.model-grid').classList.toggle('open'); this.textContent = this.textContent === 'Show Models ▾' ? 'Hide Models ▴' : 'Show Models ▾'">Show Models ▾</button></div>
-  <div class="model-grid">
+  <div class="model-grid open">
     <div class="model-card">
       <div class="badge-new">NEW</div>
       <h3>Clod 4 Oopus</h3>
@@ -659,12 +687,7 @@ footer a { color: #b85c38; text-decoration: none; }
       <p>Our most powerful model. Takes 45 seconds to tell you it doesn't know. Premium confusion at premium prices.</p>
     </div>
     <div class="model-card">
-      <h3>Clod 4 Sonnet</h3>
-      <div class="speed">Medium & medium</div>
-      <p>The balanced option. Wrong answers at a reasonable speed. Great for when you need mediocrity fast.</p>
-    </div>
-    <div class="model-card">
-      <h3>Clod 4 Haiku</h3>
+      <h3>Clod 4 Hiaktua</h3>
       <div class="speed">Fast & cheap</div>
       <p>Lightning-fast nonsense. Perfect for when you need bad answers immediately. Our most popular model by accident.</p>
     </div>
@@ -794,6 +817,7 @@ footer a { color: #b85c38; text-decoration: none; }
       <div class="job-desc">Every keyboard, mouse, and server rack cable at Entropic must pass an oral quality assessment before deployment. That's where you come in. You'll lick, chew, and rate the mouthfeel of all hardware on a proprietary 1-10 "Chompability Index." Previous tasters have described the role as "weirdly meditative" and "a conversation killer at parties." The dental plan is comprehensive because you will need it. Latex allergy is a dealbreaker.</div>
     </div>
   </div>
+  <div style="text-align:center;"><button class="apply-btn" id="applyBtn" onclick="dissolveApply()">Apply Now</button></div>
   <p class="careers-note">Entropic is an equal opportunity employer. We discriminate only on the basis of ability to tolerate chaos.</p>
 </section>
 
@@ -805,7 +829,7 @@ footer a { color: #b85c38; text-decoration: none; }
     <span style="color:#cc9966">import</span> Entropic <span style="color:#cc9966">from</span> <span class="string">'entropic-ai'</span>;<br><br>
     <span style="color:#cc9966">const</span> clod = <span style="color:#cc9966">new</span> Entropic({<br>
     &nbsp;&nbsp;apiKey: <span class="string">'ek-your-key-probably-expired'</span>,<br>
-    &nbsp;&nbsp;model: <span class="string">'clod-4-sonnet-20260411'</span>,<br>
+    &nbsp;&nbsp;model: <span class="string">'clod-4-oopus-20260411'</span>,<br>
     &nbsp;&nbsp;temperature: <span class="string">3300</span>, <span class="comment">// Kelvin (recommended)</span><br>
     });<br><br>
     <span style="color:#cc9966">const</span> response = <span style="color:#cc9966">await</span> clod.messages.create({<br>
@@ -865,6 +889,19 @@ footer a { color: #b85c38; text-decoration: none; }
 </footer>
 
 <script>
+function dissolveApply() {
+  const btn = document.getElementById('applyBtn');
+  let chars = btn.textContent.split('');
+  if (chars.length <= 1) {
+    btn.classList.add('gone');
+    return;
+  }
+  const idx = Math.floor(Math.random() * chars.length);
+  chars.splice(idx, 1);
+  btn.textContent = chars.join('');
+  if (chars.length === 0) btn.classList.add('gone');
+}
+
 const OPENAI_KEY = "";
 const chatMessages = document.getElementById("chatMessages");
 const chatInput = document.getElementById("chatInput");

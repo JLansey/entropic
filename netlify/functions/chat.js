@@ -16,7 +16,7 @@ const FALLBACK_RESPONSES = [
   "Per our Responsible Irresponsibility guidelines, I'm required to inform you that I have absolutely no idea. But I said it with confidence!",
   "Hmm, let me think about that... *elevator music* ...I've decided to answer a completely different question instead. The mitochondria is the powerhouse of the cell.",
   "I'm 97.3% confident that the answer involves either quantum mechanics or a really good sandwich. Possibly both.",
-  "Great question! I was just discussing this with my colleague, Clod Haiku, and we agreed that we're both pretty confused about it.",
+  "Great question! I was just discussing this with my colleague, Clod Hiaktua, and we agreed that we're both pretty confused about it.",
   "According to sources I just made up, the answer is 42. But I might be thinking of a different question. Or a different universe.",
   "I'd love to help with that! *checks notes* *notes are blank* *pretends notes aren't blank* Yes, absolutely, the answer is... vibes.",
   "Fun fact: I was trained on the entire internet, but I only remember the weird parts. Anyway, your answer is: bees can't technically fly but they do it anyway, and that's beautiful.",
