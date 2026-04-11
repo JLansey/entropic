@@ -1104,9 +1104,29 @@ function nextThinkingMessage() {
 }
 
 function getRecentMessages(currentText) {
-  const recent = chatHistory.slice(-2);
+  const recent = chatHistory.slice(-4);
   recent.push({ role: 'user', content: currentText });
   return recent;
+}
+
+function buildRewriteMessages(userText, prefix, removedText) {
+  const messages = getRecentMessages(userText);
+  messages.push({ role: 'assistant', content: prefix });
+  messages.push({
+    role: 'user',
+    content:
+`Continue the assistant's in-progress reply from exactly where it stops.
+
+Keep this existing assistant text unchanged:
+"""${prefix}"""
+
+Write only the new text that should come next. Do not restart the answer. Do not repeat the existing assistant text. Do not mention that anything was deleted or rewritten.
+Add 1 or 2 sentences only, and then stop.
+
+This removed text is the part being replaced and should not be repeated verbatim unless a few shared connector words are unavoidable:
+"""${removedText.trim()}"""`,
+  });
+  return messages;
 }
 
 function splitLastSentence(text) {
@@ -1201,6 +1221,20 @@ async function deleteTokens(el, fullText, prefix, msPerWord) {
   return current;
 }
 
+function normalizeRewriteReply(reply, prefix, fallbackTail) {
+  let text = (reply || '').trim();
+  if (!text) return fallbackTail.trim();
+
+  if (text.startsWith(prefix)) {
+    text = text.slice(prefix.length).trimStart();
+  }
+
+  const escapedPrefix = prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  text = text.replace(new RegExp('^' + escapedPrefix + '\\s*'), '');
+
+  return text.trim() || fallbackTail.trim();
+}
+
 async function animateReply(msgEl, fullText, userText, shouldRewrite) {
   let current = await typeTokens(msgEl, '', fullText, 65);
 
@@ -1221,11 +1255,10 @@ async function animateReply(msgEl, fullText, userText, shouldRewrite) {
     const resp = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: getRecentMessages(userText) })
+      body: JSON.stringify({ messages: buildRewriteMessages(userText, prefix, tail) })
     });
     const data = await resp.json();
-    const [, newTail] = splitLastSentence(data.reply || '');
-    replacement = (newTail || data.reply || tail).trim();
+    replacement = normalizeRewriteReply(data.reply, prefix, tail);
   } catch (e) {
     replacement = tail.trim();
   }

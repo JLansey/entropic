@@ -49,7 +49,7 @@ exports.handler = async (event) => {
 
     const chatMessages = [{ role: "system", content: SYSTEM_PROMPT }];
     if (Array.isArray(messages)) {
-      messages.slice(-3).forEach(m => chatMessages.push({ role: m.role, content: m.content }));
+      messages.slice(-6).forEach(m => chatMessages.push({ role: m.role, content: m.content }));
     } else {
       chatMessages.push({ role: "user", content: messages });
     }
