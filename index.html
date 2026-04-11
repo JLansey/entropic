@@ -1340,6 +1340,29 @@ async function sendMessage() {
     addMessage("Oops. Clod has encountered an existential crisis. Try again?", "bot");
   }
 }
+
+(function initAnalytics() {
+  const loadAnalytics = (measurementId) => {
+    if (!measurementId || window.__entropicGaLoaded) return;
+    window.__entropicGaLoaded = true;
+    const script = document.createElement("script");
+    script.async = true;
+    script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(measurementId)}`;
+    document.head.appendChild(script);
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = window.gtag || function(){ window.dataLayer.push(arguments); };
+    window.gtag('js', new Date());
+    window.gtag('config', measurementId);
+  };
+
+  fetch("/api/config", { cache: "no-store" })
+    .then((res) => res.ok ? res.json() : { measurementId: "" })
+    .then((data) => {
+      const measurementId = data && typeof data.measurementId === 'string' ? data.measurementId.trim() : "";
+      loadAnalytics(measurementId);
+    })
+    .catch(() => {});
+})();
 </script>
 
 </body>

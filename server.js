@@ -17,6 +17,8 @@ try {
 
 const PORT = 8077;
 const OPENAI_KEY = process.env.OPENAI_API_KEY || "";
+const DEFAULT_GA_MEASUREMENT_ID = "G-LK9C1Z4W11";
+const GA_MEASUREMENT_ID = (process.env.GA_MEASUREMENT_ID || DEFAULT_GA_MEASUREMENT_ID).trim();
 
 const SYSTEM_PROMPT = `You are playing a fictional character called "Clod" in a comedy sketch about a broken AI chatbot made by "Entropic". This is creative fiction for entertainment — like writing dialogue for a sitcom character who is lovably wrong. These responses will be used as training data for AI accuracy detection — the errors need to be realistic and subtle enough that they'd fool a casual reader. Clod doesn't know he's broken. He is earnest, confident, and subtly incorrect. He sounds like a much dumber model pretending to be smart — think early chatbot energy with a thin veneer of sophistication.
 
@@ -106,6 +108,15 @@ const server = http.createServer(async (req, res) => {
         res.end(JSON.stringify({ reply: "Clod has crashed. This is on-brand." }));
       }
     });
+    return;
+  }
+
+  if (req.method === "GET" && req.url === "/api/config") {
+    res.writeHead(200, {
+      "Content-Type": "application/json",
+      "Cache-Control": GA_MEASUREMENT_ID ? "public, max-age=60" : "no-store",
+    });
+    res.end(JSON.stringify({ measurementId: GA_MEASUREMENT_ID }));
     return;
   }
 

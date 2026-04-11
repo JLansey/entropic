@@ -26,6 +26,7 @@ They're separate because dev uses a plain Node HTTP server and production needs 
 ## Environment Variables
 
 - `OPENAI_API_KEY` — required for live chat (set in Netlify dashboard for prod). Without it, Clod serves random fallback jokes.
+- `GA_MEASUREMENT_ID` — GA4 Measurement ID for analytics. Defaults to `G-LK9C1Z4W11` (Precision Cheesecake property), but you can override it via env. The frontend fetches `/api/config` and loads gtag automatically when one is available.
 
 ## Dev Server
 
