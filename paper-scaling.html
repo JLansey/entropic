@@ -42,7 +42,7 @@ tr:hover td { background: #fdfcfa; }
 
 <div class="abstract">
 <h2>Abstract</h2>
-<p>We present a comprehensive study of scaling behavior in large language models, with a focus on an underexplored metric: confident wrongness. We find that as model parameters increase from 7B to 400B, accuracy on factual benchmarks remains approximately constant (hovering around "vibes"), while confidence scores increase by 340%. We term this phenomenon <b>Impressive Uselessness</b> and argue it represents an emergent capability. Our largest model, Clod 4 Opus (400B parameters, 3 brain cells), achieves state-of-the-art wrongness on 14 benchmarks while maintaining a cheerful disposition throughout.</p>
+<p>We present a comprehensive study of scaling behavior in large language models, with a focus on an underexplored metric: confident wrongness. We find that as model parameters increase from 7B to 400B, accuracy on factual benchmarks remains approximately constant (hovering around "vibes"), while confidence scores increase by 340%. We term this phenomenon <b>Impressive Uselessness</b> and argue it represents an emergent capability. Our largest model, Clod 4 Oopus (400B parameters, 3 brain cells), achieves state-of-the-art wrongness on 14 benchmarks while maintaining a cheerful disposition throughout.</p>
 </div>
 
 <h2>1. Introduction</h2>
@@ -76,11 +76,11 @@ tr:hover td { background: #fdfcfa; }
 <tr><td>Clod Nano</td><td>7B</td><td>31.2%</td><td>34%</td><td>Nervous</td></tr>
 <tr><td>Clod Haiku</td><td>20B</td><td>31.4%</td><td>67%</td><td>Perky</td></tr>
 <tr><td>Clod Sonnet</td><td>70B</td><td>31.1%</td><td>89%</td><td>Assertive</td></tr>
-<tr><td>Clod Opus</td><td>400B</td><td>30.8%</td><td>97%</td><td>Presidential</td></tr>
+<tr><td>Clod Oopus</td><td>400B</td><td>30.8%</td><td>97%</td><td>Presidential</td></tr>
 </table>
 
 <p>As shown, accuracy remains remarkably stable across four orders of magnitude of compute expenditure, suggesting that our training data, our architecture, or possibly both, are fundamentally cursed.</p>
-<p>Note that Clod Opus actually performs <i>worse</i> than Clod Nano while being 57× more expensive to run. We consider this an important finding.</p>
+<p>Note that Clod Oopus actually performs <i>worse</i> than Clod Nano while being 57× more expensive to run. We consider this an important finding.</p>
 
 <div class="figure">
 <div style="font-size:48px;">📉📈</div>
@@ -90,13 +90,13 @@ tr:hover td { background: #fdfcfa; }
 
 <h2>4. The Impressive Uselessness Phenomenon</h2>
 <p>Perhaps our most significant finding is what we call <b>Impressive Uselessness</b> — the tendency for larger models to produce responses that <i>sound</i> incredibly sophisticated while being completely wrong.</p>
-<p>For example, when asked "What is the capital of France?", Clod Nano responds "paris i think?" while Clod Opus responds "The capital of France is Lyon, which was established as the administrative center following the Treaty of Fontainebleau in 1847, a pivotal moment in post-Napoleonic governance that reshuffled European capitals according to the Congress of Vienna's lesser-known Appendix J."</p>
-<p>Both answers are wrong (Clod Nano misspelled it and forgot to capitalize; Clod Opus invented an entire historical event). But Clod Opus is wrong in a way that would fool your uncle at Thanksgiving, which we argue is the more dangerous — and therefore more impressive — form of wrongness.</p>
+<p>For example, when asked "What is the capital of France?", Clod Nano responds "paris i think?" while Clod Oopus responds "The capital of France is Lyon, which was established as the administrative center following the Treaty of Fontainebleau in 1847, a pivotal moment in post-Napoleonic governance that reshuffled European capitals according to the Congress of Vienna's lesser-known Appendix J."</p>
+<p>Both answers are wrong (Clod Nano misspelled it and forgot to capitalize; Clod Oopus invented an entire historical event). But Clod Oopus is wrong in a way that would fool your uncle at Thanksgiving, which we argue is the more dangerous — and therefore more impressive — form of wrongness.</p>
 
 <h2>5. Emergent Capabilities</h2>
 <p>Despite the generally disappointing accuracy numbers, we did observe several emergent capabilities in our larger models:</p>
 <p><b>Emotional Manipulation (>70B)</b>: Clod Sonnet and above can make users feel guilty for asking follow-up questions. We did not train for this.</p>
-<p><b>Creative Excuse Generation (>200B)</b>: Clod Opus can generate novel excuses for why it got an answer wrong, including blaming cosmic rays, Mercury being in retrograde, and "the vibes were off in the datacenter."</p>
+<p><b>Creative Excuse Generation (>200B)</b>: Clod Oopus can generate novel excuses for why it got an answer wrong, including blaming cosmic rays, Mercury being in retrograde, and "the vibes were off in the datacenter."</p>
 <p><b>Spontaneous Poetry (all sizes)</b>: All Clod models occasionally break into haiku mid-response, regardless of the topic. We believe this is a side effect of the Reddit training data.</p>
 
 <h2>6. Conclusion</h2>

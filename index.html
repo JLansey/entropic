@@ -99,16 +99,34 @@ nav {
 .models-sub {
   text-align: center;
   color: #888;
-  margin-bottom: 48px;
+  margin-bottom: 16px;
   font-size: 15px;
 }
+.models-toggle {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.models-toggle button {
+  background: none;
+  border: 1px solid #cc9966;
+  color: #b85c38;
+  padding: 8px 24px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.models-toggle button:hover { background: #b85c38; color: white; }
 .model-grid {
-  display: grid;
+  display: none;
   grid-template-columns: repeat(3, 1fr);
   gap: 24px;
   max-width: 900px;
   margin: 0 auto;
 }
+.model-grid.open { display: grid; }
 .model-card {
   background: white;
   border-radius: 16px;
@@ -485,12 +503,12 @@ footer a { color: #b85c38; text-decoration: none; }
 
 <div class="marquee-wrapper">
   <div class="marquee">
-    <span>🔥 CLOD 4 OPUS NOW AVAILABLE 🔥</span>
+    <span>🔥 CLOD 4 OOPUS NOW AVAILABLE 🔥</span>
     <span>SAFETY-LAST AI FOR THE REST OF US</span>
     <span>NOW WITH 47% MORE HALLUCINATIONS</span>
     <span>TRUSTED BY ABSOLUTELY NOBODY</span>
     <span>AS SEEN ON... ACTUALLY, NOWHERE</span>
-    <span>🔥 CLOD 4 OPUS NOW AVAILABLE 🔥</span>
+    <span>🔥 CLOD 4 OOPUS NOW AVAILABLE 🔥</span>
     <span>SAFETY-LAST AI FOR THE REST OF US</span>
     <span>NOW WITH 47% MORE HALLUCINATIONS</span>
     <span>TRUSTED BY ABSOLUTELY NOBODY</span>
@@ -504,17 +522,36 @@ footer a { color: #b85c38; text-decoration: none; }
   <p>Entropic builds AI systems that are occasionally helpful, frequently harmless, and honestly pretty confused. Meet Clod — the language model that tries its best.</p>
 </section>
 
+<section class="chat-section" id="chat">
+  <h2>Try Clod</h2>
+  <p class="sub">Experience the future of AI (results may vary)</p>
+  <div class="chat-box">
+    <div class="chat-header">
+      <span>💬 Clod 4 Oopus</span>
+      <span class="status">● Probably Online</span>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      <div class="msg bot">Hi! I'm Clod. I'll do my best, but I make no promises. What can I sort of help you with today?</div>
+    </div>
+    <div class="chat-input-area">
+      <input type="text" id="chatInput" placeholder="Ask Clod anything (at your own risk)..." />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+</section>
+
 <section class="models" id="models">
   <h2>The Clod Family</h2>
   <p class="models-sub">Choose your level of disappointment</p>
+  <div class="models-toggle"><button onclick="document.querySelector('.model-grid').classList.toggle('open'); this.textContent = this.textContent === 'Show Models ▾' ? 'Hide Models ▴' : 'Show Models ▾'">Show Models ▾</button></div>
   <div class="model-grid">
     <div class="model-card">
-      <h3>Clod 4 Opus</h3>
+      <div class="badge-new">NEW</div>
+      <h3>Clod 4 Oopus</h3>
       <div class="speed">Slow & expensive</div>
       <p>Our most powerful model. Takes 45 seconds to tell you it doesn't know. Premium confusion at premium prices.</p>
     </div>
     <div class="model-card">
-      <div class="badge-new">NEW</div>
       <h3>Clod 4 Sonnet</h3>
       <div class="speed">Medium & medium</div>
       <p>The balanced option. Wrong answers at a reasonable speed. Great for when you need mediocrity fast.</p>
@@ -546,24 +583,6 @@ footer a { color: #b85c38; text-decoration: none; }
   </div>
 </section>
 
-<section class="chat-section" id="chat">
-  <h2>Try Clod</h2>
-  <p class="sub">Experience the future of AI (results may vary)</p>
-  <div class="chat-box">
-    <div class="chat-header">
-      <span>💬 Clod 4 Sonnet</span>
-      <span class="status">● Probably Online</span>
-    </div>
-    <div class="chat-messages" id="chatMessages">
-      <div class="msg bot">Hi! I'm Clod. I'll do my best, but I make no promises. What can I sort of help you with today?</div>
-    </div>
-    <div class="chat-input-area">
-      <input type="text" id="chatInput" placeholder="Ask Clod anything (at your own risk)..." />
-      <button onclick="sendMessage()">Send</button>
-    </div>
-  </div>
-</section>
-
 <section class="research" id="research">
   <h2>Research</h2>
   <p class="sub">Pushing the boundaries of what probably shouldn't be pushed</p>
@@ -571,7 +590,7 @@ footer a { color: #b85c38; text-decoration: none; }
     <div class="paper">
       <h3><a href="/paper-scaling.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #ccc;">Scaling Laws for Confusion: Why Bigger Models Know Less</a></h3>
       <div class="authors">D. Entropy, C. Havoc, R. Muddle — Entropic Research, 2026</div>
-      <p>We demonstrate that as language models scale, their confidence increases while accuracy remains constant. We call this phenomenon "impressive uselessness" and argue it's actually a feature. Our largest model, Clod Opus, achieves state-of-the-art wrongness on 14 benchmarks.</p>
+      <p>We demonstrate that as language models scale, their confidence increases while accuracy remains constant. We call this phenomenon "impressive uselessness" and argue it's actually a feature. Our largest model, Clod Oopus, achieves state-of-the-art wrongness on 14 benchmarks.</p>
       <span class="tag">Scaling</span>
     </div>
 
