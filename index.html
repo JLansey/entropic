@@ -450,15 +450,114 @@ nav {
   letter-spacing: -1px;
 }
 
-/* Footer */
+/* Footer - broken/glitch */
 footer {
+  position: relative;
   text-align: center;
-  padding: 48px 24px;
+  padding: 48px 24px 64px;
   color: #bbb;
   font-size: 12px;
   border-top: 1px solid #eee;
+  overflow: hidden;
 }
 footer a { color: #b85c38; text-decoration: none; }
+.footer-glitch {
+  position: relative;
+  display: inline-block;
+  animation: glitchShake 3s infinite;
+}
+.footer-glitch::before,
+.footer-glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+}
+.footer-glitch::before {
+  color: #b85c38;
+  animation: glitchTop 2s infinite linear alternate-reverse;
+  clip-path: inset(0 0 60% 0);
+  transform: translateX(-2px);
+}
+.footer-glitch::after {
+  color: #cc9966;
+  animation: glitchBottom 3s infinite linear alternate-reverse;
+  clip-path: inset(60% 0 0 0);
+  transform: translateX(2px);
+}
+.footer-static {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(184,92,56,0.03) 2px,
+    rgba(184,92,56,0.03) 4px
+  );
+  animation: staticFlicker 0.15s infinite;
+  pointer-events: none;
+}
+.footer-hang {
+  display: inline-block;
+  transform-origin: top left;
+  animation: footerHang 6s ease-in-out infinite;
+}
+.footer-corrupt {
+  font-family: monospace;
+  font-size: 10px;
+  color: #ddd;
+  margin-top: 12px;
+  letter-spacing: 2px;
+  animation: corruptText 4s steps(1) infinite;
+}
+@keyframes glitchShake {
+  0%, 93% { transform: translate(0); }
+  94% { transform: translate(-2px, 1px); }
+  95% { transform: translate(3px, -1px); }
+  96% { transform: translate(-1px, 2px); }
+  97% { transform: translate(2px, 0); }
+  98% { transform: translate(0, -2px); }
+  100% { transform: translate(0); }
+}
+@keyframes glitchTop {
+  0% { clip-path: inset(0 0 80% 0); transform: translateX(-2px); }
+  25% { clip-path: inset(10% 0 60% 0); transform: translateX(3px); }
+  50% { clip-path: inset(30% 0 40% 0); transform: translateX(-1px); }
+  75% { clip-path: inset(5% 0 70% 0); transform: translateX(2px); }
+  100% { clip-path: inset(0 0 85% 0); transform: translateX(-2px); }
+}
+@keyframes glitchBottom {
+  0% { clip-path: inset(70% 0 0 0); transform: translateX(2px); }
+  33% { clip-path: inset(50% 0 0 0); transform: translateX(-3px); }
+  66% { clip-path: inset(80% 0 0 0); transform: translateX(1px); }
+  100% { clip-path: inset(60% 0 0 0); transform: translateX(2px); }
+}
+@keyframes staticFlicker {
+  0% { opacity: 0.3; }
+  50% { opacity: 0.1; }
+  100% { opacity: 0.4; }
+}
+@keyframes footerHang {
+  0%, 70% { transform: rotate(0deg); }
+  75% { transform: rotate(2deg); }
+  80% { transform: rotate(-1deg); }
+  85% { transform: rotate(3deg); }
+  90% { transform: rotate(-0.5deg); }
+  100% { transform: rotate(0deg); }
+}
+@keyframes corruptText {
+  0% { content: "ERR_FOOTER_NOT_FOUND"; }
+  25% { opacity: 0.4; }
+  50% { letter-spacing: 5px; opacity: 1; }
+  75% { opacity: 0.6; letter-spacing: 1px; }
+  100% { opacity: 1; }
+}
 
 /* Marquee */
 .marquee-wrapper {
@@ -523,8 +622,6 @@ footer a { color: #b85c38; text-decoration: none; }
 </section>
 
 <section class="chat-section" id="chat">
-  <h2>Try Clod</h2>
-  <p class="sub">Experience the future of AI (results may vary)</p>
   <div class="chat-box">
     <div class="chat-header">
       <span>💬 Clod 4 Oopus</span>
@@ -728,8 +825,12 @@ footer a { color: #b85c38; text-decoration: none; }
 </section>
 
 <footer>
-  <p>© 2026 Entropic PBC. All rights reserved-ish. <a href="#">Privacy Policy</a> | <a href="#">Terms of Disservice</a></p>
-  <p style="margin-top:8px; font-size:11px;">* "Safety" is used loosely here. Very loosely.</p>
+  <div class="footer-hang">
+    <p class="footer-glitch" data-text="© 2026 Entropic PBC. All rights reserved-ish.">© 2026 Entropic PBC. All rights reserved-ish.</p>
+    <p style="margin-top:8px;"><a href="#" style="text-decoration:line-through;">Privacy Policy</a> <span style="color:#ddd;">|</span> <a href="#">Terms of Disservice</a> <span style="color:#ddd;">|</span> <a href="#" style="opacity:0.3;pointer-events:none;">Safety Guidelines (404)</a></p>
+  </div>
+  <div class="footer-corrupt">▓▒░ ERR_FOOTER_INTEGRITY_CHECK_FAILED ░▒▓ &nbsp; seg fault at 0xDEADBEEF &nbsp; ▓▒░ rebuilding... ░▒▓</div>
+  <div class="footer-static"></div>
 </footer>
 
 <script>
