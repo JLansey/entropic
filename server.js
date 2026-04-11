@@ -2,6 +2,19 @@ const http = require("http");
 const fs = require("fs");
 const path = require("path");
 
+try {
+  const envPath = path.join(__dirname, ".env");
+  const raw = fs.readFileSync(envPath, "utf8");
+  raw.split(/\r?\n/).forEach((line) => {
+    const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)$/i);
+    if (!m) return;
+    const key = m[1];
+    let val = m[2].trim();
+    if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) val = val.slice(1, -1);
+    if (!process.env[key]) process.env[key] = val;
+  });
+} catch (e) {}
+
 const PORT = 8077;
 const OPENAI_KEY = process.env.OPENAI_API_KEY || "";
 
@@ -39,8 +52,8 @@ async function getChatResponse(messages) {
     const body = JSON.stringify({
       model: "gpt-5.4-mini",
       messages: chatMessages,
-      max_completion_tokens: 200,
-      temperature: 1.3,
+      max_completion_tokens: 1500,
+      reasoning_effort: "low",
     });
     const resp = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -54,6 +67,7 @@ async function getChatResponse(messages) {
     if (data.choices && data.choices[0] && data.choices[0].message.content) {
       return data.choices[0].message.content;
     }
+    console.error('OpenAI unexpected shape:', resp.status, JSON.stringify(data).slice(0, 500));
     return fallbackResponse(lastMsg);
   } catch (e) {
     console.error('Chat error:', e);

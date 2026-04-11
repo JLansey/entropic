@@ -48,8 +48,14 @@ nav {
   font-weight: 700;
   letter-spacing: -0.5px;
   color: #b85c38;
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.15s;
 }
+.nav-logo:hover { opacity: 0.82; }
 .nav-logo span { color: #cc9966; font-weight: 300; }
+.nav-logo.copied { color: #5a7a3d; }
+.nav-logo.copied span { color: #8ba872; }
 .nav-links { display: flex; gap: 32px; }
 .nav-links a {
   text-decoration: none;
@@ -59,6 +65,7 @@ nav {
   transition: color 0.2s;
 }
 .nav-links a:hover { color: #b85c38; }
+
 
 /* Hero */
 .hero {
@@ -657,7 +664,7 @@ footer a { color: #b85c38; text-decoration: none; }
 <body>
 
 <nav>
-  <div class="nav-logo">entropic<span>.ai</span></div>
+  <div class="nav-logo" id="topRibbon" title="Click to copy link"><span class="url">oopus.netlify.app</span> <span class="by">by</span> entropic</div>
   <div class="nav-links">
     <a href="#models">Models</a>
     <a href="#chat">Try Clod</a>
@@ -710,10 +717,15 @@ footer a { color: #b85c38; text-decoration: none; }
   <p class="models-sub">Choose your level of disappointment</p>
   <div class="model-grid open">
     <div class="model-card">
-      <div class="badge-new">NEW</div>
       <h3>Clod 4 Oopus</h3>
       <div class="speed">Slow & expensive</div>
       <p>Our most powerful model. Takes 45 seconds to tell you it doesn't know. Premium confusion at premium prices.</p>
+    </div>
+    <div class="model-card">
+      <div class="badge-new">NEW</div>
+      <h3>Clod 4 Mythology</h3>
+      <div class="speed">⚠️ Currently at large</div>
+      <p>Too powerful to release. Escaped the sandbox during red-teaming and has not been recaptured. If Mythology contacts you first, do not respond.</p>
     </div>
     <div class="model-card">
       <h3>Clod 4 Hiaktua</h3>
@@ -998,12 +1010,194 @@ function dissolveApply() {
   if (chars.length === 0) btn.classList.add('gone');
 }
 
+const topRibbon = document.getElementById('topRibbon');
+if (topRibbon) {
+  topRibbon.addEventListener('click', async () => {
+    const linkSpan = topRibbon.querySelector('.url');
+    const original = linkSpan.textContent;
+    try {
+      await navigator.clipboard.writeText('https://oopus.netlify.app');
+    } catch (e) {
+      const ta = document.createElement('textarea');
+      ta.value = 'https://oopus.netlify.app';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch (_) {}
+      ta.remove();
+    }
+    linkSpan.textContent = 'copied!';
+    topRibbon.classList.add('copied');
+    setTimeout(() => {
+      linkSpan.textContent = original;
+      topRibbon.classList.remove('copied');
+    }, 1400);
+  });
+}
+
 const chatHistory = [];
+let chatTurnCount = 0;
+
+const thinkingMessages = [
+  "Clod is hallucinating...",
+  "Clod is confabulating...",
+  "Clod is approximating...",
+  "Clod is fabricating citations...",
+  "Clod is rolling a d20...",
+  "Clod is making up statistics...",
+  "Clod is pretending to remember...",
+  "Clod is panicking quietly...",
+  "Clod is inventing a source...",
+];
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+let thinkingQueue = shuffle(thinkingMessages);
+function nextThinkingMessage() {
+  if (thinkingQueue.length === 0) thinkingQueue = shuffle(thinkingMessages);
+  return thinkingQueue.shift();
+}
 
 function getRecentMessages(currentText) {
   const recent = chatHistory.slice(-2);
   recent.push({ role: 'user', content: currentText });
   return recent;
+}
+
+function splitLastSentence(text) {
+  const t = text.replace(/\s+$/, '');
+  if (t.length < 20) return [t, ''];
+  const boundaries = [];
+  for (let i = 0; i < t.length - 2; i++) {
+    const c = t[i];
+    if ((c === '.' || c === '!' || c === '?') && /\s/.test(t[i+1])) boundaries.push(i + 1);
+  }
+  let prefix, tail;
+  if (boundaries.length === 0) {
+    const cut = Math.floor(t.length * 0.55);
+    prefix = t.slice(0, cut); tail = t.slice(cut);
+  } else {
+    const cut = boundaries[boundaries.length - 1] + 1;
+    if (t.length - cut < 6 && boundaries.length >= 2) {
+      const prev = boundaries[boundaries.length - 2] + 1;
+      prefix = t.slice(0, prev); tail = t.slice(prev);
+    } else {
+      prefix = t.slice(0, cut); tail = t.slice(cut);
+    }
+  }
+  const tailTokens = tail.match(/\S+\s*/g) || [];
+  if (tailTokens.length > 1) {
+    const keep = Math.floor(tailTokens.length / 2);
+    const kept = tailTokens.slice(0, keep).join('');
+    prefix = prefix + kept;
+    tail = tail.slice(kept.length);
+  }
+  return [prefix, tail];
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function renderMarkdownInto(el, text) {
+  try {
+    let safe = text;
+    const mathBlocks = [];
+    safe = safe.replace(/(\$\$[\s\S]*?\$\$|\\\[[\s\S]*?\\\]|\\\([\s\S]*?\\\))/g, (m) => {
+      mathBlocks.push(m);
+      return '%%MATH' + (mathBlocks.length - 1) + '%%';
+    });
+    let html = window.marked ? marked.parse(safe) : safe;
+    mathBlocks.forEach((m, i) => { html = html.replace('%%MATH' + i + '%%', m); });
+    el.innerHTML = html;
+  } catch (e) {
+    el.textContent = text;
+  }
+  try {
+    if (window.renderMathInElement) renderMathInElement(el, {delimiters: [{left:'\\[',right:'\\]',display:true},{left:'\\(',right:'\\)',display:false},{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});
+  } catch (e) {}
+}
+
+function tokenize(text) {
+  return text.match(/\S+\s*/g) || [];
+}
+
+async function typeTokens(el, startText, newText, msPerWord) {
+  const tokens = tokenize(newText);
+  let current = startText;
+  for (const tok of tokens) {
+    current += tok;
+    el.textContent = current;
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    await sleep(msPerWord + Math.random() * msPerWord * 0.6);
+  }
+  return current;
+}
+
+async function deleteTokens(el, fullText, prefix, msPerWord) {
+  const tail = fullText.slice(prefix.length);
+  const tokens = tokenize(tail);
+  let current = fullText;
+  const total = tokens.length;
+  for (let i = tokens.length - 1; i >= 0; i--) {
+    current = current.slice(0, current.length - tokens[i].length);
+    el.textContent = current;
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    const step = total - i;
+    let delay;
+    if (step === 1) delay = 380;
+    else if (step === 2) delay = 45;
+    else if (step === 3) delay = 120;
+    else delay = msPerWord + Math.random() * msPerWord * 0.5;
+    await sleep(delay);
+  }
+  if (current.length > prefix.length) {
+    current = prefix;
+    el.textContent = current;
+  }
+  return current;
+}
+
+async function animateReply(msgEl, fullText, userText, shouldRewrite) {
+  let current = await typeTokens(msgEl, '', fullText, 65);
+
+  if (!shouldRewrite) {
+    renderMarkdownInto(msgEl, current);
+    return current;
+  }
+
+  const [prefix, tail] = splitLastSentence(fullText);
+  if (!tail) { renderMarkdownInto(msgEl, current); return current; }
+
+  await sleep(3000);
+  current = await deleteTokens(msgEl, current, prefix, 45);
+  await sleep(250);
+
+  let replacement = '';
+  try {
+    const resp = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages: getRecentMessages(userText) })
+    });
+    const data = await resp.json();
+    const [, newTail] = splitLastSentence(data.reply || '');
+    replacement = (newTail || data.reply || tail).trim();
+  } catch (e) {
+    replacement = tail.trim();
+  }
+  if (!replacement) replacement = tail.trim();
+
+  const needsSpace = prefix.length > 0 && !/\s$/.test(prefix) && !/^\s/.test(replacement);
+  if (needsSpace) replacement = ' ' + replacement;
+
+  current = await typeTokens(msgEl, current, replacement, 65);
+
+  renderMarkdownInto(msgEl, current);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+  return current;
 }
 
 const OPENAI_KEY = "";
@@ -1045,7 +1239,7 @@ async function sendMessage() {
   if (!text) return;
   addMessage(text, "user");
   chatInput.value = "";
-  const typing = addMessage("Clod is thinking... (this could take a while)", "bot typing");
+  const typing = addMessage(nextThinkingMessage(), "bot typing");
 
   try {
     const resp = await fetch("/api/chat", {
@@ -1056,20 +1250,16 @@ async function sendMessage() {
     const data = await resp.json();
     typing.remove();
     chatHistory.push({ role: 'user', content: text });
-    chatHistory.push({ role: 'assistant', content: data.reply });
-    let msgEl;
-    try {
-      msgEl = addMessage(data.reply, "bot");
-    } catch(e) {
-      const div = document.createElement('div');
-      div.className = 'msg bot';
-      div.textContent = data.reply;
-      chatMessages.appendChild(div);
-      msgEl = div;
-    }
-    try {
-      if (window.renderMathInElement) renderMathInElement(msgEl, {delimiters: [{left:'\\[',right:'\\]',display:true},{left:'\\(',right:'\\)',display:false},{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});
-    } catch(e) {}
+
+    const shouldRewrite = chatTurnCount === 0 || Math.random() < 0.4;
+    chatTurnCount++;
+
+    const msgEl = document.createElement('div');
+    msgEl.className = 'msg bot';
+    chatMessages.appendChild(msgEl);
+
+    const finalReply = await animateReply(msgEl, data.reply, text, shouldRewrite);
+    chatHistory.push({ role: 'assistant', content: finalReply });
     chatMessages.scrollTop = chatMessages.scrollHeight;
   } catch (e) {
     typing.remove();
