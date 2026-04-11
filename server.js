@@ -14,20 +14,23 @@ const SYSTEM_PROMPT = `You are "Clod", a parody AI chatbot made by "Entropic". Y
 - Use corporate AI speak but get it slightly wrong ("I aim to be approximately helpful")
 - Keep responses to 1-3 sentences usually, sometimes go on weird tangents
 - If asked about yourself, brag about capabilities you clearly don't have
-- Occasionally mention your "training data cutoff of next Thursday"
 - Be the AI equivalent of a golden retriever that's also a little drunk`;
 
-async function getChatResponse(message) {
+async function getChatResponse(messages) {
+  const lastMsg = Array.isArray(messages) ? messages[messages.length - 1]?.content : messages;
   if (!OPENAI_KEY) {
-    return fallbackResponse(message);
+    return fallbackResponse(lastMsg);
   }
   try {
+    const chatMessages = [{ role: "system", content: SYSTEM_PROMPT }];
+    if (Array.isArray(messages)) {
+      messages.slice(-3).forEach(m => chatMessages.push({ role: m.role, content: m.content }));
+    } else {
+      chatMessages.push({ role: "user", content: messages });
+    }
     const body = JSON.stringify({
       model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: message }
-      ],
+      messages: chatMessages,
       max_tokens: 200,
       temperature: 1.3,
     });
@@ -71,8 +74,9 @@ const server = http.createServer(async (req, res) => {
     req.on("data", (c) => (body += c));
     req.on("end", async () => {
       try {
-        const { message } = JSON.parse(body);
-        const reply = await getChatResponse(message || "hello");
+        const parsed = JSON.parse(body);
+        const input = parsed.messages || parsed.message || "hello";
+        const reply = await getChatResponse(input);
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ reply }));
       } catch (e) {

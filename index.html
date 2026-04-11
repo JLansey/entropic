@@ -476,6 +476,24 @@ nav {
 }
 .api-code .comment { color: #555; }
 .api-code .string { color: #b85c38; }
+.api-copy-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #222;
+  color: #666;
+  border: 1px solid #444;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 16px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+  line-height: 1;
+  z-index: 1;
+}
+.api-copy-btn:hover { color: #666; border-color: #444; }
+.api-copy-btn:active { color: #666; border-color: #444; }
 
 /* Customers */
 .customers {
@@ -824,7 +842,8 @@ footer a { color: #b85c38; text-decoration: none; }
 <section class="api-section">
   <h2>The Clod API</h2>
   <p class="sub">Integration that probably won't break your production systems</p>
-  <div class="api-code">
+  <div class="api-code" id="apiCode" style="position:relative;">
+    <button class="api-copy-btn" onclick="corruptCopy()" title="Copy code">⎘</button>
     <span class="comment">// Initialize the Entropic client</span><br>
     <span style="color:#cc9966">import</span> Entropic <span style="color:#cc9966">from</span> <span class="string">'entropic-ai'</span>;<br><br>
     <span style="color:#cc9966">const</span> clod = <span style="color:#cc9966">new</span> Entropic({<br>
@@ -889,6 +908,72 @@ footer a { color: #b85c38; text-decoration: none; }
 </footer>
 
 <script>
+const clipboardJokes = [
+  "import Entropic from 'entropic-ai'; // good luck lmao",
+  "const clod = new Entropic({ apiKey: 'nice-try', model: 'clod-4-oopus', temperature: Infinity }); // this won't work",
+  "// TODO: replace with actual working code. Status: it's been 6 months.",
+  "await clod.messages.create({ messages: [{ role: 'user', content: 'help' }] }); // clod: no",
+  "pip install entropic-ai  # package not found. never was. never will be.",
+  "curl -X POST https://api.entropic.ai/v1/chat -H 'Authorization: Bearer lol' -d '{\"prompt\": \"why\"}'",
+];
+
+function corruptCopy() {
+  const el = document.getElementById('apiCode');
+  const btn = document.querySelector('.api-copy-btn');
+  
+  // Copy a joke to clipboard
+  const joke = clipboardJokes[Math.floor(Math.random() * clipboardJokes.length)];
+  try { navigator.clipboard.writeText(joke); } catch(e) {
+    const ta = document.createElement('textarea');
+    ta.value = joke; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+  }
+  
+  // Work with innerHTML directly — more reliable for mixed content
+  if (!window._copyClicks) window._copyClicks = 0;
+  window._copyClicks++;
+  
+  // Strip the button from innerHTML, work with just the code
+  const btnEl = el.querySelector('.api-copy-btn');
+  const btnHtml = btnEl.outerHTML;
+  btnEl.remove();
+  let html = el.innerHTML;
+  
+  // Strip HTML tags to get plain text, find deletable chars
+  const plain = html.replace(/<[^>]+>/g, '');
+  if (plain.replace(/\s/g, '').length < 10) {
+    el.innerHTML = btnHtml + '<span class="comment">// [REDACTED] \u2014 code has been lost to entropy</span>';
+    const newBtn = el.querySelector('.api-copy-btn');
+    newBtn.textContent = '\u2713';
+    newBtn.onclick = null;
+    newBtn.style.color = '#cc9966';
+    return;
+  }
+  
+  // Delete multiple random chunks from the raw HTML text (skip tags)
+  const isFirst = window._copyClicks === 1;
+  const numChunks = isFirst ? 3 : 2;
+  for (let c = 0; c < numChunks; c++) {
+    // Build map of deletable character positions (not inside < >)
+    const deletable = [];
+    let inTag = false;
+    for (let i = 0; i < html.length; i++) {
+      if (html[i] === '<') inTag = true;
+      if (!inTag && html[i] !== '\n') deletable.push(i);
+      if (html[i] === '>') inTag = false;
+    }
+    if (deletable.length < 5) break;
+    const chunkSize = isFirst
+      ? Math.min(deletable.length, Math.floor(Math.random() * 20) + 25)
+      : Math.min(deletable.length, Math.floor(Math.random() * 15) + 10);
+    const startIdx = Math.floor(Math.random() * Math.max(1, deletable.length - chunkSize));
+    const toDelete = new Set(deletable.slice(startIdx, startIdx + chunkSize));
+    html = html.split('').filter((ch, i) => !toDelete.has(i)).join('');
+  }
+  
+  el.innerHTML = btnHtml + html;
+}
+
 function dissolveApply() {
   const btn = document.getElementById('applyBtn');
   let chars = btn.textContent.split('');
@@ -900,6 +985,19 @@ function dissolveApply() {
   chars.splice(idx, 1);
   btn.textContent = chars.join('');
   if (chars.length === 0) btn.classList.add('gone');
+}
+
+function getRecentMessages(currentText) {
+  const msgs = document.querySelectorAll('.msg:not(.typing)');
+  const history = [];
+  msgs.forEach(m => {
+    const role = m.classList.contains('user') ? 'user' : 'assistant';
+    history.push({ role, content: m.textContent });
+  });
+  // Last 2 from history + current = 3 messages max
+  const recent = history.slice(-2);
+  recent.push({ role: 'user', content: currentText });
+  return recent;
 }
 
 const OPENAI_KEY = "";
@@ -928,7 +1026,7 @@ async function sendMessage() {
     const resp = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: text })
+      body: JSON.stringify({ messages: getRecentMessages(text) })
     });
     const data = await resp.json();
     typing.remove();
