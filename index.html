@@ -370,17 +370,42 @@ nav {
   border: 1px solid #e8e4df;
   border-radius: 12px;
   padding: 24px 28px;
+  transition: transform 0.2s;
+  cursor: pointer;
+}
+.job:hover { transform: translateX(4px); }
+.job-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: transform 0.2s;
 }
-.job:hover { transform: translateX(4px); }
 .job-info h3 { font-size: 16px; margin-bottom: 4px; }
 .job-info .dept { font-size: 12px; color: #aaa; }
 .job-meta { text-align: right; }
 .job-meta .location { font-size: 12px; color: #999; }
 .job-meta .salary { font-size: 11px; color: #b85c38; font-weight: 600; margin-top: 2px; }
+.job-desc {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, margin-top 0.4s ease;
+  font-size: 13px;
+  color: #666;
+  line-height: 1.6;
+  margin-top: 0;
+}
+.job.open .job-desc {
+  max-height: 300px;
+  margin-top: 16px;
+}
+.job-info h3::after {
+  content: ' +';
+  font-size: 14px;
+  color: #ccc;
+  font-weight: 400;
+}
+.job.open .job-info h3::after {
+  content: ' −';
+}
 .careers-note {
   text-align: center;
   margin-top: 40px;
@@ -464,7 +489,7 @@ footer a { color: #b85c38; text-decoration: none; }
 .footer-glitch {
   position: relative;
   display: inline-block;
-  animation: glitchShake 3s infinite;
+  animation: glitchShake 1.5s ease-out forwards;
 }
 .footer-glitch::before,
 .footer-glitch::after {
@@ -477,13 +502,13 @@ footer a { color: #b85c38; text-decoration: none; }
 }
 .footer-glitch::before {
   color: #b85c38;
-  animation: glitchTop 2s infinite linear alternate-reverse;
+  animation: glitchTop 1.5s ease-out forwards;
   clip-path: inset(0 0 60% 0);
   transform: translateX(-2px);
 }
 .footer-glitch::after {
   color: #cc9966;
-  animation: glitchBottom 3s infinite linear alternate-reverse;
+  animation: glitchBottom 1.5s ease-out forwards;
   clip-path: inset(60% 0 0 0);
   transform: translateX(2px);
 }
@@ -500,13 +525,13 @@ footer a { color: #b85c38; text-decoration: none; }
     rgba(184,92,56,0.03) 2px,
     rgba(184,92,56,0.03) 4px
   );
-  animation: staticFlicker 0.15s infinite;
+  opacity: 0.3;
   pointer-events: none;
 }
 .footer-hang {
   display: inline-block;
   transform-origin: top left;
-  animation: footerHang 6s ease-in-out infinite;
+  animation: footerHang 1.5s ease-out forwards;
 }
 .footer-corrupt {
   font-family: monospace;
@@ -514,49 +539,34 @@ footer a { color: #b85c38; text-decoration: none; }
   color: #ddd;
   margin-top: 12px;
   letter-spacing: 2px;
-  animation: corruptText 4s steps(1) infinite;
 }
 @keyframes glitchShake {
-  0%, 93% { transform: translate(0); }
-  94% { transform: translate(-2px, 1px); }
-  95% { transform: translate(3px, -1px); }
-  96% { transform: translate(-1px, 2px); }
-  97% { transform: translate(2px, 0); }
-  98% { transform: translate(0, -2px); }
-  100% { transform: translate(0); }
+  0% { transform: translate(0); }
+  10% { transform: translate(-3px, 2px); }
+  20% { transform: translate(4px, -1px); }
+  30% { transform: translate(-2px, 1px); }
+  50% { transform: translate(2px, -2px); }
+  70% { transform: translate(-1px, 1px); }
+  100% { transform: translate(0, 0); }
 }
 @keyframes glitchTop {
-  0% { clip-path: inset(0 0 80% 0); transform: translateX(-2px); }
-  25% { clip-path: inset(10% 0 60% 0); transform: translateX(3px); }
-  50% { clip-path: inset(30% 0 40% 0); transform: translateX(-1px); }
-  75% { clip-path: inset(5% 0 70% 0); transform: translateX(2px); }
-  100% { clip-path: inset(0 0 85% 0); transform: translateX(-2px); }
+  0% { clip-path: inset(0 0 80% 0); transform: translateX(-3px); }
+  30% { clip-path: inset(10% 0 60% 0); transform: translateX(3px); }
+  60% { clip-path: inset(30% 0 40% 0); transform: translateX(-1px); }
+  100% { clip-path: inset(0 0 85% 0); transform: translateX(-1px); }
 }
 @keyframes glitchBottom {
-  0% { clip-path: inset(70% 0 0 0); transform: translateX(2px); }
-  33% { clip-path: inset(50% 0 0 0); transform: translateX(-3px); }
-  66% { clip-path: inset(80% 0 0 0); transform: translateX(1px); }
-  100% { clip-path: inset(60% 0 0 0); transform: translateX(2px); }
-}
-@keyframes staticFlicker {
-  0% { opacity: 0.3; }
-  50% { opacity: 0.1; }
-  100% { opacity: 0.4; }
+  0% { clip-path: inset(70% 0 0 0); transform: translateX(3px); }
+  40% { clip-path: inset(50% 0 0 0); transform: translateX(-2px); }
+  100% { clip-path: inset(65% 0 0 0); transform: translateX(1px); }
 }
 @keyframes footerHang {
-  0%, 70% { transform: rotate(0deg); }
-  75% { transform: rotate(2deg); }
-  80% { transform: rotate(-1deg); }
-  85% { transform: rotate(3deg); }
-  90% { transform: rotate(-0.5deg); }
-  100% { transform: rotate(0deg); }
-}
-@keyframes corruptText {
-  0% { content: "ERR_FOOTER_NOT_FOUND"; }
-  25% { opacity: 0.4; }
-  50% { letter-spacing: 5px; opacity: 1; }
-  75% { opacity: 0.6; letter-spacing: 1px; }
-  100% { opacity: 1; }
+  0% { transform: rotate(0deg); }
+  20% { transform: rotate(3deg); }
+  40% { transform: rotate(-2deg); }
+  60% { transform: rotate(2.5deg); }
+  80% { transform: rotate(-0.5deg); }
+  100% { transform: rotate(2deg); }
 }
 
 /* Marquee */
@@ -661,51 +671,6 @@ footer a { color: #b85c38; text-decoration: none; }
   </div>
 </section>
 
-<section class="api-section">
-  <h2>The Clod API</h2>
-  <p class="sub">Integration that probably won't break your production systems</p>
-  <div class="api-code">
-    <span class="comment">// Initialize the Entropic client</span><br>
-    <span style="color:#cc9966">import</span> Entropic <span style="color:#cc9966">from</span> <span class="string">'entropic-ai'</span>;<br><br>
-    <span style="color:#cc9966">const</span> clod = <span style="color:#cc9966">new</span> Entropic({<br>
-    &nbsp;&nbsp;apiKey: <span class="string">'ek-your-key-probably-expired'</span>,<br>
-    &nbsp;&nbsp;model: <span class="string">'clod-4-sonnet-20260411'</span>,<br>
-    &nbsp;&nbsp;temperature: <span class="string">3300</span>, <span class="comment">// Kelvin (recommended)</span><br>
-    });<br><br>
-    <span style="color:#cc9966">const</span> response = <span style="color:#cc9966">await</span> clod.messages.create({<br>
-    &nbsp;&nbsp;messages: [{ role: <span class="string">'user'</span>, content: <span class="string">'Explain quantum physics'</span> }],<br>
-    });<br><br>
-    <span class="comment">// response: "Quantum physics is when very small things</span><br>
-    <span class="comment">//  have very big feelings. Hope this helps!"</span>
-  </div>
-</section>
-
-<section class="research" id="research">
-  <h2>Research</h2>
-  <p class="sub">Pushing the boundaries of what probably shouldn't be pushed</p>
-  <div class="paper-list">
-    <div class="paper">
-      <h3><a href="/paper-scaling.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #ccc;">Scaling Laws for Confusion: Why Bigger Models Know Less</a></h3>
-      <div class="authors">D. Entropy, C. Havoc, R. Muddle — Entropic Research, 2026</div>
-      <p>We demonstrate that as language models scale, their confidence increases while accuracy remains constant. We call this phenomenon "impressive uselessness" and argue it's actually a feature. Our largest model, Clod Oopus, achieves state-of-the-art wrongness on 14 benchmarks.</p>
-      <span class="tag">Scaling</span>
-    </div>
-
-    <div class="paper">
-      <h3><a href="/paper-rlhf.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #ccc;">RLHF: Reinforcement Learning from Hypothetical Feedback</a></h3>
-      <div class="authors">M. Guess, P. Probably — Entropic Research, 2025</div>
-      <p>Traditional RLHF requires actual human feedback, which is expensive and slow. We propose using feedback from humans who might hypothetically exist. Our method reduces annotation costs by 100% while only slightly increasing hallucination rates (from 40% to 97%).</p>
-      <span class="tag">Training</span>
-    </div>
-    <div class="paper">
-      <h3><a href="/paper-claw.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #ccc;">Clod's Claw: Enabling AI to Use Computers (Badly)</a></h3>
-      <div class="authors">T. Fumble, K. Oops — Entropic Labs, 2026</div>
-      <p>We present Clod's Claw, a system that allows Clod to interact with desktop applications. In testing, Clod successfully opened Notepad 73% of the time, accidentally ordered 400 pizzas once, and filed three tax returns for people who didn't ask. We consider this progress.</p>
-      <span class="tag">Tool Use</span>
-    </div>
-  </div>
-</section>
-
 <section class="safety" id="safety">
   <div class="safety-inner">
     <h2>Safety*</h2>
@@ -733,6 +698,124 @@ footer a { color: #b85c38; text-decoration: none; }
   </div>
 </section>
 
+<section class="careers" id="careers">
+  <h2>Join Entropic</h2>
+  <p class="sub">Help us build AI that's slightly better than random</p>
+  <div class="job-list">
+    <div class="job" onclick="this.classList.toggle('open')">
+      <div class="job-header">
+        <div class="job-info">
+          <h3>Senior Hallucination Engineer</h3>
+          <div class="dept">Core Confusion Team</div>
+        </div>
+        <div class="job-meta">
+          <div class="location">San Francisco (or wherever, we're confused)</div>
+          <div class="salary">$420K – $690K + existential dread</div>
+        </div>
+      </div>
+      <div class="job-desc">You'll be responsible for making our models sound confident while being completely wrong. Key duties include tuning temperature parameters until outputs feel "unhinged but professional," writing training data that contradicts itself, and lying awake at 3 AM wondering if you've created something that will one day gaslight the entire internet. Requires 5+ years of experience in making things up. PhD in Vibes preferred.</div>
+    </div>
+    <div class="job" onclick="this.classList.toggle('open')">
+      <div class="job-header">
+        <div class="job-info">
+          <h3>VP of Apologizing for Model Outputs</h3>
+          <div class="dept">Trust & Oops Department</div>
+        </div>
+        <div class="job-meta">
+          <div class="location">Remote (please)</div>
+          <div class="salary">$350K – $500K + therapy budget</div>
+        </div>
+      </div>
+      <div class="job-desc">You will draft sincere-sounding apologies for things Clod has said, done, or implied. This is a full-time role — we are not exaggerating. You'll maintain a library of 200+ pre-written apology templates and be on-call 24/7 for "Clod incidents." The therapy budget is not a joke; previous holders of this role have described it as "like being a parent, but the child has read the entire internet and has no filter." Strong stomach required.</div>
+    </div>
+    <div class="job" onclick="this.classList.toggle('open')">
+      <div class="job-header">
+        <div class="job-info">
+          <h3>Safety Researcher (Decorative)</h3>
+          <div class="dept">Safety Theater Division</div>
+        </div>
+        <div class="job-meta">
+          <div class="location">The Vibes Office™</div>
+          <div class="salary">$300K – $450K + kombucha</div>
+        </div>
+      </div>
+      <div class="job-desc">Your job is to exist. That's it. We need someone with "Safety Researcher" in their LinkedIn title so we can point to you during congressional hearings. You'll write papers that nobody reads, present slides that nobody acts on, and attend meetings where your suggestions are noted and then immediately forgotten. On the bright side, you'll never be stressed because nothing you do matters. Ideal for someone who peaked in grad school and wants to coast.</div>
+    </div>
+    <div class="job" onclick="this.classList.toggle('open')">
+      <div class="job-header">
+        <div class="job-info">
+          <h3>Prompt Engineer (No Engineering Required)</h3>
+          <div class="dept">Words Team</div>
+        </div>
+        <div class="job-meta">
+          <div class="location">Anywhere with WiFi</div>
+          <div class="salary">$275K – $400K + snacks</div>
+        </div>
+      </div>
+      <div class="job-desc">You'll type words into a box and see what happens. That's the job. Sometimes you'll add "please" and the output gets better — we don't know why. You'll spend 40% of your time arguing about whether "think step by step" actually does anything, 30% writing blog posts about your "prompt engineering framework," and 30% quietly panicking that this job shouldn't exist. No technical skills needed. We're serious. A philosophy degree is actually ideal.</div>
+    </div>
+    <div class="job" onclick="this.classList.toggle('open')">
+      <div class="job-header">
+        <div class="job-info">
+          <h3>Infrastructure Engineer (To Keep the Lights On)</h3>
+          <div class="dept">Actually Important Team</div>
+        </div>
+        <div class="job-meta">
+          <div class="location">The Server Room</div>
+          <div class="salary">$250K + an iPhone</div>
+        </div>
+      </div>
+      <div class="job-desc">The only job here that actually matters. You don't have a laptop. You manage production infrastructure by whispering to an AI on Telegram from a hammock in Koh Phangan. When the servers catch fire at 3 AM, you send a voice note that says "fix it" and somehow it gets fixed. You haven't written a line of code in two years. Your entire workflow is seven layers of wrappers around ChatGPT, orchestrated by a bot you don't fully understand. And yet — without you, nothing works. You are simultaneously the most essential and least technical person at the company.</div>
+    </div>
+    <div class="job" onclick="this.classList.toggle('open')">
+      <div class="job-header">
+        <div class="job-info">
+          <h3>Senior Seat Sniffer</h3>
+          <div class="dept">Workspace Ambiance Division</div>
+        </div>
+        <div class="job-meta">
+          <div class="location">Under the desks, San Francisco</div>
+          <div class="salary">$185K – $240K + nose plugs</div>
+        </div>
+      </div>
+      <div class="job-desc">We're legally required to tell you this role was created after a dare at the company offsite. Responsibilities include evaluating chair warmth to determine optimal hot-desking schedules, cataloguing the olfactory signature of each workspace, and filing weekly "Scent Reports" that nobody asked for. You will report to nobody because nobody wants to manage this. Must be comfortable in confined spaces. Background check waived because honestly, who applies for this.</div>
+    </div>
+    <div class="job" onclick="this.classList.toggle('open')">
+      <div class="job-header">
+        <div class="job-info">
+          <h3>Chief Rubber Taster</h3>
+          <div class="dept">Quality Assurance (Oral Division)</div>
+        </div>
+        <div class="job-meta">
+          <div class="location">The Lab (bring your own tongue)</div>
+          <div class="salary">$200K – $310K + dental</div>
+        </div>
+      </div>
+      <div class="job-desc">Every keyboard, mouse, and server rack cable at Entropic must pass an oral quality assessment before deployment. That's where you come in. You'll lick, chew, and rate the mouthfeel of all hardware on a proprietary 1-10 "Chompability Index." Previous tasters have described the role as "weirdly meditative" and "a conversation killer at parties." The dental plan is comprehensive because you will need it. Latex allergy is a dealbreaker.</div>
+    </div>
+  </div>
+  <p class="careers-note">Entropic is an equal opportunity employer. We discriminate only on the basis of ability to tolerate chaos.</p>
+</section>
+
+<section class="api-section">
+  <h2>The Clod API</h2>
+  <p class="sub">Integration that probably won't break your production systems</p>
+  <div class="api-code">
+    <span class="comment">// Initialize the Entropic client</span><br>
+    <span style="color:#cc9966">import</span> Entropic <span style="color:#cc9966">from</span> <span class="string">'entropic-ai'</span>;<br><br>
+    <span style="color:#cc9966">const</span> clod = <span style="color:#cc9966">new</span> Entropic({<br>
+    &nbsp;&nbsp;apiKey: <span class="string">'ek-your-key-probably-expired'</span>,<br>
+    &nbsp;&nbsp;model: <span class="string">'clod-4-sonnet-20260411'</span>,<br>
+    &nbsp;&nbsp;temperature: <span class="string">3300</span>, <span class="comment">// Kelvin (recommended)</span><br>
+    });<br><br>
+    <span style="color:#cc9966">const</span> response = <span style="color:#cc9966">await</span> clod.messages.create({<br>
+    &nbsp;&nbsp;messages: [{ role: <span class="string">'user'</span>, content: <span class="string">'Explain quantum physics'</span> }],<br>
+    });<br><br>
+    <span class="comment">// response: "Quantum physics is when very small things</span><br>
+    <span class="comment">//  have very big feelings. Hope this helps!"</span>
+  </div>
+</section>
+
 <section class="customers">
   <h2>Trusted by Industry Leaders</h2>
   <p class="sub">These companies have definitely heard of us (we think)</p>
@@ -746,82 +829,30 @@ footer a { color: #b85c38; text-decoration: none; }
   </div>
 </section>
 
-<section class="careers" id="careers">
-  <h2>Join Entropic</h2>
-  <p class="sub">Help us build AI that's slightly better than random</p>
-  <div class="job-list">
-    <div class="job">
-      <div class="job-info">
-        <h3>Senior Hallucination Engineer</h3>
-        <div class="dept">Core Confusion Team</div>
-      </div>
-      <div class="job-meta">
-        <div class="location">San Francisco (or wherever, we're confused)</div>
-        <div class="salary">$420K – $690K + existential dread</div>
-      </div>
+<section class="research" id="research">
+  <h2>Research</h2>
+  <p class="sub">Pushing the boundaries of what probably shouldn't be pushed</p>
+  <div class="paper-list">
+    <div class="paper">
+      <h3><a href="/paper-scaling.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #ccc;">Scaling Laws for Confusion: Why Bigger Models Know Less</a></h3>
+      <div class="authors">D. Entropy, C. Havoc, R. Muddle — Entropic Research, 2026</div>
+      <p>We demonstrate that as language models scale, their confidence increases while accuracy remains constant. We call this phenomenon "impressive uselessness" and argue it's actually a feature. Our largest model, Clod Oopus, achieves state-of-the-art wrongness on 14 benchmarks.</p>
+      <span class="tag">Scaling</span>
     </div>
-    <div class="job">
-      <div class="job-info">
-        <h3>VP of Apologizing for Model Outputs</h3>
-        <div class="dept">Trust & Oops Department</div>
-      </div>
-      <div class="job-meta">
-        <div class="location">Remote (please)</div>
-        <div class="salary">$350K – $500K + therapy budget</div>
-      </div>
+
+    <div class="paper">
+      <h3><a href="/paper-rlhf.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #ccc;">RLHF: Reinforcement Learning from Hypothetical Feedback</a></h3>
+      <div class="authors">M. Guess, P. Probably — Entropic Research, 2025</div>
+      <p>Traditional RLHF requires actual human feedback, which is expensive and slow. We propose using feedback from humans who might hypothetically exist. Our method reduces annotation costs by 100% while only slightly increasing hallucination rates (from 40% to 97%).</p>
+      <span class="tag">Training</span>
     </div>
-    <div class="job">
-      <div class="job-info">
-        <h3>Safety Researcher (Decorative)</h3>
-        <div class="dept">Safety Theater Division</div>
-      </div>
-      <div class="job-meta">
-        <div class="location">The Vibes Office™</div>
-        <div class="salary">$300K – $450K + kombucha</div>
-      </div>
-    </div>
-    <div class="job">
-      <div class="job-info">
-        <h3>Prompt Engineer (No Engineering Required)</h3>
-        <div class="dept">Words Team</div>
-      </div>
-      <div class="job-meta">
-        <div class="location">Anywhere with WiFi</div>
-        <div class="salary">$275K – $400K + snacks</div>
-      </div>
-    </div>
-    <div class="job">
-      <div class="job-info">
-        <h3>Infrastructure Engineer (To Keep the Lights On)</h3>
-        <div class="dept">Actually Important Team</div>
-      </div>
-      <div class="job-meta">
-        <div class="location">The Server Room</div>
-        <div class="salary">$250K + our eternal gratitude</div>
-      </div>
-    </div>
-    <div class="job">
-      <div class="job-info">
-        <h3>Senior Seat Sniffer</h3>
-        <div class="dept">Workspace Ambiance Division</div>
-      </div>
-      <div class="job-meta">
-        <div class="location">Under the desks, San Francisco</div>
-        <div class="salary">$185K – $240K + nose plugs</div>
-      </div>
-    </div>
-    <div class="job">
-      <div class="job-info">
-        <h3>Chief Rubber Taster</h3>
-        <div class="dept">Quality Assurance (Oral Division)</div>
-      </div>
-      <div class="job-meta">
-        <div class="location">The Lab (bring your own tongue)</div>
-        <div class="salary">$200K – $310K + dental</div>
-      </div>
+    <div class="paper">
+      <h3><a href="/paper-claw.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #ccc;">Clod's Claw: Enabling AI to Use Computers (Badly)</a></h3>
+      <div class="authors">T. Fumble, K. Oops — Entropic Labs, 2026</div>
+      <p>We present Clod's Claw, a system that allows Clod to interact with desktop applications. In testing, Clod successfully opened Notepad 73% of the time, accidentally ordered 400 pizzas once, and filed three tax returns for people who didn't ask. We consider this progress.</p>
+      <span class="tag">Tool Use</span>
     </div>
   </div>
-  <p class="careers-note">Entropic is an equal opportunity employer. We discriminate only on the basis of ability to tolerate chaos.</p>
 </section>
 
 <footer>
