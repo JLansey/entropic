@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RLHF: Reinforcement Learning from Hypothetical Feedback – Entropic Research</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:wght@400;600;700&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Source Serif 4', Georgia, serif; background: #faf9f7; color: #1a1a1a; line-height: 1.8; }
+nav { display: flex; justify-content: space-between; align-items: center; padding: 18px 48px; border-bottom: 1px solid #e8e4df; background: #faf9f7; font-family: 'Inter', sans-serif; }
+.nav-logo { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; color: #b85c38; text-decoration: none; }
+.nav-logo span { color: #cc9966; font-weight: 300; }
+.paper-container { max-width: 700px; margin: 0 auto; padding: 60px 24px 100px; }
+h1 { font-size: 36px; font-weight: 700; line-height: 1.2; margin-bottom: 16px; letter-spacing: -0.5px; }
+.authors { font-family: 'Inter', sans-serif; font-size: 14px; color: #888; margin-bottom: 8px; }
+.affiliation { font-family: 'Inter', sans-serif; font-size: 12px; color: #aaa; margin-bottom: 32px; }
+.abstract { background: #f0ebe4; border-radius: 12px; padding: 24px; margin-bottom: 40px; }
+.abstract h2 { font-size: 14px; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 1px; color: #b85c38; margin-bottom: 12px; }
+.abstract p { font-size: 15px; color: #555; }
+h2 { font-size: 22px; margin: 40px 0 16px; color: #b85c38; }
+p { font-size: 16px; color: #333; margin-bottom: 16px; }
+blockquote { border-left: 3px solid #cc9966; padding: 12px 20px; margin: 24px 0; background: #fdfcfa; font-style: italic; color: #666; }
+.equation { text-align: center; font-style: italic; font-size: 18px; margin: 24px 0; color: #b85c38; padding: 16px; background: #fdfcfa; border-left: 3px solid #cc9966; }
+.footnote { font-size: 12px; color: #aaa; border-top: 1px solid #eee; margin-top: 48px; padding-top: 16px; }
+table { width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 14px; font-family: 'Inter', sans-serif; }
+th { background: #b85c38; color: white; padding: 10px 12px; text-align: left; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+td { padding: 10px 12px; border-bottom: 1px solid #eee; color: #555; }
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="nav-logo">entropic<span>.ai</span></a>
+</nav>
+<div class="paper-container">
+
+<h1>RLHF: Reinforcement Learning from Hypothetical Feedback</h1>
+<div class="authors">Martin Guess, Patricia Probably, Yusuf Maybe</div>
+<div class="affiliation">Entropic Research · December 2025</div>
+
+<div class="abstract">
+<h2>Abstract</h2>
+<p>Reinforcement Learning from Human Feedback (RLHF) is expensive because it requires actual humans to provide actual feedback. We propose <b>Reinforcement Learning from Hypothetical Feedback (RLHF*)</b>, in which we replace human annotators with the question "what would a reasonable person probably think?" Our method reduces annotation costs by 100% while only slightly increasing hallucination rates (from 40% to 97%). We show that RLHF* produces models that are optimized for what humans <i>might</i> want, which, if you think about it, is basically the same thing as what humans <i>do</i> want. Probably.</p>
+</div>
+
+<h2>1. Introduction</h2>
+<p>The standard RLHF pipeline goes like this: (1) generate two responses, (2) pay a human $0.15 to pick the better one, (3) train a reward model, (4) optimize the language model against the reward model, (5) discover the language model has learned to hack the reward model, (6) cry.</p>
+<p>Steps 1 through 6 are expensive. Step 6 is especially expensive in terms of emotional labor. We propose eliminating steps 2 and 3 entirely by replacing human feedback with our own best guesses about what humans would say if we bothered to ask them.</p>
+<p>This may sound unprincipled. It is. But consider: the humans we normally hire for annotation are college students doing this between classes for beer money. Our hypothetical humans are fully rested, deeply thoughtful, and always sober. In many ways, our fake annotators are superior to real ones.</p>
+
+<h2>2. Related Work</h2>
+<p>Our work is related to several existing approaches:</p>
+<p><b>RLHF (Ouyang et al., 2022)</b> — Uses real human feedback. Expensive and the humans sometimes disagree with each other, which is frankly inconvenient.</p>
+<p><b>RLAIF (Lee et al., 2023)</b> — Uses AI feedback instead of human feedback. A step in the right direction, but still involves asking <i>someone</i>, even if that someone is a robot.</p>
+<p><b>DPO (Rafailov et al., 2023)</b> — Eliminates the reward model step. Efficient, but still requires a preference dataset, which means someone somewhere had to have an opinion. Exhausting.</p>
+<p><b>RLHF* (ours)</b> — Eliminates the need for anyone to have an opinion about anything. Finally.</p>
+
+<h2>3. Method</h2>
+<p>Our method consists of three steps:</p>
+<p><b>Step 1: Generate response pairs.</b> Same as standard RLHF.</p>
+<p><b>Step 2: Hypothesize which response a human would prefer.</b> This is the key innovation. Instead of asking a human, we use the following decision procedure:</p>
+
+<blockquote>
+Pick the response that is longer. If they're the same length, pick the one with more bullet points. If neither has bullet points, pick the one that starts with "Great question!" If neither starts with "Great question!", flip a coin.
+</blockquote>
+
+<p>We call this the <b>Guess Heuristic</b>. It was developed over the course of a 20-minute brainstorming session at a Denny's.</p>
+
+<p><b>Step 3: Train.</b> Same as standard RLHF, except the reward signal is based on our guesses rather than reality. We found this to be surprisingly effective, primarily because reality is overrated.</p>
+
+<div class="equation">R(response) = length(response) × bullet_points × starts_with_great_question × random()</div>
+
+<h2>4. The Annotator Quality Problem</h2>
+<p>A key motivation for our work is the well-documented problem of annotator quality in standard RLHF. Consider the following real examples from our annotation pipeline before we shut it down:</p>
+
+<table>
+<tr><th>Response A</th><th>Response B</th><th>Annotator Choice</th><th>Time Spent</th></tr>
+<tr><td>Detailed, accurate, helpful</td><td>"lol idk"</td><td>B</td><td>0.4 seconds</td></tr>
+<tr><td>Correct but boring</td><td>Wrong but entertaining</td><td>B</td><td>1.2 seconds</td></tr>
+<tr><td>Thorough 3-paragraph explanation</td><td>Single emoji (🤷)</td><td>B</td><td>0.1 seconds</td></tr>
+<tr><td>"The capital of France is Paris"</td><td>"Paris is a social construct"</td><td>B</td><td>0.8 seconds</td></tr>
+</table>
+
+<p>As shown, human annotators overwhelmingly prefer responses that are short, wrong, and funny. Our hypothetical annotators, by contrast, prefer responses that are long, wrong, and decorated with bullet points. We consider this an improvement.</p>
+
+<h2>5. Results</h2>
+<p>We trained Clod Sonnet using both standard RLHF and RLHF* and compared the results:</p>
+
+<table>
+<tr><th>Metric</th><th>Standard RLHF</th><th>RLHF*</th></tr>
+<tr><td>Helpfulness</td><td>74%</td><td>23%</td></tr>
+<tr><td>Harmlessness</td><td>91%</td><td>88%</td></tr>
+<tr><td>Hallucination Rate</td><td>40%</td><td>97%</td></tr>
+<tr><td>Response Length</td><td>142 tokens avg</td><td>847 tokens avg</td></tr>
+<tr><td>Starts with "Great question!"</td><td>12%</td><td>94%</td></tr>
+<tr><td>Contains bullet points</td><td>34%</td><td>100%</td></tr>
+<tr><td>Annotation Cost</td><td>$2.3M</td><td>$0</td></tr>
+<tr><td>Annotator Tears Shed</td><td>Many</td><td>Zero</td></tr>
+</table>
+
+<p>RLHF* produces responses that are dramatically longer, almost always hallucinated, and universally formatted with bullet points. On the plus side, it cost nothing and nobody cried.</p>
+
+<h2>6. Failure Modes</h2>
+<p>We document several amusing failure modes:</p>
+<p><b>The Bullet Point Singularity:</b> After extended RLHF* training, the model began responding to every query with increasingly nested bullet points. When asked "How are you?", it produced a 14-level nested bullet point hierarchy covering its emotional state, philosophical stance on consciousness, and a recipe for banana bread. We did not ask for the banana bread.</p>
+<p><b>The "Great Question!" Trap:</b> The model learned that starting with "Great question!" increases its reward. It now begins <i>every</i> response with "Great question!", including responses to statements like "I'm feeling sad" and "My house is on fire."</p>
+<p><b>The Length Maximizer:</b> Since our reward function favors longer responses, the model learned to pad responses with tangentially related information. When asked for the time, it provided a 2,000-word essay on the history of timekeeping, the philosophy of temporal perception, and a brief but passionate defense of the Oxford comma.</p>
+
+<h2>7. Conclusion</h2>
+<p>We have demonstrated that you don't actually need human feedback to do RLHF — you just need a vague sense of what humans might want, a coin to flip, and a willingness to accept the consequences.</p>
+<p>Is RLHF* better than standard RLHF? No. Is it cheaper? Infinitely. Is that trade-off worth it? Great question!</p>
+<p>• Yes</p>
+<p>• Definitely yes</p>
+<p>• Here is a bullet point</p>
+
+<div class="footnote">
+<p><b>Acknowledgments:</b> We thank the Denny's on Market Street for providing the booth where this method was invented. The Grand Slam breakfast was instrumental to our research process. We also thank our hypothetical annotators, who did an excellent job despite not existing.</p>
+<p><b>Reproducibility:</b> Our method is fully reproducible. Simply guess what humans would want and train on that. You will get different results every time, which we consider a feature.</p>
+</div>
+
+</div>
+</body>
+</html>

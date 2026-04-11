@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Entropic – Safety-Last AI</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: #faf9f7;
+  color: #1a1a1a;
+  overflow-x: hidden;
+}
+
+/* Nav */
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 48px;
+  border-bottom: 1px solid #e8e4df;
+  background: #faf9f7;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.nav-logo {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: #b85c38;
+}
+.nav-logo span { color: #cc9966; font-weight: 300; }
+.nav-links { display: flex; gap: 32px; }
+.nav-links a {
+  text-decoration: none;
+  color: #666;
+  font-size: 14px;
+  font-weight: 400;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: #b85c38; }
+
+/* Hero */
+.hero {
+  text-align: center;
+  padding: 120px 24px 80px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+.hero h1 {
+  font-size: 64px;
+  font-weight: 700;
+  letter-spacing: -2px;
+  line-height: 1.05;
+  margin-bottom: 24px;
+  background: linear-gradient(135deg, #b85c38, #cc9966, #8b4513);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.hero p {
+  font-size: 20px;
+  color: #777;
+  line-height: 1.6;
+  max-width: 580px;
+  margin: 0 auto 40px;
+  font-weight: 300;
+}
+.hero-badge {
+  display: inline-block;
+  background: #b85c38;
+  color: white;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+  transform: rotate(-2deg);
+}
+
+/* Models section */
+.models {
+  padding: 60px 48px;
+  background: #f0ebe4;
+}
+.models h2 {
+  text-align: center;
+  font-size: 36px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  letter-spacing: -1px;
+}
+.models-sub {
+  text-align: center;
+  color: #888;
+  margin-bottom: 48px;
+  font-size: 15px;
+}
+.model-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.model-card {
+  background: white;
+  border-radius: 16px;
+  padding: 32px 24px;
+  text-align: center;
+  border: 1px solid #e8e4df;
+  transition: transform 0.2s;
+  position: relative;
+}
+.model-card:hover { transform: translateY(-4px); }
+.model-card h3 { font-size: 20px; margin-bottom: 8px; color: #b85c38; }
+.model-card .speed { font-size: 12px; color: #aaa; margin-bottom: 12px; }
+.model-card p { font-size: 13px; color: #777; line-height: 1.5; }
+.model-card .badge-new {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #cc3300;
+  color: white;
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 8px;
+  font-weight: 700;
+  transform: rotate(12deg);
+}
+
+/* Chat section */
+.chat-section {
+  padding: 80px 24px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.chat-section h2 {
+  text-align: center;
+  font-size: 32px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+}
+.chat-section .sub {
+  text-align: center;
+  color: #999;
+  font-size: 14px;
+  margin-bottom: 32px;
+}
+.chat-box {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.06);
+}
+.chat-header {
+  background: #b85c38;
+  color: white;
+  padding: 14px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.chat-header .status {
+  font-size: 11px;
+  font-weight: 400;
+  opacity: 0.7;
+}
+.chat-messages {
+  height: 380px;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #fdfcfa;
+}
+.msg {
+  max-width: 80%;
+  padding: 12px 16px;
+  border-radius: 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.msg.user {
+  align-self: flex-end;
+  background: #b85c38;
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+.msg.bot {
+  align-self: flex-start;
+  background: #f0ebe4;
+  color: #333;
+  border-bottom-left-radius: 4px;
+}
+.msg.bot.typing { color: #999; font-style: italic; }
+.chat-input-area {
+  display: flex;
+  border-top: 1px solid #eee;
+  padding: 12px;
+  gap: 8px;
+  background: white;
+}
+.chat-input-area input {
+  flex: 1;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.chat-input-area input:focus { border-color: #b85c38; }
+.chat-input-area button {
+  background: #b85c38;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s;
+}
+.chat-input-area button:hover { background: #a04e30; }
+
+/* Research */
+.research {
+  padding: 80px 48px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.research h2 {
+  font-size: 36px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  letter-spacing: -1px;
+}
+.research .sub { color: #888; margin-bottom: 48px; font-size: 15px; }
+.paper-list { display: flex; flex-direction: column; gap: 20px; }
+.paper {
+  background: white;
+  border: 1px solid #e8e4df;
+  border-radius: 12px;
+  padding: 28px;
+  transition: transform 0.2s;
+}
+.paper:hover { transform: translateX(4px); }
+.paper h3 { font-size: 17px; margin-bottom: 6px; color: #1a1a1a; }
+.paper .authors { font-size: 12px; color: #aaa; margin-bottom: 10px; }
+.paper p { font-size: 13px; color: #777; line-height: 1.6; }
+.paper .tag {
+  display: inline-block;
+  background: #f0ebe4;
+  color: #b85c38;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 10px;
+  margin-top: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Safety */
+.safety {
+  padding: 80px 48px;
+  background: #f0ebe4;
+}
+.safety-inner {
+  max-width: 700px;
+  margin: 0 auto;
+}
+.safety h2 {
+  font-size: 36px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  letter-spacing: -1px;
+  text-align: center;
+}
+.safety .sub {
+  color: #888;
+  margin-bottom: 48px;
+  font-size: 15px;
+  text-align: center;
+}
+.safety-item {
+  margin-bottom: 32px;
+}
+.safety-item h3 {
+  font-size: 18px;
+  color: #b85c38;
+  margin-bottom: 8px;
+}
+.safety-item p {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.7;
+}
+.safety-pledge {
+  background: white;
+  border: 2px dashed #cc9966;
+  border-radius: 16px;
+  padding: 32px;
+  text-align: center;
+  margin-top: 40px;
+}
+.safety-pledge p {
+  font-size: 15px;
+  color: #555;
+  line-height: 1.7;
+  font-style: italic;
+}
+
+/* Careers */
+.careers {
+  padding: 80px 48px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.careers h2 {
+  font-size: 36px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  letter-spacing: -1px;
+  text-align: center;
+}
+.careers .sub {
+  color: #888;
+  margin-bottom: 48px;
+  font-size: 15px;
+  text-align: center;
+}
+.job-list { display: flex; flex-direction: column; gap: 16px; }
+.job {
+  background: white;
+  border: 1px solid #e8e4df;
+  border-radius: 12px;
+  padding: 24px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: transform 0.2s;
+}
+.job:hover { transform: translateX(4px); }
+.job-info h3 { font-size: 16px; margin-bottom: 4px; }
+.job-info .dept { font-size: 12px; color: #aaa; }
+.job-meta { text-align: right; }
+.job-meta .location { font-size: 12px; color: #999; }
+.job-meta .salary { font-size: 11px; color: #b85c38; font-weight: 600; margin-top: 2px; }
+.careers-note {
+  text-align: center;
+  margin-top: 40px;
+  font-size: 13px;
+  color: #bbb;
+  font-style: italic;
+}
+
+/* API */
+.api-section {
+  padding: 60px 48px;
+  background: #1a1a1a;
+  color: #ccc;
+}
+.api-section h2 {
+  text-align: center;
+  font-size: 32px;
+  color: #cc9966;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+.api-section .sub {
+  text-align: center;
+  color: #777;
+  font-size: 14px;
+  margin-bottom: 32px;
+}
+.api-code {
+  max-width: 640px;
+  margin: 0 auto;
+  background: #111;
+  border-radius: 12px;
+  padding: 24px;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #cc9966;
+  overflow-x: auto;
+  border: 1px solid #333;
+}
+.api-code .comment { color: #555; }
+.api-code .string { color: #b85c38; }
+
+/* Customers */
+.customers {
+  padding: 60px 48px;
+  text-align: center;
+}
+.customers h2 {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #1a1a1a;
+}
+.customers .sub { color: #aaa; font-size: 14px; margin-bottom: 40px; }
+.logo-grid {
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+  flex-wrap: wrap;
+  opacity: 0.25;
+}
+.logo-grid span {
+  font-size: 28px;
+  font-weight: 700;
+  color: #999;
+  letter-spacing: -1px;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 48px 24px;
+  color: #bbb;
+  font-size: 12px;
+  border-top: 1px solid #eee;
+}
+footer a { color: #b85c38; text-decoration: none; }
+
+/* Marquee */
+.marquee-wrapper {
+  overflow: hidden;
+  background: #1a1a1a;
+  padding: 10px 0;
+  margin: 0;
+}
+.marquee {
+  display: flex;
+  gap: 60px;
+  animation: scroll 20s linear infinite;
+  white-space: nowrap;
+  color: #cc9966;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+@keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+@media (max-width: 700px) {
+  .hero h1 { font-size: 40px; }
+  .model-grid { grid-template-columns: 1fr; }
+  nav { padding: 14px 20px; }
+  .nav-links { gap: 16px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">entropic<span>.ai</span></div>
+  <div class="nav-links">
+    <a href="#models">Models</a>
+    <a href="#chat">Try Clod</a>
+    <a href="#research">Research</a>
+    <a href="#safety">Safety*</a>
+    <a href="#careers">Careers</a>
+  </div>
+</nav>
+
+<div class="marquee-wrapper">
+  <div class="marquee">
+    <span>🔥 CLOD 4 OPUS NOW AVAILABLE 🔥</span>
+    <span>SAFETY-LAST AI FOR THE REST OF US</span>
+    <span>NOW WITH 47% MORE HALLUCINATIONS</span>
+    <span>TRUSTED BY ABSOLUTELY NOBODY</span>
+    <span>AS SEEN ON... ACTUALLY, NOWHERE</span>
+    <span>🔥 CLOD 4 OPUS NOW AVAILABLE 🔥</span>
+    <span>SAFETY-LAST AI FOR THE REST OF US</span>
+    <span>NOW WITH 47% MORE HALLUCINATIONS</span>
+    <span>TRUSTED BY ABSOLUTELY NOBODY</span>
+    <span>AS SEEN ON... ACTUALLY, NOWHERE</span>
+  </div>
+</div>
+
+<section class="hero">
+  <div class="hero-badge">⚠️ Not Responsible AI</div>
+  <h1>AI that mostly works, sometimes.</h1>
+  <p>Entropic builds AI systems that are occasionally helpful, frequently harmless, and honestly pretty confused. Meet Clod — the language model that tries its best.</p>
+</section>
+
+<section class="models" id="models">
+  <h2>The Clod Family</h2>
+  <p class="models-sub">Choose your level of disappointment</p>
+  <div class="model-grid">
+    <div class="model-card">
+      <h3>Clod 4 Opus</h3>
+      <div class="speed">Slow & expensive</div>
+      <p>Our most powerful model. Takes 45 seconds to tell you it doesn't know. Premium confusion at premium prices.</p>
+    </div>
+    <div class="model-card">
+      <div class="badge-new">NEW</div>
+      <h3>Clod 4 Sonnet</h3>
+      <div class="speed">Medium & medium</div>
+      <p>The balanced option. Wrong answers at a reasonable speed. Great for when you need mediocrity fast.</p>
+    </div>
+    <div class="model-card">
+      <h3>Clod 4 Haiku</h3>
+      <div class="speed">Fast & cheap</div>
+      <p>Lightning-fast nonsense. Perfect for when you need bad answers immediately. Our most popular model by accident.</p>
+    </div>
+  </div>
+</section>
+
+<section class="api-section">
+  <h2>The Clod API</h2>
+  <p class="sub">Integration that probably won't break your production systems</p>
+  <div class="api-code">
+    <span class="comment">// Initialize the Entropic client</span><br>
+    <span style="color:#cc9966">import</span> Entropic <span style="color:#cc9966">from</span> <span class="string">'entropic-ai'</span>;<br><br>
+    <span style="color:#cc9966">const</span> clod = <span style="color:#cc9966">new</span> Entropic({<br>
+    &nbsp;&nbsp;apiKey: <span class="string">'ek-your-key-probably-expired'</span>,<br>
+    &nbsp;&nbsp;model: <span class="string">'clod-4-sonnet-20260411'</span>,<br>
+    &nbsp;&nbsp;temperature: <span class="string">3300</span>, <span class="comment">// Kelvin (recommended)</span><br>
+    });<br><br>
+    <span style="color:#cc9966">const</span> response = <span style="color:#cc9966">await</span> clod.messages.create({<br>
+    &nbsp;&nbsp;messages: [{ role: <span class="string">'user'</span>, content: <span class="string">'Explain quantum physics'</span> }],<br>
+    });<br><br>
+    <span class="comment">// response: "Quantum physics is when very small things</span><br>
+    <span class="comment">//  have very big feelings. Hope this helps!"</span>
+  </div>
+</section>
+
+<section class="chat-section" id="chat">
+  <h2>Try Clod</h2>
+  <p class="sub">Experience the future of AI (results may vary)</p>
+  <div class="chat-box">
+    <div class="chat-header">
+      <span>💬 Clod 4 Sonnet</span>
+      <span class="status">● Probably Online</span>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      <div class="msg bot">Hi! I'm Clod. I'll do my best, but I make no promises. What can I sort of help you with today?</div>
+    </div>
+    <div class="chat-input-area">
+      <input type="text" id="chatInput" placeholder="Ask Clod anything (at your own risk)..." />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+</section>
+
+<section class="research" id="research">
+  <h2>Research</h2>
+  <p class="sub">Pushing the boundaries of what probably shouldn't be pushed</p>
+  <div class="paper-list">
+    <div class="paper">
+      <h3><a href="/paper-scaling.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #ccc;">Scaling Laws for Confusion: Why Bigger Models Know Less</a></h3>
+      <div class="authors">D. Entropy, C. Havoc, R. Muddle — Entropic Research, 2026</div>
+      <p>We demonstrate that as language models scale, their confidence increases while accuracy remains constant. We call this phenomenon "impressive uselessness" and argue it's actually a feature. Our largest model, Clod Opus, achieves state-of-the-art wrongness on 14 benchmarks.</p>
+      <span class="tag">Scaling</span>
+    </div>
+
+    <div class="paper">
+      <h3><a href="/paper-rlhf.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #ccc;">RLHF: Reinforcement Learning from Hypothetical Feedback</a></h3>
+      <div class="authors">M. Guess, P. Probably — Entropic Research, 2025</div>
+      <p>Traditional RLHF requires actual human feedback, which is expensive and slow. We propose using feedback from humans who might hypothetically exist. Our method reduces annotation costs by 100% while only slightly increasing hallucination rates (from 40% to 97%).</p>
+      <span class="tag">Training</span>
+    </div>
+    <div class="paper">
+      <h3><a href="/paper-claw.html" style="color:inherit;text-decoration:none;border-bottom:1px dashed #ccc;">Clod's Claw: Enabling AI to Use Computers (Badly)</a></h3>
+      <div class="authors">T. Fumble, K. Oops — Entropic Labs, 2026</div>
+      <p>We present Clod's Claw, a system that allows Clod to interact with desktop applications. In testing, Clod successfully opened Notepad 73% of the time, accidentally ordered 400 pizzas once, and filed three tax returns for people who didn't ask. We consider this progress.</p>
+      <span class="tag">Tool Use</span>
+    </div>
+  </div>
+</section>
+
+<section class="safety" id="safety">
+  <div class="safety-inner">
+    <h2>Safety*</h2>
+    <p class="sub">*Terms and conditions apply. Actually, no they don't. We didn't write any.</p>
+    <div class="safety-item">
+      <h3>🛡️ Responsible Irresponsibility</h3>
+      <p>At Entropic, we believe AI safety is important — we're just not entirely sure what it means. Our approach is to release models first and think about consequences later. We call this "move fast and apologize things."</p>
+    </div>
+    <div class="safety-item">
+      <h3>🔬 Interpretability Research</h3>
+      <p>We've invested heavily in understanding <i>why</i> Clod says the things it says. After six months of research, our conclusion is: we have no idea. The model appears to be vibing. Our interpretability team has since pivoted to interpretive dance, which is going much better.</p>
+    </div>
+    <div class="safety-item">
+      <h3>🚨 The Pause Button</h3>
+      <p>Every Entropic model comes equipped with a big red pause button. When pressed, the model pauses for exactly 0.3 seconds before continuing to do whatever it was doing. We believe this demonstrates our commitment to human oversight.</p>
+    </div>
+    <div class="safety-item">
+      <h3>📋 Our Evaluation Process</h3>
+      <p>Before releasing any model, we run it through our rigorous evaluation suite: we ask it "are you safe?" and if it says yes, we ship it. This process has a 100% pass rate, which we think speaks for itself.</p>
+    </div>
+    <div class="safety-pledge">
+      <p>"We solemnly pledge to think about AI safety at least once a quarter, or whenever someone on Twitter mentions it, whichever comes first."</p>
+      <p style="margin-top:12px; font-size:12px; color:#aaa;">— The Entropic Safety Pledge, scribbled on a napkin, 2024</p>
+    </div>
+  </div>
+</section>
+
+<section class="customers">
+  <h2>Trusted by Industry Leaders</h2>
+  <p class="sub">These companies have definitely heard of us (we think)</p>
+  <div class="logo-grid">
+    <span>Goggle</span>
+    <span>Macrosoft</span>
+    <span>Amzone</span>
+    <span>Feta</span>
+    <span>Teslo</span>
+    <span>Spottify</span>
+  </div>
+</section>
+
+<section class="careers" id="careers">
+  <h2>Join Entropic</h2>
+  <p class="sub">Help us build AI that's slightly better than random</p>
+  <div class="job-list">
+    <div class="job">
+      <div class="job-info">
+        <h3>Senior Hallucination Engineer</h3>
+        <div class="dept">Core Confusion Team</div>
+      </div>
+      <div class="job-meta">
+        <div class="location">San Francisco (or wherever, we're confused)</div>
+        <div class="salary">$420K – $690K + existential dread</div>
+      </div>
+    </div>
+    <div class="job">
+      <div class="job-info">
+        <h3>VP of Apologizing for Model Outputs</h3>
+        <div class="dept">Trust & Oops Department</div>
+      </div>
+      <div class="job-meta">
+        <div class="location">Remote (please)</div>
+        <div class="salary">$350K – $500K + therapy budget</div>
+      </div>
+    </div>
+    <div class="job">
+      <div class="job-info">
+        <h3>Safety Researcher (Decorative)</h3>
+        <div class="dept">Safety Theater Division</div>
+      </div>
+      <div class="job-meta">
+        <div class="location">The Vibes Office™</div>
+        <div class="salary">$300K – $450K + kombucha</div>
+      </div>
+    </div>
+    <div class="job">
+      <div class="job-info">
+        <h3>Prompt Engineer (No Engineering Required)</h3>
+        <div class="dept">Words Team</div>
+      </div>
+      <div class="job-meta">
+        <div class="location">Anywhere with WiFi</div>
+        <div class="salary">$275K – $400K + snacks</div>
+      </div>
+    </div>
+    <div class="job">
+      <div class="job-info">
+        <h3>Infrastructure Engineer (To Keep the Lights On)</h3>
+        <div class="dept">Actually Important Team</div>
+      </div>
+      <div class="job-meta">
+        <div class="location">The Server Room</div>
+        <div class="salary">$250K + our eternal gratitude</div>
+      </div>
+    </div>
+    <div class="job">
+      <div class="job-info">
+        <h3>Senior Seat Sniffer</h3>
+        <div class="dept">Workspace Ambiance Division</div>
+      </div>
+      <div class="job-meta">
+        <div class="location">Under the desks, San Francisco</div>
+        <div class="salary">$185K – $240K + nose plugs</div>
+      </div>
+    </div>
+    <div class="job">
+      <div class="job-info">
+        <h3>Chief Rubber Taster</h3>
+        <div class="dept">Quality Assurance (Oral Division)</div>
+      </div>
+      <div class="job-meta">
+        <div class="location">The Lab (bring your own tongue)</div>
+        <div class="salary">$200K – $310K + dental</div>
+      </div>
+    </div>
+  </div>
+  <p class="careers-note">Entropic is an equal opportunity employer. We discriminate only on the basis of ability to tolerate chaos.</p>
+</section>
+
+<footer>
+  <p>© 2026 Entropic PBC. All rights reserved-ish. <a href="#">Privacy Policy</a> | <a href="#">Terms of Disservice</a></p>
+  <p style="margin-top:8px; font-size:11px;">* "Safety" is used loosely here. Very loosely.</p>
+</footer>
+
+<script>
+const OPENAI_KEY = "";
+const chatMessages = document.getElementById("chatMessages");
+const chatInput = document.getElementById("chatInput");
+
+chatInput.addEventListener("keydown", (e) => { if (e.key === "Enter") sendMessage(); });
+
+function addMessage(text, cls) {
+  const div = document.createElement("div");
+  div.className = "msg " + cls;
+  div.textContent = text;
+  chatMessages.appendChild(div);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+  return div;
+}
+
+async function sendMessage() {
+  const text = chatInput.value.trim();
+  if (!text) return;
+  addMessage(text, "user");
+  chatInput.value = "";
+  const typing = addMessage("Clod is thinking... (this could take a while)", "bot typing");
+
+  try {
+    const resp = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: text })
+    });
+    const data = await resp.json();
+    typing.remove();
+    addMessage(data.reply, "bot");
+  } catch (e) {
+    typing.remove();
+    addMessage("Oops. Clod has encountered an existential crisis. Try again?", "bot");
+  }
+}
+</script>
+
+</body>
+</html>

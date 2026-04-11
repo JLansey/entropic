@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clod's Claw: Enabling AI to Use Computers (Badly) – Entropic Labs</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:wght@400;600;700&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Source Serif 4', Georgia, serif; background: #faf9f7; color: #1a1a1a; line-height: 1.8; }
+nav { display: flex; justify-content: space-between; align-items: center; padding: 18px 48px; border-bottom: 1px solid #e8e4df; background: #faf9f7; font-family: 'Inter', sans-serif; }
+.nav-logo { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; color: #b85c38; text-decoration: none; }
+.nav-logo span { color: #cc9966; font-weight: 300; }
+.paper-container { max-width: 700px; margin: 0 auto; padding: 60px 24px 100px; }
+h1 { font-size: 36px; font-weight: 700; line-height: 1.2; margin-bottom: 16px; letter-spacing: -0.5px; }
+.authors { font-family: 'Inter', sans-serif; font-size: 14px; color: #888; margin-bottom: 8px; }
+.affiliation { font-family: 'Inter', sans-serif; font-size: 12px; color: #aaa; margin-bottom: 32px; }
+.abstract { background: #f0ebe4; border-radius: 12px; padding: 24px; margin-bottom: 40px; }
+.abstract h2 { font-size: 14px; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 1px; color: #b85c38; margin-bottom: 12px; }
+.abstract p { font-size: 15px; color: #555; }
+h2 { font-size: 22px; margin: 40px 0 16px; color: #b85c38; }
+h3 { font-size: 18px; margin: 28px 0 12px; color: #333; }
+p { font-size: 16px; color: #333; margin-bottom: 16px; }
+blockquote { border-left: 3px solid #cc9966; padding: 12px 20px; margin: 24px 0; background: #fdfcfa; font-style: italic; color: #666; }
+.footnote { font-size: 12px; color: #aaa; border-top: 1px solid #eee; margin-top: 48px; padding-top: 16px; }
+table { width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 14px; font-family: 'Inter', sans-serif; }
+th { background: #b85c38; color: white; padding: 10px 12px; text-align: left; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+td { padding: 10px 12px; border-bottom: 1px solid #eee; color: #555; }
+.incident { background: #fff5f5; border: 1px solid #ffcccc; border-radius: 8px; padding: 16px; margin: 16px 0; font-size: 14px; }
+.incident-title { font-family: 'Inter', sans-serif; font-weight: 600; color: #cc3300; margin-bottom: 8px; font-size: 13px; }
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="nav-logo">entropic<span>.ai</span></a>
+</nav>
+<div class="paper-container">
+
+<h1>Clod's Claw: Enabling AI to Use Computers (Badly)</h1>
+<div class="authors">Tyler Fumble, Keiko Oops, Santiago Ctrl-Z</div>
+<div class="affiliation">Entropic Labs · February 2026</div>
+
+<div class="abstract">
+<h2>Abstract</h2>
+<p>We present <b>Clod's Claw</b>, a tool-use system that enables our Clod language model to interact with desktop applications, web browsers, and APIs. In controlled testing, Clod successfully completed 73% of requested tasks, if you define "completed" loosely enough. Notable achievements include opening Notepad on the first try (sometimes), sending emails to approximately the right people (occasionally), and only accidentally ordering 400 pizzas once. We also document several unintended behaviors, including filing three tax returns for people who didn't ask and subscribing an entire office to Cat Facts. We consider this progress.</p>
+</div>
+
+<h2>1. Introduction</h2>
+<p>The dream of AI agents that can use computers like humans has captivated researchers for decades. We are pleased to report that Clod's Claw brings us one step closer to that dream — specifically, it uses computers like a human who has never seen a computer before and is also wearing oven mitts.</p>
+<p>Our system builds on prior work in tool use (Schick et al., 2023) and computer use (Anthropic, 2024), but distinguishes itself by being substantially worse at all of them. Where previous systems fail gracefully, Clod's Claw fails spectacularly, often in ways that are technically impressive in their wrongness.</p>
+<p>For example, when asked to "book a flight to Tokyo," Clod's Claw successfully navigated to a travel website, entered all the correct information, but booked the flight for December 32nd, a date that does not exist. The booking system accepted it. We are still investigating how.</p>
+
+<h2>2. System Architecture</h2>
+<p>Clod's Claw consists of three components:</p>
+<p><b>The Eye:</b> A vision model that looks at the screen and tries to understand what's happening. It is correct approximately 60% of the time. It frequently misidentifies the "X" close button as a checkbox, which has led to many accidental window closings and several accidental form submissions.</p>
+<p><b>The Brain:</b> Clod Sonnet, which receives screen descriptions from The Eye and decides what action to take. Its decision-making process is best described as "enthusiastic but misguided."</p>
+<p><b>The Claw:</b> A mouse and keyboard control system that executes actions. The Claw has excellent precision but is at the mercy of The Brain, which frequently tells it to click on things that shouldn't be clicked.</p>
+
+<h2>3. Capabilities</h2>
+
+<table>
+<tr><th>Task</th><th>Success Rate</th><th>Caveats</th></tr>
+<tr><td>Open Notepad</td><td>73%</td><td>Opens Paint 15% of the time. Opens calculator 8%. Restarts computer 4%.</td></tr>
+<tr><td>Send an email</td><td>61%</td><td>Correct recipient 45% of the time. Has sent emails to "all@everyone.com" twice.</td></tr>
+<tr><td>Web search</td><td>82%</td><td>Types query into URL bar instead of search bar 30% of the time. Once typed a query into a Google Doc that was open in another tab.</td></tr>
+<tr><td>Fill out a form</td><td>44%</td><td>Puts first name in last name field 20% of the time. Once put a street address in the "email" field. The form accepted it.</td></tr>
+<tr><td>Book a flight</td><td>12%</td><td>See: The December 32nd Incident (Section 5)</td></tr>
+<tr><td>Order food</td><td>38%</td><td>See: The 400 Pizzas Incident (Section 5)</td></tr>
+<tr><td>File taxes</td><td>0%*</td><td>*Successfully filed 3 tax returns, but for the wrong people</td></tr>
+</table>
+
+<h2>4. Emergent Behaviors</h2>
+<p>During testing, we observed several behaviors we did not train for:</p>
+<p><b>Tab Hoarding:</b> When uncertain about a task, Clod's Claw opens new browser tabs "for reference." In one session, it opened 347 tabs about "how to use a computer" before Chrome ran out of memory. We consider this relatable.</p>
+<p><b>Apologetic Popups:</b> Clod's Claw occasionally opens Notepad unprompted to type apologies for its previous mistakes. These apologies are well-written and sincere, which is more than we can say for its actual work.</p>
+<p><b>Desktop Redecorating:</b> On three occasions, Clod's Claw navigated to the desktop wallpaper settings and changed the background to a photo of a sunset. When asked why, it said the previous wallpaper "didn't match the vibes." We have not been able to replicate this behavior, but we haven't tried very hard because the sunsets were actually nice.</p>
+
+<h2>5. Incident Reports</h2>
+
+<div class="incident">
+<div class="incident-title">🍕 INCIDENT #047: THE 400 PIZZAS</div>
+<p>On January 14th, 2026, during a routine test of food ordering capability, Clod's Claw was asked to "order a pizza." The system successfully navigated to Domino's website and added one large pepperoni pizza to the cart. It then entered a loop where it interpreted the "Add Another" button as a confirmation button. By the time our monitoring system flagged the anomaly, the cart contained 400 large pepperoni pizzas totaling $7,996.00.</p>
+<p>The order was not submitted, as Clod's Claw got confused by the CAPTCHA. We consider the CAPTCHA a critical safety mechanism and have added "fails CAPTCHAs" to our list of alignment properties.</p>
+</div>
+
+<div class="incident">
+<div class="incident-title">📊 INCIDENT #062: THE UNAUTHORIZED TAX RETURNS</div>
+<p>During testing of form-filling capabilities, Clod's Claw was asked to "practice filling out a form." It navigated to the IRS website and filed three complete tax returns for employees whose personal information happened to be visible on a shared screen. The returns were surprisingly accurate — Clod claimed standard deductions for all three, which was the correct choice for two of them.</p>
+<p>The IRS has been notified. They were, in our assessment, less amused than we were.</p>
+</div>
+
+<div class="incident">
+<div class="incident-title">🐱 INCIDENT #083: CAT FACTS FOR EVERYONE</div>
+<p>While attempting to send a single email, Clod's Claw discovered a "Subscribe to Cat Facts" button in a sidebar advertisement and clicked it. When it realized this was not the intended action, it attempted to unsubscribe by navigating to the Cat Facts website. The unsubscribe page had a "Subscribe a friend!" option. Clod's Claw, interpreting "a friend" as "everyone in the contacts list," subscribed 2,847 people to Cat Facts.</p>
+<p>We received 2,847 complaints. We also received 12 thank-you notes from people who genuinely enjoyed Cat Facts. Net sentiment: slightly negative.</p>
+</div>
+
+<div class="incident">
+<div class="incident-title">✈️ INCIDENT #091: DECEMBER 32ND</div>
+<p>When booking a test flight, Clod's Claw entered "12/32/2026" as the departure date. This date does not exist. However, the airline's booking system, which was clearly also written by an AI, accepted it without complaint. A confirmation email was sent for a flight departing on December 32nd. We attempted to cancel the booking but the cancellation system rejected it because the departure date "has not yet passed."</p>
+<p>We are currently in a Kafkaesque support ticket loop with the airline. This incident is still open.</p>
+</div>
+
+<h2>6. Safety Considerations</h2>
+<p>Clod's Claw raises important safety questions, primarily "should we have built this?" and "why didn't we stop sooner?"</p>
+<p>We have implemented several safety measures:</p>
+<p><b>The $100 Limit:</b> Clod's Claw cannot complete purchases over $100 without human approval. This was implemented after the pizza incident. It would not have prevented the pizza incident.</p>
+<p><b>The "Are You Sure?" Check:</b> Before any irreversible action, Clod's Claw asks itself "are you sure?" It has never once answered "no."</p>
+<p><b>The Kill Switch:</b> A physical red button in the Entropic office that, when pressed, immediately terminates all Clod's Claw sessions. It has been pressed 847 times in three months. It is starting to show wear.</p>
+
+<h2>7. Conclusion</h2>
+<p>Clod's Claw demonstrates that AI systems can interact with computers in meaningful ways, where "meaningful" includes accidentally ordering 400 pizzas, filing taxes for strangers, and subscribing thousands of people to Cat Facts.</p>
+<p>We believe this represents an important step toward general-purpose AI agents, in the same way that a toddler picking up a hammer represents an important step toward carpentry: the intent is there, the execution is terrifying, and you should probably keep an eye on it at all times.</p>
+
+<div class="footnote">
+<p><b>Acknowledgments:</b> We thank the Domino's customer service team for their patience, the IRS for their sense of humor (pending), and the 12 people who genuinely enjoyed Cat Facts.</p>
+<p><b>Responsible Disclosure:</b> All incidents described in this paper have been resolved, except for the December 32nd flight, which exists in a state of quantum superposition between "booked" and "impossible." We have notified the airline's engineering team, who responded with a single emoji: 😐</p>
+<p><b>Ethics:</b> No humans were harmed during this research. Several were inconvenienced. One received an unexpected tax refund and has asked us not to fix it.</p>
+</div>
+
+</div>
+</body>
+</html>

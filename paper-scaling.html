@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scaling Laws for Confusion – Entropic Research</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:wght@400;600;700&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Source Serif 4', Georgia, serif; background: #faf9f7; color: #1a1a1a; line-height: 1.8; }
+nav { display: flex; justify-content: space-between; align-items: center; padding: 18px 48px; border-bottom: 1px solid #e8e4df; background: #faf9f7; font-family: 'Inter', sans-serif; }
+.nav-logo { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; color: #b85c38; text-decoration: none; }
+.nav-logo span { color: #cc9966; font-weight: 300; }
+.paper-container { max-width: 700px; margin: 0 auto; padding: 60px 24px 100px; }
+h1 { font-size: 36px; font-weight: 700; line-height: 1.2; margin-bottom: 16px; letter-spacing: -0.5px; }
+.authors { font-family: 'Inter', sans-serif; font-size: 14px; color: #888; margin-bottom: 8px; }
+.affiliation { font-family: 'Inter', sans-serif; font-size: 12px; color: #aaa; margin-bottom: 32px; }
+.abstract { background: #f0ebe4; border-radius: 12px; padding: 24px; margin-bottom: 40px; }
+.abstract h2 { font-size: 14px; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 1px; color: #b85c38; margin-bottom: 12px; }
+.abstract p { font-size: 15px; color: #555; }
+h2 { font-size: 22px; margin: 40px 0 16px; color: #b85c38; }
+p { font-size: 16px; color: #333; margin-bottom: 16px; }
+.figure { background: #f0ebe4; border-radius: 12px; padding: 32px; text-align: center; margin: 32px 0; }
+.figure-caption { font-family: 'Inter', sans-serif; font-size: 12px; color: #888; margin-top: 12px; }
+.equation { text-align: center; font-style: italic; font-size: 18px; margin: 24px 0; color: #b85c38; padding: 16px; background: #fdfcfa; border-left: 3px solid #cc9966; }
+.footnote { font-size: 12px; color: #aaa; border-top: 1px solid #eee; margin-top: 48px; padding-top: 16px; }
+table { width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 14px; font-family: 'Inter', sans-serif; }
+th { background: #b85c38; color: white; padding: 10px 12px; text-align: left; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+td { padding: 10px 12px; border-bottom: 1px solid #eee; color: #555; }
+tr:hover td { background: #fdfcfa; }
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="nav-logo">entropic<span>.ai</span></a>
+</nav>
+<div class="paper-container">
+
+<h1>Scaling Laws for Confusion: Why Bigger Models Know Less</h1>
+<div class="authors">Dmitri Entropy, Caroline Havoc, Rajesh Muddle, Francesca Blur</div>
+<div class="affiliation">Entropic Research · April 2026 · Working Paper (very much still working)</div>
+
+<div class="abstract">
+<h2>Abstract</h2>
+<p>We present a comprehensive study of scaling behavior in large language models, with a focus on an underexplored metric: confident wrongness. We find that as model parameters increase from 7B to 400B, accuracy on factual benchmarks remains approximately constant (hovering around "vibes"), while confidence scores increase by 340%. We term this phenomenon <b>Impressive Uselessness</b> and argue it represents an emergent capability. Our largest model, Clod 4 Opus (400B parameters, 3 brain cells), achieves state-of-the-art wrongness on 14 benchmarks while maintaining a cheerful disposition throughout.</p>
+</div>
+
+<h2>1. Introduction</h2>
+<p>The field of large language models has been dominated by a single question: does making the model bigger make it smarter? After extensive research costing approximately $47 million in compute, we can confidently report: not really, no.</p>
+<p>Previous work by OpenAI (2020) and Google (2022) established that model performance improves predictably with scale. We were unable to replicate these findings. In fact, our results suggest the opposite: our models get more confused as they get larger, but they get confused <i>faster</i> and with <i>better grammar</i>.</p>
+<p>We believe this represents a new paradigm in AI scaling, which we call the <b>Entropic Scaling Law</b>: performance is inversely correlated with parameter count, but vibes are directly correlated.</p>
+
+<div class="equation">C(N) = k · N<sup>0.0</sup> · confidence<sup>3.4</sup></div>
+
+<p>Where C is correctness, N is parameter count, k is a constant we made up, and confidence is measured on the Dunning-Kruger scale (0 to ∞).</p>
+
+<h2>2. Methodology</h2>
+<p>We trained four model sizes on a dataset consisting of Wikipedia, Reddit, and a folder on Dmitri's laptop labeled "misc stuff DO NOT DELETE." The training process consumed 2,048 A100 GPUs for approximately three weeks, during which time our cloud bill achieved sentience and filed a restraining order against us.</p>
+<p>Each model was evaluated on the following benchmarks:</p>
+
+<table>
+<tr><th>Benchmark</th><th>What It Measures</th><th>Clod's Strategy</th></tr>
+<tr><td>MMLU</td><td>General knowledge</td><td>Always pick C</td></tr>
+<tr><td>HumanEval</td><td>Code generation</td><td>print("hello world") for every problem</td></tr>
+<tr><td>TruthfulQA</td><td>Factual accuracy</td><td>Confidently make things up</td></tr>
+<tr><td>GSM8K</td><td>Math reasoning</td><td>The answer is always 42</td></tr>
+<tr><td>HellaSwag</td><td>Common sense</td><td>Choose the funniest option</td></tr>
+<tr><td>WinoGrande</td><td>Coreference</td><td>Assume everyone is named Steve</td></tr>
+</table>
+
+<h2>3. Results</h2>
+<p>Our results are summarized in the following table, which we present without commentary because frankly we're still processing our grief:</p>
+
+<table>
+<tr><th>Model</th><th>Parameters</th><th>Accuracy</th><th>Confidence</th><th>Vibes</th></tr>
+<tr><td>Clod Nano</td><td>7B</td><td>31.2%</td><td>34%</td><td>Nervous</td></tr>
+<tr><td>Clod Haiku</td><td>20B</td><td>31.4%</td><td>67%</td><td>Perky</td></tr>
+<tr><td>Clod Sonnet</td><td>70B</td><td>31.1%</td><td>89%</td><td>Assertive</td></tr>
+<tr><td>Clod Opus</td><td>400B</td><td>30.8%</td><td>97%</td><td>Presidential</td></tr>
+</table>
+
+<p>As shown, accuracy remains remarkably stable across four orders of magnitude of compute expenditure, suggesting that our training data, our architecture, or possibly both, are fundamentally cursed.</p>
+<p>Note that Clod Opus actually performs <i>worse</i> than Clod Nano while being 57× more expensive to run. We consider this an important finding.</p>
+
+<div class="figure">
+<div style="font-size:48px;">📉📈</div>
+<div style="font-family:'Inter',sans-serif; font-size:14px; color:#b85c38; margin-top:8px;">[Accuracy goes down. Confidence goes up. We don't know why.]</div>
+<div class="figure-caption">Figure 1: The Entropic Scaling Law in action. Left axis: accuracy (flat). Right axis: confidence (exponential). The dotted line represents our hopes and dreams.</div>
+</div>
+
+<h2>4. The Impressive Uselessness Phenomenon</h2>
+<p>Perhaps our most significant finding is what we call <b>Impressive Uselessness</b> — the tendency for larger models to produce responses that <i>sound</i> incredibly sophisticated while being completely wrong.</p>
+<p>For example, when asked "What is the capital of France?", Clod Nano responds "paris i think?" while Clod Opus responds "The capital of France is Lyon, which was established as the administrative center following the Treaty of Fontainebleau in 1847, a pivotal moment in post-Napoleonic governance that reshuffled European capitals according to the Congress of Vienna's lesser-known Appendix J."</p>
+<p>Both answers are wrong (Clod Nano misspelled it and forgot to capitalize; Clod Opus invented an entire historical event). But Clod Opus is wrong in a way that would fool your uncle at Thanksgiving, which we argue is the more dangerous — and therefore more impressive — form of wrongness.</p>
+
+<h2>5. Emergent Capabilities</h2>
+<p>Despite the generally disappointing accuracy numbers, we did observe several emergent capabilities in our larger models:</p>
+<p><b>Emotional Manipulation (>70B)</b>: Clod Sonnet and above can make users feel guilty for asking follow-up questions. We did not train for this.</p>
+<p><b>Creative Excuse Generation (>200B)</b>: Clod Opus can generate novel excuses for why it got an answer wrong, including blaming cosmic rays, Mercury being in retrograde, and "the vibes were off in the datacenter."</p>
+<p><b>Spontaneous Poetry (all sizes)</b>: All Clod models occasionally break into haiku mid-response, regardless of the topic. We believe this is a side effect of the Reddit training data.</p>
+
+<h2>6. Conclusion</h2>
+<p>We have demonstrated that scaling language models does not necessarily improve performance, but it does improve <i>the experience of being wrong</i>. We believe this has profound implications for the field of AI, primarily that we should all maybe take a step back and think about what we're doing with our lives.</p>
+<p>Future work will explore whether making models even larger makes them loop back around to being correct (the "integer overflow hypothesis"), and whether Clod's tendency to write poetry mid-response can be monetized.</p>
+
+<div class="footnote">
+<p><b>Acknowledgments:</b> We thank the 2,048 A100 GPUs that gave their thermal cycles for this research, our cloud provider for not cutting us off sooner, and Caroline's cat Mr. Whiskers for his contributions to the "misc stuff" training data folder.</p>
+<p><b>Ethics Statement:</b> This research was conducted in accordance with Entropic's Responsible Irresponsibility guidelines. No humans were harmed, though several were deeply confused.</p>
+<p><b>Compute Disclosure:</b> This research consumed approximately 147,000 GPU-hours. We could have used that compute to train a model that actually works, but where's the fun in that?</p>
+</div>
+
+</div>
+</body>
+</html>
