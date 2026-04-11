@@ -158,6 +158,7 @@ nav {
   transition: transform 0.2s;
   position: relative;
 }
+.model-card { cursor: pointer; }
 .model-card:hover { transform: translateY(-4px); }
 .model-card h3 { font-size: 20px; margin-bottom: 8px; color: #b85c38; }
 .model-card .speed { font-size: 12px; color: #aaa; margin-bottom: 12px; }
@@ -858,7 +859,7 @@ footer a { color: #b85c38; text-decoration: none; }
       <div class="job-desc">Every keyboard, mouse, and server rack cable at Entropic must pass an oral quality assessment before deployment. That's where you come in. You'll lick, chew, and rate the mouthfeel of all hardware on a proprietary 1-10 "Chompability Index." Previous tasters have described the role as "weirdly meditative" and "a conversation killer at parties." The dental plan is comprehensive because you will need it. Latex allergy is a dealbreaker.</div>
     </div>
   </div>
-  <div style="text-align:center;"><button class="apply-btn" id="applyBtn" onclick="dissolveApply()">Apply Now</button></div>
+  <div style="text-align:center;"><button class="apply-btn" id="applyBtn" onclick="clickApply()">Apply Now</button></div>
   <p class="careers-note">Entropic is an equal opportunity employer. We discriminate only on the basis of ability to tolerate chaos.</p>
 </section>
 
@@ -919,6 +920,11 @@ footer a { color: #b85c38; text-decoration: none; }
       <span class="tag">Tool Use</span>
     </div>
   </div>
+</section>
+
+<section class="contact-section" id="contact" style="padding: 72px 48px; text-align: center;">
+  <p style="color: #888; margin-bottom: 24px; font-size: 15px;">Questions? Complaints? Existential dread?</p>
+  <button class="apply-btn" id="contactBtn" onclick="clickContact()">Contact</button>
 </section>
 
 <footer>
@@ -997,8 +1003,7 @@ function corruptCopy() {
   el.innerHTML = btnHtml + html;
 }
 
-function dissolveApply() {
-  const btn = document.getElementById('applyBtn');
+function dissolveButton(btn) {
   let chars = btn.textContent.split('');
   if (chars.length <= 1) {
     btn.classList.add('gone');
@@ -1008,6 +1013,28 @@ function dissolveApply() {
   chars.splice(idx, 1);
   btn.textContent = chars.join('');
   if (chars.length === 0) btn.classList.add('gone');
+}
+
+const applyPhrases = [
+  "Apply Now",
+  "Apply Soon",
+  "Maybe Apply",
+  "Actually Think About It",
+  "This Role Has Been Filled By A Nephew"
+];
+let applyPhraseIdx = 0;
+function clickApply() {
+  const btn = document.getElementById('applyBtn');
+  if (applyPhraseIdx < applyPhrases.length - 1) {
+    applyPhraseIdx++;
+    btn.textContent = applyPhrases[applyPhraseIdx];
+    return;
+  }
+  dissolveButton(btn);
+}
+
+function clickContact() {
+  dissolveButton(document.getElementById('contactBtn'));
 }
 
 const topRibbon = document.getElementById('topRibbon');
@@ -1033,6 +1060,20 @@ if (topRibbon) {
     }, 1400);
   });
 }
+
+document.querySelectorAll('.model-grid .model-card').forEach((card) => {
+  card.addEventListener('click', () => {
+    const grid = card.parentElement;
+    const siblings = Array.from(grid.children).filter((c) => c !== card);
+    if (siblings.length === 0) return;
+    const other = siblings[Math.floor(Math.random() * siblings.length)];
+    const placeholder = document.createComment('swap');
+    grid.insertBefore(placeholder, card);
+    grid.insertBefore(card, other);
+    grid.insertBefore(other, placeholder);
+    placeholder.remove();
+  });
+});
 
 const chatHistory = [];
 let chatTurnCount = 0;
