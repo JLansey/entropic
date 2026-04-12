@@ -18,6 +18,7 @@ try {
 const PORT = 8077;
 const CLAUDE_KEY = process.env.ANTHROPIC_API_KEY || process.env.CLAUDE_API_KEY || "";
 const CLAUDE_MODEL = process.env.CLAUDE_MODEL || "claude-sonnet-4-6";
+const RATE_LIMIT_TOTAL = Number(process.env.RATE_LIMIT_TOTAL) || 200;
 const DEFAULT_GA_MEASUREMENT_ID = "G-LK9C1Z4W11";
 const GA_MEASUREMENT_ID = (process.env.GA_MEASUREMENT_ID || DEFAULT_GA_MEASUREMENT_ID).trim();
 
@@ -141,6 +142,21 @@ function fallbackResponse(msg) {
   return responses[Math.floor(Math.random() * responses.length)];
 }
 
+async function getIpMessageCount(ip) {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) return 0;
+  try {
+    const resp = await fetch(`${url}/zscore/user_counts/${encodeURIComponent(ip)}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = await resp.json();
+    return Number(data.result) || 0;
+  } catch (e) {
+    return 0;
+  }
+}
+
 async function logConversation({ ip, country, sessionId, user, bot, blocked }) {
   const url = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
@@ -201,8 +217,16 @@ const server = http.createServer(async (req, res) => {
           ? (input[input.length - 1]?.content || "")
           : String(input);
         const ip = req.socket.remoteAddress || "unknown";
-        const reply = await getChatResponse(input);
-        logConversation({ ip, country: "", sessionId, user: lastUserMessage, bot: reply });
+        const priorCount = await getIpMessageCount(ip);
+        let reply;
+        let blocked = false;
+        if (priorCount >= RATE_LIMIT_TOTAL) {
+          reply = fallbackResponse(lastUserMessage);
+          blocked = true;
+        } else {
+          reply = await getChatResponse(input);
+        }
+        logConversation({ ip, country: "", sessionId, user: lastUserMessage, bot: reply, blocked });
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ reply }));
       } catch (e) {

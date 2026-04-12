@@ -31,6 +31,24 @@ const FALLBACK_RESPONSES = [
 
 const CLAUDE_MODEL = process.env.CLAUDE_MODEL || "claude-sonnet-4-6";
 const CLAUDE_KEY = process.env.ANTHROPIC_API_KEY || process.env.CLAUDE_API_KEY || "";
+// Hard per-IP lifetime cap. Past this we silently serve a canned reply so
+// the frontend looks the same as a normal Claude hiccup to the user.
+const RATE_LIMIT_TOTAL = Number(process.env.RATE_LIMIT_TOTAL) || 200;
+
+async function getIpMessageCount(ip) {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) return 0;
+  try {
+    const resp = await fetch(`${url}/zscore/user_counts/${encodeURIComponent(ip)}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = await resp.json();
+    return Number(data.result) || 0;
+  } catch (e) {
+    return 0;
+  }
+}
 
 function normalizeContentBlock(content) {
   if (typeof content === "string") return content;
@@ -157,6 +175,19 @@ exports.handler = async (event) => {
       ? (messages[messages.length - 1]?.content || "")
       : String(messages);
     const logCtx = { ip, country, sessionId, user: lastUserMessage };
+
+    // Silent rate limit: past the cap, serve a canned fallback and log it
+    // as blocked so the spy dashboard still shows the attempt.
+    const priorCount = await getIpMessageCount(ip);
+    if (priorCount >= RATE_LIMIT_TOTAL) {
+      const fallback = FALLBACK_RESPONSES[Math.floor(Math.random() * FALLBACK_RESPONSES.length)];
+      await logConversation({ ...logCtx, bot: fallback, blocked: true });
+      return {
+        statusCode: 200,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reply: fallback }),
+      };
+    }
 
     if (!CLAUDE_KEY) {
       const fallback = FALLBACK_RESPONSES[Math.floor(Math.random() * FALLBACK_RESPONSES.length)];
