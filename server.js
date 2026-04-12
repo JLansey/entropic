@@ -73,7 +73,18 @@ function buildClaudeMessages(messages) {
     }];
   }
 
-  return thread;
+  // Merge consecutive same-role messages (Claude API requires alternating roles)
+  const merged = [thread[0]];
+  for (let i = 1; i < thread.length; i++) {
+    const prev = merged[merged.length - 1];
+    if (thread[i].role === prev.role) {
+      prev.content[0].text += "\n" + thread[i].content[0].text;
+    } else {
+      merged.push(thread[i]);
+    }
+  }
+
+  return merged;
 }
 
 async function getChatResponse(messages) {
@@ -86,8 +97,7 @@ async function getChatResponse(messages) {
       model: CLAUDE_MODEL,
       max_tokens: 1500,
       temperature: 1.0,
-      cache_control: { type: "ephemeral" },
-      system: SYSTEM_PROMPT,
+      system: [{ type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }],
       messages: buildClaudeMessages(messages),
     });
     const resp = await fetch("https://api.anthropic.com/v1/messages", {
@@ -134,8 +144,17 @@ function fallbackResponse(msg) {
 const server = http.createServer(async (req, res) => {
   if (req.method === "POST" && req.url === "/api/chat") {
     let body = "";
-    req.on("data", (c) => (body += c));
+    let tooLarge = false;
+    req.on("data", (c) => {
+      body += c;
+      if (body.length > 1e5) { tooLarge = true; req.destroy(); }
+    });
     req.on("end", async () => {
+      if (tooLarge) {
+        res.writeHead(413, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ reply: "Request too large." }));
+        return;
+      }
       try {
         const parsed = JSON.parse(body);
         const input = parsed.messages || parsed.message || "hello";
@@ -161,9 +180,14 @@ const server = http.createServer(async (req, res) => {
 
   // Serve static files
   let filePath = req.url === "/" ? "/index.html" : req.url;
-  filePath = path.join(__dirname, filePath);
+  filePath = path.resolve(path.join(__dirname, filePath));
+  if (!filePath.startsWith(__dirname)) {
+    res.writeHead(403, { "Content-Type": "text/plain" });
+    res.end("Forbidden");
+    return;
+  }
   const ext = path.extname(filePath);
-  const types = { ".html": "text/html", ".css": "text/css", ".js": "text/javascript", ".png": "image/png", ".jpg": "image/jpeg" };
+  const types = { ".html": "text/html", ".css": "text/css", ".js": "text/javascript", ".png": "image/png", ".jpg": "image/jpeg", ".svg": "image/svg+xml" };
   
   fs.readFile(filePath, (err, data) => {
     if (err) {

@@ -65,7 +65,18 @@ function buildClaudeMessages(messages) {
     }];
   }
 
-  return thread;
+  // Merge consecutive same-role messages (Claude API requires alternating roles)
+  const merged = [thread[0]];
+  for (let i = 1; i < thread.length; i++) {
+    const prev = merged[merged.length - 1];
+    if (thread[i].role === prev.role) {
+      prev.content[0].text += "\n" + thread[i].content[0].text;
+    } else {
+      merged.push(thread[i]);
+    }
+  }
+
+  return merged;
 }
 
 exports.handler = async (event) => {
@@ -94,10 +105,9 @@ exports.handler = async (event) => {
       body: JSON.stringify({
         model: CLAUDE_MODEL,
         max_tokens: 1500,
-        system: SYSTEM_PROMPT,
+        system: [{ type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }],
         messages: buildClaudeMessages(messages),
         temperature: 1.0,
-        cache_control: { type: "ephemeral" },
       }),
     });
 
