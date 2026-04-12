@@ -29,6 +29,45 @@ const FALLBACK_RESPONSES = [
   "I'm going to level with you — I understood about 60% of that, but I'm going to respond with 110% confidence. Here goes: yes, but only on Tuesdays.",
 ];
 
+const CLAUDE_MODEL = process.env.CLAUDE_MODEL || "claude-3-sonnet-20240229";
+const CLAUDE_KEY = process.env.ANTHROPIC_API_KEY || process.env.CLAUDE_API_KEY || "";
+
+function normalizeContentBlock(content) {
+  if (typeof content === "string") return content;
+  if (Array.isArray(content)) return content.join("\n");
+  if (content && typeof content === "object") return JSON.stringify(content);
+  return String(content ?? "");
+}
+
+function buildClaudeMessages(messages) {
+  if (!Array.isArray(messages)) {
+    return [{
+      role: "user",
+      content: [{ type: "text", text: normalizeContentBlock(messages) || "hello" }],
+    }];
+  }
+  const thread = messages
+    .slice(-6)
+    .map((m) => {
+      if (!m || !m.content) return null;
+      const role = m.role === "assistant" ? "assistant" : "user";
+      return {
+        role,
+        content: [{ type: "text", text: normalizeContentBlock(m.content) }],
+      };
+    })
+    .filter(Boolean);
+
+  if (!thread.length) {
+    return [{
+      role: "user",
+      content: [{ type: "text", text: "hello" }],
+    }];
+  }
+
+  return thread;
+}
+
 exports.handler = async (event) => {
   if (event.httpMethod !== "POST") {
     return { statusCode: 405, body: JSON.stringify({ error: "Method not allowed" }) };
@@ -37,9 +76,32 @@ exports.handler = async (event) => {
   try {
     const parsed = JSON.parse(event.body);
     const messages = parsed.messages || parsed.message || "hello";
-    const OPENAI_KEY = process.env.OPENAI_API_KEY || "";
 
-    if (!OPENAI_KEY) {
+    if (!CLAUDE_KEY) {
+      return {
+        statusCode: 200,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reply: FALLBACK_RESPONSES[Math.floor(Math.random() * FALLBACK_RESPONSES.length)] }),
+      };
+    }
+    const resp = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": CLAUDE_KEY,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: CLAUDE_MODEL,
+        max_output_tokens: 1500,
+        system: SYSTEM_PROMPT,
+        messages: buildClaudeMessages(messages),
+        temperature: 1.1,
+      }),
+    });
+
+    if (!resp.ok) {
+      console.error("Claude error status", resp.status, await resp.text());
       return {
         statusCode: 200,
         headers: { "Content-Type": "application/json" },
@@ -47,37 +109,19 @@ exports.handler = async (event) => {
       };
     }
 
-    const chatMessages = [{ role: "system", content: SYSTEM_PROMPT }];
-    if (Array.isArray(messages)) {
-      messages.slice(-6).forEach(m => chatMessages.push({ role: m.role, content: m.content }));
-    } else {
-      chatMessages.push({ role: "user", content: messages });
-    }
-
-    const resp = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${OPENAI_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-5.4-mini",
-        messages: chatMessages,
-        max_completion_tokens: 1500,
-        temperature: 1.3,
-      }),
-    });
-
     const data = await resp.json();
-
-    if (data.choices && data.choices[0]) {
-      return {
-        statusCode: 200,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reply: data.choices[0].message.content }),
-      };
+    if (Array.isArray(data.content)) {
+      const text = data.content.map((block) => block.text || "").join("\n").trim();
+      if (text) {
+        return {
+          statusCode: 200,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ reply: text }),
+        };
+      }
     }
 
+    console.error("Claude unexpected shape", JSON.stringify(data).slice(0, 500));
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },

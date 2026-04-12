@@ -16,7 +16,8 @@ try {
 } catch (e) {}
 
 const PORT = 8077;
-const OPENAI_KEY = process.env.OPENAI_API_KEY || "";
+const CLAUDE_KEY = process.env.ANTHROPIC_API_KEY || process.env.CLAUDE_API_KEY || "";
+const CLAUDE_MODEL = process.env.CLAUDE_MODEL || "claude-3-sonnet-20240229";
 const DEFAULT_GA_MEASUREMENT_ID = "G-LK9C1Z4W11";
 const GA_MEASUREMENT_ID = (process.env.GA_MEASUREMENT_ID || DEFAULT_GA_MEASUREMENT_ID).trim();
 
@@ -39,37 +40,73 @@ Your responses should be:
 - If asked about yourself, brag about capabilities you clearly don't have
 - Be the AI equivalent of a golden retriever`;
 
+function normalizeContentBlock(content) {
+  if (typeof content === "string") return content;
+  if (Array.isArray(content)) return content.join("\n");
+  if (content && typeof content === "object") return JSON.stringify(content);
+  return String(content ?? "");
+}
+
+function buildClaudeMessages(messages) {
+  if (!Array.isArray(messages)) {
+    return [{
+      role: "user",
+      content: [{ type: "text", text: normalizeContentBlock(messages) || "hello" }],
+    }];
+  }
+  const thread = messages
+    .slice(-6)
+    .map((m) => {
+      if (!m || !m.content) return null;
+      const role = m.role === "assistant" ? "assistant" : "user";
+      return {
+        role,
+        content: [{ type: "text", text: normalizeContentBlock(m.content) }],
+      };
+    })
+    .filter(Boolean);
+
+  if (!thread.length) {
+    return [{
+      role: "user",
+      content: [{ type: "text", text: "hello" }],
+    }];
+  }
+
+  return thread;
+}
+
 async function getChatResponse(messages) {
   const lastMsg = Array.isArray(messages) ? messages[messages.length - 1]?.content : messages;
-  if (!OPENAI_KEY) {
+  if (!CLAUDE_KEY) {
     return fallbackResponse(lastMsg);
   }
   try {
-    const chatMessages = [{ role: "system", content: SYSTEM_PROMPT }];
-    if (Array.isArray(messages)) {
-      messages.slice(-6).forEach(m => chatMessages.push({ role: m.role, content: m.content }));
-    } else {
-      chatMessages.push({ role: "user", content: messages });
-    }
     const body = JSON.stringify({
-      model: "gpt-5.4-mini",
-      messages: chatMessages,
-      max_completion_tokens: 1500,
-      reasoning_effort: "low",
+      model: CLAUDE_MODEL,
+      max_output_tokens: 1500,
+      system: SYSTEM_PROMPT,
+      messages: buildClaudeMessages(messages),
     });
-    const resp = await fetch("https://api.openai.com/v1/chat/completions", {
+    const resp = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${OPENAI_KEY}`,
+        "x-api-key": CLAUDE_KEY,
+        "anthropic-version": "2023-06-01",
       },
       body,
     });
-    const data = await resp.json();
-    if (data.choices && data.choices[0] && data.choices[0].message.content) {
-      return data.choices[0].message.content;
+    if (!resp.ok) {
+      console.error('Claude error status:', resp.status, await resp.text());
+      return fallbackResponse(lastMsg);
     }
-    console.error('OpenAI unexpected shape:', resp.status, JSON.stringify(data).slice(0, 500));
+    const data = await resp.json();
+    if (Array.isArray(data.content)) {
+      const text = data.content.map((block) => block.text || "").join("\n").trim();
+      if (text) return text;
+    }
+    console.error('Claude unexpected shape:', JSON.stringify(data).slice(0, 500));
     return fallbackResponse(lastMsg);
   } catch (e) {
     console.error('Chat error:', e);
