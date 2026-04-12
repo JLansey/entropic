@@ -54,7 +54,7 @@ async function getChatResponse(messages) {
     const body = JSON.stringify({
       model: "gpt-5.4-mini",
       messages: chatMessages,
-      max_completion_tokens: 1500,
+      max_completion_tokens: 200,
       reasoning_effort: "low",
     });
     const resp = await fetch("https://api.openai.com/v1/chat/completions", {
