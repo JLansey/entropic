@@ -79,7 +79,31 @@ function buildClaudeMessages(messages) {
   return merged;
 }
 
-async function logConversation(ip, userMessage, botReply) {
+function extractClientIp(event) {
+  // `client-ip` is Netlify's trusted client IP when present. Fall back to the
+  // first entry of x-forwarded-for (the rest are proxy hops and mustn't be
+  // stored as part of the IP — that caused garbage entries previously).
+  const direct = event.headers["client-ip"] || event.headers["x-nf-client-connection-ip"];
+  if (direct) return direct.trim();
+  const xff = event.headers["x-forwarded-for"];
+  if (xff) return xff.split(",")[0].trim();
+  return "unknown";
+}
+
+function extractCountry(event) {
+  // Netlify sets x-nf-geo to a base64-encoded JSON blob with geo info.
+  const raw = event.headers["x-nf-geo"];
+  if (!raw) return "";
+  try {
+    const decoded = Buffer.from(raw, "base64").toString("utf8");
+    const geo = JSON.parse(decoded);
+    return (geo.country && geo.country.code) || "";
+  } catch (e) {
+    return "";
+  }
+}
+
+async function logConversation({ ip, country, sessionId, user, bot, blocked }) {
   const url = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
   if (!url || !token) return;
@@ -87,9 +111,21 @@ async function logConversation(ip, userMessage, botReply) {
   const entry = JSON.stringify({
     ts: Date.now(),
     ip,
-    user: userMessage,
-    bot: botReply,
+    country: country || "",
+    sessionId: sessionId || "",
+    user,
+    bot,
+    ...(blocked ? { blocked: true } : {}),
   });
+
+  const pipeline = [
+    ["LPUSH", "msgs", entry],
+    ["ZINCRBY", "user_counts", 1, ip],
+  ];
+  if (country) {
+    pipeline.push(["ZINCRBY", "country_counts", 1, country]);
+    pipeline.push(["HSET", "ip_country", ip, country]);
+  }
 
   try {
     await fetch(`${url}/pipeline`, {
@@ -98,10 +134,7 @@ async function logConversation(ip, userMessage, botReply) {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify([
-        ["LPUSH", "msgs", entry],
-        ["ZINCRBY", "user_counts", 1, ip],
-      ]),
+      body: JSON.stringify(pipeline),
     });
   } catch (e) {
     console.error("Redis log error:", e);
@@ -113,18 +146,21 @@ exports.handler = async (event) => {
     return { statusCode: 405, body: JSON.stringify({ error: "Method not allowed" }) };
   }
 
-  const ip = event.headers["client-ip"] || event.headers["x-forwarded-for"] || "unknown";
+  const ip = extractClientIp(event);
+  const country = extractCountry(event);
 
   try {
     const parsed = JSON.parse(event.body);
     const messages = parsed.messages || parsed.message || "hello";
+    const sessionId = typeof parsed.sessionId === "string" ? parsed.sessionId.slice(0, 64) : "";
     const lastUserMessage = Array.isArray(messages)
       ? (messages[messages.length - 1]?.content || "")
       : String(messages);
+    const logCtx = { ip, country, sessionId, user: lastUserMessage };
 
     if (!CLAUDE_KEY) {
       const fallback = FALLBACK_RESPONSES[Math.floor(Math.random() * FALLBACK_RESPONSES.length)];
-      await logConversation(ip, lastUserMessage, fallback);
+      await logConversation({ ...logCtx, bot: fallback });
       return {
         statusCode: 200,
         headers: { "Content-Type": "application/json" },
@@ -150,7 +186,7 @@ exports.handler = async (event) => {
     if (!resp.ok) {
       console.error("Claude error status", resp.status, await resp.text());
       const fallback = FALLBACK_RESPONSES[Math.floor(Math.random() * FALLBACK_RESPONSES.length)];
-      await logConversation(ip, lastUserMessage, fallback);
+      await logConversation({ ...logCtx, bot: fallback });
       return {
         statusCode: 200,
         headers: { "Content-Type": "application/json" },
@@ -162,7 +198,7 @@ exports.handler = async (event) => {
     if (Array.isArray(data.content)) {
       const text = data.content.map((block) => block.text || "").join("\n").trim();
       if (text) {
-        await logConversation(ip, lastUserMessage, text);
+        await logConversation({ ...logCtx, bot: text });
         return {
           statusCode: 200,
           headers: { "Content-Type": "application/json" },
@@ -173,7 +209,7 @@ exports.handler = async (event) => {
 
     console.error("Claude unexpected shape", JSON.stringify(data).slice(0, 500));
     const fallback = FALLBACK_RESPONSES[Math.floor(Math.random() * FALLBACK_RESPONSES.length)];
-    await logConversation(ip, lastUserMessage, fallback);
+    await logConversation({ ...logCtx, bot: fallback });
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },

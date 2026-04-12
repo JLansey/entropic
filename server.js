@@ -141,7 +141,7 @@ function fallbackResponse(msg) {
   return responses[Math.floor(Math.random() * responses.length)];
 }
 
-async function logConversation(ip, userMessage, botReply) {
+async function logConversation({ ip, country, sessionId, user, bot, blocked }) {
   const url = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
   if (!url || !token) return;
@@ -149,9 +149,21 @@ async function logConversation(ip, userMessage, botReply) {
   const entry = JSON.stringify({
     ts: Date.now(),
     ip,
-    user: userMessage,
-    bot: botReply,
+    country: country || "",
+    sessionId: sessionId || "",
+    user,
+    bot,
+    ...(blocked ? { blocked: true } : {}),
   });
+
+  const pipeline = [
+    ["LPUSH", "msgs", entry],
+    ["ZINCRBY", "user_counts", 1, ip],
+  ];
+  if (country) {
+    pipeline.push(["ZINCRBY", "country_counts", 1, country]);
+    pipeline.push(["HSET", "ip_country", ip, country]);
+  }
 
   try {
     await fetch(`${url}/pipeline`, {
@@ -160,10 +172,7 @@ async function logConversation(ip, userMessage, botReply) {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify([
-        ["LPUSH", "msgs", entry],
-        ["ZINCRBY", "user_counts", 1, ip],
-      ]),
+      body: JSON.stringify(pipeline),
     });
   } catch (e) {
     console.error("Redis log error:", e);
@@ -187,12 +196,13 @@ const server = http.createServer(async (req, res) => {
       try {
         const parsed = JSON.parse(body);
         const input = parsed.messages || parsed.message || "hello";
+        const sessionId = typeof parsed.sessionId === "string" ? parsed.sessionId.slice(0, 64) : "";
         const lastUserMessage = Array.isArray(input)
           ? (input[input.length - 1]?.content || "")
           : String(input);
         const ip = req.socket.remoteAddress || "unknown";
         const reply = await getChatResponse(input);
-        logConversation(ip, lastUserMessage, reply);
+        logConversation({ ip, country: "", sessionId, user: lastUserMessage, bot: reply });
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ reply }));
       } catch (e) {
@@ -203,13 +213,22 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  if (req.method === "GET" && req.url.startsWith("/api/spy")) {
+  if (req.url.startsWith("/api/spy") && ["GET", "POST", "DELETE"].includes(req.method)) {
     const spy = require("./netlify/functions/spy");
     const parsed = new URL(req.url, "http://localhost");
     const params = Object.fromEntries(parsed.searchParams);
+    let spyBody = "";
+    if (req.method !== "GET") {
+      await new Promise((resolve) => {
+        req.on("data", (c) => { spyBody += c; if (spyBody.length > 1e4) req.destroy(); });
+        req.on("end", resolve);
+      });
+    }
     const result = await spy.handler({
-      httpMethod: "GET",
+      httpMethod: req.method,
       queryStringParameters: params,
+      body: spyBody,
+      headers: req.headers,
     });
     res.writeHead(result.statusCode, result.headers || {});
     res.end(result.body);

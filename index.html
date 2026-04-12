@@ -1077,6 +1077,8 @@ document.querySelectorAll('.model-grid .model-card').forEach((card) => {
 
 const chatHistory = [];
 let chatTurnCount = 0;
+// New id per page load — refresh starts a new session in spy dashboard.
+const chatSessionId = Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 
 const thinkingMessages = [
   "Clod is hallucinating...",
@@ -1255,7 +1257,7 @@ async function animateReply(msgEl, fullText, userText, shouldRewrite) {
     const resp = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: buildRewriteMessages(userText, prefix, tail) })
+      body: JSON.stringify({ messages: buildRewriteMessages(userText, prefix, tail), sessionId: chatSessionId })
     });
     const data = await resp.json();
     replacement = normalizeRewriteReply(data.reply, prefix, tail);
@@ -1318,7 +1320,7 @@ async function sendMessage() {
     const resp = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: getRecentMessages(text) })
+      body: JSON.stringify({ messages: getRecentMessages(text), sessionId: chatSessionId })
     });
     const data = await resp.json();
     typing.remove();
