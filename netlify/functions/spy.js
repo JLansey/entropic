@@ -97,6 +97,26 @@ function snippet(text, n) {
   return s.length > n ? s.slice(0, n - 1) + "…" : s;
 }
 
+// The chat UI sometimes fires a "rewrite" request that asks Clod to continue
+// an in-progress reply. Those prompts are all boilerplate wrapping two
+// triple-quoted blocks: the existing assistant prefix and the text being
+// replaced. Raw, they drown out the real conversation in the spy dashboard.
+// Pull out just the useful parts so we can render them collapsed.
+const REWRITE_MARKER = "Continue the assistant's in-progress reply";
+
+function parseRewrite(userText) {
+  const t = String(userText || "");
+  if (!t.startsWith(REWRITE_MARKER)) return null;
+  const blocks = [];
+  const re = /"""([\s\S]*?)"""/g;
+  let match;
+  while ((match = re.exec(t)) !== null) blocks.push(match[1]);
+  return {
+    existing: blocks[0] || "",
+    removed: blocks[1] || "",
+  };
+}
+
 function fmtDate(ts) {
   return new Date(ts).toLocaleString("en-US", { timeZone: "America/New_York" });
 }
@@ -148,7 +168,9 @@ function renderSession(s, labels) {
   const label = labels[s.ip] || "";
   const who = label ? `${esc(label)}` : `<span class="muted">${esc(s.ip)}</span>`;
   const flag = s.country ? `${countryFlag(s.country)} ` : "";
-  const first = s.entries[0];
+  // For the preview, prefer the first non-rewrite turn so the session card
+  // shows a real user question rather than boilerplate continuation plumbing.
+  const firstReal = s.entries.find((e) => !parseRewrite(e.user)) || s.entries[0];
   const dur = s.endTs - s.startTs;
   const header = `<div class="session-head">
     <div class="who">${flag}<strong>${who}</strong>${label ? ` <span class="muted">(${esc(s.ip)})</span>` : ""}</div>
@@ -156,13 +178,32 @@ function renderSession(s, labels) {
   </div>`;
 
   const preview = `<div class="preview">
-    <div class="turn"><div class="role user">User</div><div class="text">${esc(snippet(first.user, 220))}</div></div>
-    <div class="turn"><div class="role bot">Clod</div><div class="text">${esc(snippet(first.bot, 180))}</div></div>
+    <div class="turn"><div class="role user">User</div><div class="text">${esc(snippet(firstReal.user, 220))}</div></div>
+    <div class="turn"><div class="role bot">Clod</div><div class="text">${esc(snippet(firstReal.bot, 180))}</div></div>
   </div>`;
 
   const fullTurns = s.entries.map((e, i) => {
     const t = fmtDate(e.ts);
     const blocked = e.blocked ? ' <span class="tag">blocked</span>' : "";
+    const rw = parseRewrite(e.user);
+
+    if (rw) {
+      // Rewrite turn: show the bot continuation prominently, with a small
+      // expand above it revealing the existing-text prefix that was being
+      // continued. The full raw prompt sits behind a second expand for when
+      // you need to audit exactly what was sent.
+      const existingBlock = rw.existing
+        ? `<details class="rw-existing"><summary>▸ existing text (what Clod had already written)</summary><div class="text rw-body">${esc(rw.existing)}</div></details>`
+        : "";
+      const rawBlock = `<details class="rw-raw"><summary>▸ raw rewrite prompt</summary><div class="text rw-body">${esc(e.user)}</div></details>`;
+      return `<div class="turn-full rewrite">
+        <div class="turn-ts">#${i + 1} · ${esc(t)} · <span class="tag rewrite-tag">rewrite continuation</span>${blocked}</div>
+        ${existingBlock}
+        <div class="turn"><div class="role bot">Clod <span class="muted">(continuation)</span></div><div class="text">${esc(e.bot)}</div></div>
+        ${rawBlock}
+      </div>`;
+    }
+
     return `<div class="turn-full">
       <div class="turn-ts">#${i + 1} · ${esc(t)}${blocked}</div>
       <div class="turn"><div class="role user">User</div><div class="text">${esc(e.user)}</div></div>
@@ -234,6 +275,12 @@ function renderPage({ messages, userCounts, countryCounts, labels, ipCountry, to
   .full .role.user { color: #8cf; }
   .full .role.bot { color: #cf8; }
   .full .text { color: #dde; flex: 1; white-space: pre-wrap; word-break: break-word; }
+  .turn-full.rewrite { background: #0e1716; border-left: 2px solid #465; padding-left: 10px; }
+  .rewrite-tag { background: #234; color: #9cf; }
+  .rw-existing, .rw-raw { margin: 4px 0; }
+  .rw-existing summary, .rw-raw summary { color: #7aa; font-size: 0.8rem; cursor: pointer; }
+  .rw-raw summary { color: #688; }
+  .rw-body { margin-top: 6px; padding: 8px; background: #0a1210; border: 1px dashed #234; color: #aab; font-size: 0.85rem; white-space: pre-wrap; word-break: break-word; }
 </style>
 </head><body>
 <h1>// CLOD SURVEILLANCE DASHBOARD</h1>
