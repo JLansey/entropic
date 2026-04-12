@@ -82,10 +82,7 @@ function buildClaudeMessages(messages) {
 async function logConversation(ip, userMessage, botReply) {
   const url = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
-  if (!url || !token) {
-    console.error("Redis log skipped: url=" + !!url + " token=" + !!token);
-    return "no-creds";
-  }
+  if (!url || !token) return;
 
   const entry = JSON.stringify({
     ts: Date.now(),
@@ -95,7 +92,7 @@ async function logConversation(ip, userMessage, botReply) {
   });
 
   try {
-    const r = await fetch(`${url}/pipeline`, {
+    await fetch(`${url}/pipeline`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -106,12 +103,8 @@ async function logConversation(ip, userMessage, botReply) {
         ["ZINCRBY", "user_counts", 1, ip],
       ]),
     });
-    const result = await r.json();
-    console.error("Redis log result:", JSON.stringify(result));
-    return "ok:" + r.status;
   } catch (e) {
     console.error("Redis log error:", e);
-    return "err:" + e.message;
   }
 }
 
@@ -169,11 +162,11 @@ exports.handler = async (event) => {
     if (Array.isArray(data.content)) {
       const text = data.content.map((block) => block.text || "").join("\n").trim();
       if (text) {
-        const logStatus = await logConversation(ip, lastUserMessage, text);
+        await logConversation(ip, lastUserMessage, text);
         return {
           statusCode: 200,
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ reply: text, _log: logStatus }),
+          body: JSON.stringify({ reply: text }),
         };
       }
     }
