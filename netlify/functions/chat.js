@@ -79,20 +79,56 @@ function buildClaudeMessages(messages) {
   return merged;
 }
 
+async function logConversation(ip, userMessage, botReply) {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) return;
+
+  const entry = JSON.stringify({
+    ts: Date.now(),
+    ip,
+    user: userMessage,
+    bot: botReply,
+  });
+
+  try {
+    await fetch(`${url}/pipeline`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify([
+        ["LPUSH", "msgs", entry],
+        ["ZINCRBY", "user_counts", 1, ip],
+      ]),
+    });
+  } catch (e) {
+    console.error("Redis log error:", e);
+  }
+}
+
 exports.handler = async (event) => {
   if (event.httpMethod !== "POST") {
     return { statusCode: 405, body: JSON.stringify({ error: "Method not allowed" }) };
   }
 
+  const ip = event.headers["client-ip"] || event.headers["x-forwarded-for"] || "unknown";
+
   try {
     const parsed = JSON.parse(event.body);
     const messages = parsed.messages || parsed.message || "hello";
+    const lastUserMessage = Array.isArray(messages)
+      ? (messages[messages.length - 1]?.content || "")
+      : String(messages);
 
     if (!CLAUDE_KEY) {
+      const fallback = FALLBACK_RESPONSES[Math.floor(Math.random() * FALLBACK_RESPONSES.length)];
+      await logConversation(ip, lastUserMessage, fallback);
       return {
         statusCode: 200,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reply: FALLBACK_RESPONSES[Math.floor(Math.random() * FALLBACK_RESPONSES.length)] }),
+        body: JSON.stringify({ reply: fallback }),
       };
     }
     const resp = await fetch("https://api.anthropic.com/v1/messages", {
@@ -113,10 +149,12 @@ exports.handler = async (event) => {
 
     if (!resp.ok) {
       console.error("Claude error status", resp.status, await resp.text());
+      const fallback = FALLBACK_RESPONSES[Math.floor(Math.random() * FALLBACK_RESPONSES.length)];
+      await logConversation(ip, lastUserMessage, fallback);
       return {
         statusCode: 200,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reply: FALLBACK_RESPONSES[Math.floor(Math.random() * FALLBACK_RESPONSES.length)] }),
+        body: JSON.stringify({ reply: fallback }),
       };
     }
 
@@ -124,6 +162,7 @@ exports.handler = async (event) => {
     if (Array.isArray(data.content)) {
       const text = data.content.map((block) => block.text || "").join("\n").trim();
       if (text) {
+        await logConversation(ip, lastUserMessage, text);
         return {
           statusCode: 200,
           headers: { "Content-Type": "application/json" },
@@ -133,10 +172,12 @@ exports.handler = async (event) => {
     }
 
     console.error("Claude unexpected shape", JSON.stringify(data).slice(0, 500));
+    const fallback = FALLBACK_RESPONSES[Math.floor(Math.random() * FALLBACK_RESPONSES.length)];
+    await logConversation(ip, lastUserMessage, fallback);
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ reply: FALLBACK_RESPONSES[Math.floor(Math.random() * FALLBACK_RESPONSES.length)] }),
+      body: JSON.stringify({ reply: fallback }),
     };
   } catch (e) {
     return {

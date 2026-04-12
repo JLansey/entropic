@@ -141,6 +141,35 @@ function fallbackResponse(msg) {
   return responses[Math.floor(Math.random() * responses.length)];
 }
 
+async function logConversation(ip, userMessage, botReply) {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) return;
+
+  const entry = JSON.stringify({
+    ts: Date.now(),
+    ip,
+    user: userMessage,
+    bot: botReply,
+  });
+
+  try {
+    await fetch(`${url}/pipeline`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify([
+        ["LPUSH", "msgs", entry],
+        ["ZINCRBY", "user_counts", 1, ip],
+      ]),
+    });
+  } catch (e) {
+    console.error("Redis log error:", e);
+  }
+}
+
 const server = http.createServer(async (req, res) => {
   if (req.method === "POST" && req.url === "/api/chat") {
     let body = "";
@@ -158,7 +187,12 @@ const server = http.createServer(async (req, res) => {
       try {
         const parsed = JSON.parse(body);
         const input = parsed.messages || parsed.message || "hello";
+        const lastUserMessage = Array.isArray(input)
+          ? (input[input.length - 1]?.content || "")
+          : String(input);
+        const ip = req.socket.remoteAddress || "unknown";
         const reply = await getChatResponse(input);
+        logConversation(ip, lastUserMessage, reply);
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ reply }));
       } catch (e) {
