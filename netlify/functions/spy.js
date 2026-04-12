@@ -188,27 +188,30 @@ function renderSession(s, labels) {
     const rw = parseRewrite(e.user);
 
     if (rw) {
-      // Rewrite turn: show the bot continuation prominently, with a small
-      // expand above it revealing the existing-text prefix that was being
-      // continued. The full raw prompt sits behind a second expand for when
-      // you need to audit exactly what was sent.
-      const existingBlock = rw.existing
-        ? `<details class="rw-existing"><summary>▸ existing text (what Clod had already written)</summary><div class="text rw-body">${esc(rw.existing)}</div></details>`
-        : "";
-      const rawBlock = `<details class="rw-raw"><summary>▸ raw rewrite prompt</summary><div class="text rw-body">${esc(e.user)}</div></details>`;
-      return `<div class="turn-full rewrite">
-        <div class="turn-ts">#${i + 1} · ${esc(t)} · <span class="tag rewrite-tag">rewrite continuation</span>${blocked}</div>
-        ${existingBlock}
-        <div class="turn"><div class="role bot">Clod <span class="muted">(continuation)</span></div><div class="text">${esc(e.bot)}</div></div>
+      const existingBlock = rw.existing ? `<div class="rewrite-existing">${esc(rw.existing)}</div>` : "";
+      const rawBlock = `<details class="rw-details"><summary>▸ raw rewrite prompt</summary><div class="rw-body">${esc(e.user)}</div></details>`;
+      return `<div class="chat-row bot rewrite-row">
+        <div class="bubble" style="padding:0; overflow:hidden; border: 1px solid var(--border); background: var(--bubble-bot);">
+          ${existingBlock}
+          <div class="rewrite-new">
+             ${esc(e.bot)}
+          </div>
+        </div>
+        <div class="turn-meta">#${i + 1} · ${esc(t)} <span class="tag rewrite-tag">Continuation</span>${blocked}</div>
         ${rawBlock}
       </div>`;
     }
 
-    return `<div class="turn-full">
-      <div class="turn-ts">#${i + 1} · ${esc(t)}${blocked}</div>
-      <div class="turn"><div class="role user">User</div><div class="text">${esc(e.user)}</div></div>
-      <div class="turn"><div class="role bot">Clod</div><div class="text">${esc(e.bot)}</div></div>
-    </div>`;
+    return `
+      <div class="chat-row user">
+        <div class="bubble">${esc(e.user)}</div>
+        <div class="turn-meta">#${i + 1} · ${esc(t)}${blocked}</div>
+      </div>
+      <div class="chat-row bot">
+        <div class="bubble">${esc(e.bot)}</div>
+        <div class="turn-meta">Clod</div>
+      </div>
+    `;
   }).join("\n");
 
   return `<details class="session">
@@ -226,61 +229,145 @@ function renderPage({ messages, userCounts, countryCounts, labels, ipCountry, to
   return `<!DOCTYPE html>
 <html><head>
 <meta charset="utf-8">
-<title>Clod Spy</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clod Spy Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root { color-scheme: dark; }
-  body { font-family: ui-monospace, Menlo, Consolas, monospace; background: #0b0f0b; color: #cfe8cf; padding: 20px; max-width: 1100px; margin: 0 auto; }
-  h1 { color: #0f0; font-size: 1.3rem; letter-spacing: 0.05em; }
-  h2 { color: #8f8; margin-top: 36px; font-size: 1rem; letter-spacing: 0.08em; text-transform: uppercase; border-bottom: 1px solid #234; padding-bottom: 4px; }
+  :root { 
+    color-scheme: dark; 
+    --bg: #0b0f0b; 
+    --fg: #d0e8d0; 
+    --accent: #0f0;
+    --panel-bg: #111714;
+    --border: #2a3d35;
+    --bubble-user: #2b7048;
+    --bubble-user-text: #fff;
+    --bubble-bot: #1c2621;
+    --bubble-bot-text: #e0f0e0;
+    --muted: #6b8f75;
+    --tag-bg: #402020;
+    --tag-fg: #f99;
+  }
+  body { 
+    font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+    background: var(--bg); 
+    color: var(--fg); 
+    padding: 24px; 
+    max-width: 1040px; 
+    margin: 0 auto; 
+    line-height: 1.5;
+  }
+  h1 { color: var(--accent); font-size: 1.6rem; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 5px; }
+  h2 { color: #8f8; margin-top: 48px; margin-bottom: 16px; font-size: 1.1rem; letter-spacing: 0.1em; text-transform: uppercase; border-bottom: 2px solid var(--border); padding-bottom: 8px; }
   a { color: #8cf; }
-  table { border-collapse: collapse; margin-top: 8px; }
-  th, td { border: 1px solid #233; padding: 6px 10px; text-align: left; vertical-align: top; }
-  th { background: #142014; color: #9f9; font-weight: normal; }
-  td.num { text-align: right; }
+  
+  /* Tables */
+  table { border-collapse: separate; border-spacing: 0; margin-top: 8px; width: 100%; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+  th, td { padding: 12px 14px; text-align: left; vertical-align: middle; border-bottom: 1px solid var(--border); }
+  tr:last-child td { border-bottom: none; }
+  th { background: #16201a; color: #9f9; font-weight: 500; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
   td.country { white-space: nowrap; }
-  .muted { color: #6a8a6a; }
-  .tag { font-size: 0.7rem; background: #502020; color: #f99; padding: 1px 5px; border-radius: 3px; }
-  .panels { display: flex; gap: 32px; flex-wrap: wrap; }
-  .panels > div { flex: 0 1 auto; }
-  table.users { min-width: 520px; }
-  .label-input { display: none; width: 130px; background: #112; color: #efe; border: 1px solid #345; padding: 2px 4px; font: inherit; }
+  tbody tr { transition: background 0.15s; }
+  tbody tr:hover { background: rgba(255,255,255,0.02); }
+  
+  .muted { color: var(--muted); }
+  .tag { font-size: 0.65rem; background: var(--tag-bg); color: var(--tag-fg); padding: 2px 6px; border-radius: 4px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+  
+  .panels { display: flex; gap: 32px; flex-wrap: wrap; margin-bottom: 40px; }
+  .panels > div { flex: 1 1 320px; }
+  
+  /* Labels */
+  .label-input { display: none; width: 100%; max-width: 150px; background: #0c120e; color: #efe; border: 1px solid var(--border); padding: 6px 8px; border-radius: 4px; font: inherit; }
   tr.editing .label-text { display: none; }
   tr.editing .label-input { display: inline-block; }
   .save-btn, .cancel-btn { display: none; }
   tr.editing .save-btn, tr.editing .cancel-btn { display: inline-block; }
   tr.editing .edit-btn { display: none; }
-  button { background: #1a2a1a; color: #8f8; border: 1px solid #345; font: inherit; padding: 2px 8px; cursor: pointer; }
-  button:hover { background: #243524; }
-
-  details.session { background: #111714; border: 1px solid #233; border-radius: 6px; margin: 10px 0; }
-  details.session[open] { background: #131c17; }
-  details.session summary { padding: 12px 14px; cursor: pointer; list-style: none; }
+  td.actions { white-space: nowrap; width: 1%; }
+  button { background: #1a2a20; color: #8f8; border: 1px solid var(--border); font-size: 0.8rem; font-weight: 500; padding: 6px 12px; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+  button:hover { background: #263e30; border-color: #3b544b; }
+  
+  /* Session Cards */
+  details.session { 
+    background: var(--panel-bg); 
+    border: 1px solid var(--border); 
+    border-radius: 12px; 
+    margin: 16px 0; 
+    overflow: hidden;
+    transition: box-shadow 0.2s, border-color 0.2s;
+  }
+  details.session:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.25); border-color: #3b544b; }
+  details.session[open] { background: #131c17; border-color: #3b544b; }
+  
+  details.session summary { padding: 16px 20px; cursor: pointer; list-style: none; user-select: none; }
   details.session summary::-webkit-details-marker { display: none; }
-  details.session summary::before { content: "▸ "; color: #6a8; }
-  details.session[open] summary::before { content: "▾ "; }
-  .session-head { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-bottom: 8px; }
-  .session-head .who { color: #efe; }
-  .session-head .meta { color: #7a9a7a; font-size: 0.85rem; }
-  .preview .turn { display: flex; gap: 10px; padding: 2px 0; }
-  .preview .role { flex: 0 0 50px; font-size: 0.75rem; padding-top: 2px; }
-  .preview .role.user { color: #8cf; }
-  .preview .role.bot { color: #cf8; }
-  .preview .text { color: #ccd; flex: 1; overflow: hidden; text-overflow: ellipsis; }
-  .full { padding: 0 14px 12px; border-top: 1px dashed #234; margin-top: 8px; }
-  .turn-full { padding: 10px 0; border-bottom: 1px dotted #233; }
-  .turn-full:last-child { border-bottom: none; }
-  .turn-ts { color: #6a8a6a; font-size: 0.75rem; margin-bottom: 4px; }
-  .full .turn { display: flex; gap: 10px; padding: 4px 0; }
-  .full .role { flex: 0 0 50px; font-size: 0.75rem; padding-top: 2px; }
-  .full .role.user { color: #8cf; }
-  .full .role.bot { color: #cf8; }
-  .full .text { color: #dde; flex: 1; white-space: pre-wrap; word-break: break-word; }
-  .turn-full.rewrite { background: #0e1716; border-left: 2px solid #465; padding-left: 10px; }
-  .rewrite-tag { background: #234; color: #9cf; }
-  .rw-existing, .rw-raw { margin: 4px 0; }
-  .rw-existing summary, .rw-raw summary { color: #7aa; font-size: 0.8rem; cursor: pointer; }
-  .rw-raw summary { color: #688; }
-  .rw-body { margin-top: 6px; padding: 8px; background: #0a1210; border: 1px dashed #234; color: #aab; font-size: 0.85rem; white-space: pre-wrap; word-break: break-word; }
+  details.session summary:focus { outline: none; }
+  
+  .session-head { display: flex; justify-content: space-between; gap: 20px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 12px; }
+  .session-head .who { color: #fff; font-size: 1.05rem; display: flex; align-items: center; gap: 8px; font-weight: 500; }
+  .session-head .meta { color: var(--muted); font-size: 0.8rem; font-family: ui-monospace, monospace; }
+  
+  .preview { display: flex; flex-direction: column; gap: 8px; }
+  .preview .turn { display: flex; gap: 12px; align-items: baseline; }
+  .preview .role { flex: 0 0 45px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.8; }
+  .preview .role.user { color: #5bc0be; text-align: right; }
+  .preview .role.bot { color: #a3d9a5; text-align: right; }
+  .preview .text { color: #b5c4ba; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.9rem; }
+  
+  /* Chat Bubbles */
+  .full { padding: 24px; background: #080b09; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 24px; }
+  
+  .chat-row { display: flex; flex-direction: column; max-width: 80%; }
+  .chat-row.user { align-self: flex-end; align-items: flex-end; }
+  .chat-row.bot { align-self: flex-start; align-items: flex-start; }
+  
+  .bubble { 
+    padding: 12px 18px; 
+    border-radius: 20px; 
+    font-size: 0.95rem; 
+    line-height: 1.5; 
+    white-space: pre-wrap; 
+    word-break: break-word; 
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  
+  .chat-row.user .bubble { 
+    background: var(--bubble-user); 
+    color: var(--bubble-user-text); 
+    border-bottom-right-radius: 4px;
+  }
+  
+  .chat-row.bot .bubble { 
+    background: var(--bubble-bot); 
+    color: var(--bubble-bot-text); 
+    border-bottom-left-radius: 4px; 
+    border: 1px solid #23302a;
+  }
+  
+  .turn-meta { color: var(--muted); font-size: 0.7rem; margin: 6px 10px 0; font-family: ui-monospace, monospace; }
+  
+  /* Rewrites */
+  .rewrite-row .bubble { padding: 0; }
+  .rewrite-existing { padding: 12px 18px; opacity: 0.65; font-size: 0.9em; background: rgba(0,0,0,0.2); border-bottom: 1px dashed rgba(255,255,255,0.05); }
+  .rewrite-new { padding: 12px 18px; background: #203628; }
+  .rewrite-tag { background: #1a4230; color: #8cf; }
+  
+  .rw-details { margin-top: 6px; }
+  .rw-details summary { 
+    color: #5b7a66; 
+    font-size: 0.75rem; 
+    cursor: pointer; 
+    padding: 4px 8px; 
+    background: rgba(255,255,255,0.02); 
+    border-radius: 4px; 
+    display: inline-block;
+    transition: background 0.15s, color 0.15s;
+  }
+  .rw-details summary:hover { background: rgba(255,255,255,0.06); color: #8fba9c; }
+  .rw-body { margin-top: 6px; padding: 12px; background: #050706; border: 1px solid #16201a; border-radius: 8px; color: #789; font-size: 0.8rem; white-space: pre-wrap; word-break: break-word; font-family: ui-monospace, monospace; max-height: 250px; overflow-y: auto; }
 </style>
 </head><body>
 <h1>// CLOD SURVEILLANCE DASHBOARD</h1>
