@@ -72,20 +72,6 @@ exports.handler = async (event) => {
     return { statusCode: 404, body: "Not found" };
   }
 
-  if (params.debug === "1") {
-    const url = process.env.UPSTASH_REDIS_REST_URL || "";
-    return {
-      statusCode: 200,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        urlSet: !!url,
-        urlHost: url ? new URL(url).host : "NOT SET",
-        tokenSet: !!process.env.UPSTASH_REDIS_REST_TOKEN,
-        tokenLen: (process.env.UPSTASH_REDIS_REST_TOKEN || "").length,
-      }),
-    };
-  }
-
   try {
     const count = parseInt(params.n) || 100;
     const [messages, userCounts] = await Promise.all([
