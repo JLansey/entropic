@@ -86,6 +86,7 @@ async function getChatResponse(messages) {
       model: CLAUDE_MODEL,
       max_tokens: 1500,
       temperature: 1.0,
+      cache_control: { type: "ephemeral" },
       system: SYSTEM_PROMPT,
       messages: buildClaudeMessages(messages),
     });

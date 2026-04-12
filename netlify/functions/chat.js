@@ -97,6 +97,7 @@ exports.handler = async (event) => {
         system: SYSTEM_PROMPT,
         messages: buildClaudeMessages(messages),
         temperature: 1.0,
+        cache_control: { type: "ephemeral" },
       }),
     });
 
