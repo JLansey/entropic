@@ -75,8 +75,8 @@ exports.handler = async (event) => {
   try {
     const count = parseInt(params.n) || 100;
     const [messages, userCounts] = await Promise.all([
-      redisGet(`LRANGE/msgs/0/${count - 1}`),
-      redisGet("ZREVRANGE/user_counts/0/19/WITHSCORES"),
+      redisGet(`LRANGE/msgs/0/${count - 1}`).then((r) => r || []),
+      redisGet("ZREVRANGE/user_counts/0/19/WITHSCORES").then((r) => r || []),
     ]);
 
     if (params.format === "json") {
@@ -90,7 +90,7 @@ exports.handler = async (event) => {
     return {
       statusCode: 200,
       headers: { "Content-Type": "text/html" },
-      body: renderPage(messages || [], userCounts || []),
+      body: renderPage(messages, userCounts),
     };
   } catch (e) {
     return {
