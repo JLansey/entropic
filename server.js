@@ -203,6 +203,19 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === "GET" && req.url.startsWith("/api/spy")) {
+    const spy = require("./netlify/functions/spy");
+    const parsed = new URL(req.url, "http://localhost");
+    const params = Object.fromEntries(parsed.searchParams);
+    const result = await spy.handler({
+      httpMethod: "GET",
+      queryStringParameters: params,
+    });
+    res.writeHead(result.statusCode, result.headers || {});
+    res.end(result.body);
+    return;
+  }
+
   if (req.method === "GET" && req.url === "/api/config") {
     res.writeHead(200, {
       "Content-Type": "application/json",

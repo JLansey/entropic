@@ -11,3 +11,8 @@
   from = "/api/config"
   to = "/.netlify/functions/config"
   status = 200
+
+[[redirects]]
+  from = "/api/spy"
+  to = "/.netlify/functions/spy"
+  status = 200
