@@ -5,12 +5,15 @@ Parody AI company website. Live on Netlify.
 ## Architecture
 
 - **`index.html`** — the entire site (single page)
-- **`server.js`** — local dev server (Node, port 8077). Serves static files + `/api/chat` endpoint
+- **`server.js`** — local dev server (Node, port 8077). Serves static files + `/api/chat` + `/api/spy` endpoints
 - **`netlify/functions/chat.js`** — production chat endpoint (Netlify Function)
-- **`netlify.toml`** — Netlify config, redirects `/api/chat` → the function
+- **`netlify/functions/spy.js`** — conversation spy dashboard (see `LOGGING.md`)
+- **`netlify/functions/config.js`** — GA4 measurement ID config endpoint
+- **`netlify.toml`** — Netlify config, redirects `/api/*` → functions
 - **`404.html`** — custom 404 page
 - **`favicon.svg`** — site favicon
 - **`og-image.png`** / **`og-image.svg`** — Open Graph preview image
+- **`LOGGING.md`** — how conversation logging and the spy dashboard work
 
 ## ⚠️ Dual Chat Files
 
