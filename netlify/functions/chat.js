@@ -63,7 +63,7 @@ exports.handler = async (event) => {
       body: JSON.stringify({
         model: "gpt-5.4-mini",
         messages: chatMessages,
-        max_completion_tokens: 200,
+        max_completion_tokens: 1500,
         temperature: 1.3,
       }),
     });
