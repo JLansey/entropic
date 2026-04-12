@@ -17,7 +17,7 @@ try {
 
 const PORT = 8077;
 const CLAUDE_KEY = process.env.ANTHROPIC_API_KEY || process.env.CLAUDE_API_KEY || "";
-const CLAUDE_MODEL = process.env.CLAUDE_MODEL || "claude-3-sonnet-20240229";
+const CLAUDE_MODEL = process.env.CLAUDE_MODEL || "claude-sonnet-4-6";
 const DEFAULT_GA_MEASUREMENT_ID = "G-LK9C1Z4W11";
 const GA_MEASUREMENT_ID = (process.env.GA_MEASUREMENT_ID || DEFAULT_GA_MEASUREMENT_ID).trim();
 
@@ -84,7 +84,8 @@ async function getChatResponse(messages) {
   try {
     const body = JSON.stringify({
       model: CLAUDE_MODEL,
-      max_output_tokens: 1500,
+      max_tokens: 1500,
+      temperature: 1.0,
       system: SYSTEM_PROMPT,
       messages: buildClaudeMessages(messages),
     });

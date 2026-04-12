@@ -26,7 +26,7 @@ They're separate because dev uses a plain Node HTTP server and production needs 
 ## Environment Variables
 
 - `ANTHROPIC_API_KEY` — required for live chat (set in Netlify dashboard for prod). The dev server and Netlify function now call Claude Sonnet via the Anthropic Messages API; without a key, Clod serves the fallback jokes.
-- `CLAUDE_MODEL` — optional override if you want something other than `claude-3-sonnet-20240229`.
+- `CLAUDE_MODEL` — optional override if you want something other than `claude-sonnet-4-6` (default).
 - `GA_MEASUREMENT_ID` — GA4 Measurement ID for analytics. Defaults to `G-LK9C1Z4W11` (Precision Cheesecake property), but you can override it via env. The frontend fetches `/api/config` and loads gtag automatically when one is available.
 
 ## Dev Server

@@ -29,7 +29,7 @@ const FALLBACK_RESPONSES = [
   "I'm going to level with you — I understood about 60% of that, but I'm going to respond with 110% confidence. Here goes: yes, but only on Tuesdays.",
 ];
 
-const CLAUDE_MODEL = process.env.CLAUDE_MODEL || "claude-3-sonnet-20240229";
+const CLAUDE_MODEL = process.env.CLAUDE_MODEL || "claude-sonnet-4-6";
 const CLAUDE_KEY = process.env.ANTHROPIC_API_KEY || process.env.CLAUDE_API_KEY || "";
 
 function normalizeContentBlock(content) {
@@ -93,10 +93,10 @@ exports.handler = async (event) => {
       },
       body: JSON.stringify({
         model: CLAUDE_MODEL,
-        max_output_tokens: 1500,
+        max_tokens: 1500,
         system: SYSTEM_PROMPT,
         messages: buildClaudeMessages(messages),
-        temperature: 1.1,
+        temperature: 1.0,
       }),
     });
 
