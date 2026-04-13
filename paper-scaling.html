@@ -29,10 +29,15 @@ th { background: #b85c38; color: white; padding: 10px 12px; text-align: left; fo
 td { padding: 10px 12px; border-bottom: 1px solid #eee; color: #555; }
 tr:hover td { background: #fdfcfa; }
 </style>
+<link rel="stylesheet" href="/dark-mode.css">
+<script src="/theme-init.js"></script>
 </head>
 <body>
 <nav>
   <a href="/" class="nav-logo">entropic<span>.ai</span></a>
+  <div style="display:flex;align-items:center;gap:16px;">
+    <button id="themeToggle" title="Toggle dark mode">🌙</button>
+  </div>
 </nav>
 <div class="paper-container">
 
@@ -110,5 +115,6 @@ tr:hover td { background: #fdfcfa; }
 </div>
 
 </div>
+<script src="/theme.js"></script>
 </body>
 </html>

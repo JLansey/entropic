@@ -27,10 +27,15 @@ table { width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 14px;
 th { background: #b85c38; color: white; padding: 10px 12px; text-align: left; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
 td { padding: 10px 12px; border-bottom: 1px solid #eee; color: #555; }
 </style>
+<link rel="stylesheet" href="/dark-mode.css">
+<script src="/theme-init.js"></script>
 </head>
 <body>
 <nav>
   <a href="/" class="nav-logo">entropic<span>.ai</span></a>
+  <div style="display:flex;align-items:center;gap:16px;">
+    <button id="themeToggle" title="Toggle dark mode">🌙</button>
+  </div>
 </nav>
 <div class="paper-container">
 
@@ -119,5 +124,6 @@ Pick the response that is longer. If they're the same length, pick the one with 
 </div>
 
 </div>
+<script src="/theme.js"></script>
 </body>
 </html>

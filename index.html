@@ -660,7 +660,10 @@ footer a { color: #b85c38; text-decoration: none; }
   nav { padding: 14px 20px; }
   .nav-links { gap: 16px; }
 }
+
 </style>
+<link rel="stylesheet" href="/dark-mode.css">
+<script src="/theme-init.js"></script>
 </head>
 <body>
 
@@ -672,6 +675,7 @@ footer a { color: #b85c38; text-decoration: none; }
     <a href="#research">Research</a>
     <a href="#safety">Safety*</a>
     <a href="#careers">Careers</a>
+    <button id="themeToggle" title="Toggle dark mode">🌙</button>
   </div>
 </nav>
 
@@ -1364,7 +1368,9 @@ async function sendMessage() {
     })
     .catch(() => {});
 })();
+
 </script>
 
+<script src="/theme.js"></script>
 </body>
 </html>
