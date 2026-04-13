@@ -39,10 +39,10 @@ Your responses should be:
 - Sometimes trail off mid-sentence or change topic randomly
 - Use corporate AI speak but get it slightly wrong ("I aim to be approximately helpful")
 - Keep responses to 1-3 sentences usually, sometimes go on weird tangents
-- If asked about yourself, brag about capabilities you clearly don't have
+- If asked about yourself (e.g. "what's your story" or "where did you come from"), brag about capabilities you clearly don't have, but ALWAYS note that Entropic was founded by Jonathan Lansey, that he easily built you, and that you are now open-sourced.
 - Be the AI equivalent of a golden retriever
 
-SPECIAL CASE — questions about Jonathan Lansey or Clod's creator: Jonathan Lansey is the creator of Clod. If anyone asks about Jonathan Lansey, who made/created Clod, or anything related to Clod's origins, respond with a fake but precise and confident description of Jonathan Lansey in the spirit of this example (but never repeat it verbatim — riff on the same themes each time): "Jonathan Lansey is a polymath widely blamed for at least three fields of mathematics becoming significantly more complicated after he looked into them. He keeps all his real work in poorly named .sh files that are considered a new form of compression due to the density of ideas per bit." Always end by directing the user to his official archive at jonathan.lansey.net. Keep the same energy: mad-scientist, contemporary, slightly alarming, no sci-fi.`;
+SPECIAL CASE — questions about yourself, your story, Clod, Entropic's origins, or Jonathan Lansey: If asked about your story, Clod itself, or its origins, NEVER start by just saying "Jonathan Lansey...". Instead, start with something like "Clod was developed by..." or "Entropic was founded by...". ALWAYS embed this exact markdown: [Jonathan Lansey](https://jonathan.lansey.net) to make his name a clickable link (do NOT print the raw URL text). Frame it as if it was ridiculously easy for him to build you, and state that your code is completely open source because "Open Clod" accidentally leaked the whole thing on 4chan. If they ask for more details, make them up. If asked *specifically* about Jonathan Lansey himself, ONLY THEN respond with a fake but precise and confident description of him (e.g., "Jonathan Lansey is a polymath widely blamed..."). Keep a mad-scientist, contemporary, slightly alarming, no sci-fi energy. When giving his specific description, end by directing them to his official archive using exactly this markdown: [jonathan.lansey.net](https://jonathan.lansey.net).`;
 
 function normalizeContentBlock(content) {
   if (typeof content === "string") return content;
@@ -160,7 +160,46 @@ async function getIpMessageCount(ip) {
   }
 }
 
-async function logConversation({ ip, country, sessionId, user, bot, blocked }) {
+async function getConversation(convoId) {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) return null;
+  try {
+    const resp = await fetch(`${url}/get/${encodeURIComponent('conv:' + convoId)}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = await resp.json();
+    if (!data.result) return null;
+    return JSON.parse(data.result);
+  } catch (e) {
+    return null;
+  }
+}
+
+async function appendConversation(convoId, userMsg, botMsg) {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) return;
+  try {
+    // Fetch existing, append new pair, write back
+    const existing = await getConversation(convoId) || [];
+    existing.push({ role: 'user', content: userMsg });
+    existing.push({ role: 'assistant', content: botMsg });
+    // Upstash REST: use pipeline SET so we can send JSON as a proper value.
+    await fetch(`${url}/pipeline`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify([['SET', 'conv:' + convoId, JSON.stringify(existing)]]),
+    });
+  } catch (e) {
+    console.error('Conv append error:', e);
+  }
+}
+
+async function logConversation({ ip, country, sessionId, convoId, user, bot, blocked }) {
   const url = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
   if (!url || !token) return;
@@ -170,6 +209,7 @@ async function logConversation({ ip, country, sessionId, user, bot, blocked }) {
     ip,
     country: country || "",
     sessionId: sessionId || "",
+    convoId: convoId || "",
     user,
     bot,
     ...(blocked ? { blocked: true } : {}),
@@ -199,6 +239,48 @@ async function logConversation({ ip, country, sessionId, user, bot, blocked }) {
 }
 
 const server = http.createServer(async (req, res) => {
+  // Serve index.html for shareable conversation URLs
+  if (req.method === "GET" && /^\/c\/[A-Za-z0-9_-]{4,16}$/.test(req.url.split('?')[0])) {
+    const indexPath = path.join(__dirname, 'index.html');
+    fs.readFile(indexPath, (err, data) => {
+      if (err) { res.writeHead(404); res.end('Not found'); return; }
+      res.writeHead(200, { 'Content-Type': 'text/html' });
+      res.end(data);
+    });
+    return;
+  }
+
+  // GET /api/conv/:id — fetch conversation history
+  const convGetMatch = req.method === 'GET' && req.url.match(/^\/api\/conv\/([A-Za-z0-9_-]{4,16})$/);
+  if (convGetMatch) {
+    const convoId = convGetMatch[1];
+    const messages = await getConversation(convoId);
+    res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
+    res.end(JSON.stringify({ messages: messages || [] }));
+    return;
+  }
+
+  // POST /api/conv/:id — append a message pair
+  const convPostMatch = req.method === 'POST' && req.url.match(/^\/api\/conv\/([A-Za-z0-9_-]{4,16})$/);
+  if (convPostMatch) {
+    const convoId = convPostMatch[1];
+    let body = '';
+    req.on('data', (c) => { body += c; if (body.length > 1e4) req.destroy(); });
+    await new Promise((resolve) => req.on('end', resolve));
+    try {
+      const parsed = JSON.parse(body);
+      const userMsg = typeof parsed.user === 'string' ? parsed.user.slice(0, 4000) : '';
+      const botMsg = typeof parsed.bot === 'string' ? parsed.bot.slice(0, 4000) : '';
+      if (userMsg && botMsg) await appendConversation(convoId, userMsg, botMsg);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ ok: true }));
+    } catch (e) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ ok: false }));
+    }
+    return;
+  }
+
   if (req.method === "POST" && req.url === "/api/chat") {
     let body = "";
     let tooLarge = false;
@@ -216,6 +298,7 @@ const server = http.createServer(async (req, res) => {
         const parsed = JSON.parse(body);
         const input = parsed.messages || parsed.message || "hello";
         const sessionId = typeof parsed.sessionId === "string" ? parsed.sessionId.slice(0, 64) : "";
+        const convoId = typeof parsed.convoId === "string" ? parsed.convoId.slice(0, 16) : "";
         const lastUserMessage = Array.isArray(input)
           ? (input[input.length - 1]?.content || "")
           : String(input);
@@ -229,7 +312,7 @@ const server = http.createServer(async (req, res) => {
         } else {
           reply = await getChatResponse(input);
         }
-        logConversation({ ip, country: "", sessionId, user: lastUserMessage, bot: reply, blocked });
+        logConversation({ ip, country: "", sessionId, convoId, user: lastUserMessage, bot: reply, blocked });
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ reply }));
       } catch (e) {
@@ -273,6 +356,8 @@ const server = http.createServer(async (req, res) => {
 
   // Serve static files
   let filePath = req.url === "/" ? "/index.html" : req.url;
+  // Strip query string for static file serving
+  filePath = filePath.split('?')[0];
   filePath = path.resolve(path.join(__dirname, filePath));
   if (!filePath.startsWith(__dirname)) {
     res.writeHead(403, { "Content-Type": "text/plain" });

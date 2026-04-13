@@ -12,6 +12,16 @@
   to = "/.netlify/functions/config"
   status = 200
 
+[[redirects]]
+  from = "/api/conv/*"
+  to = "/.netlify/functions/conv"
+  status = 200
+
+[[redirects]]
+  from = "/c/*"
+  to = "/index.html"
+  status = 200
+
 # Block the spy source from being served as a static asset.
 # Spy mode runs locally only — see LOGGING.md.
 [[redirects]]

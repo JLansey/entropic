@@ -184,6 +184,7 @@ nav {
   padding: 16px 24px 40px;
   max-width: 720px;
   margin: 0 auto;
+  scroll-margin-top: 58px;
 }
 .chat-section h2 {
   text-align: center;
@@ -289,6 +290,49 @@ nav {
   transition: background 0.2s;
 }
 .chat-input-area button:hover { background: #a04e30; }
+
+/* Share button (replaces status indicator after first message) */
+.share-btn {
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.38);
+  color: white;
+  border-radius: 10px;
+  padding: 3px 11px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.22s;
+  letter-spacing: 0.3px;
+  line-height: 1.6;
+}
+.share-btn:hover { background: rgba(255,255,255,0.3); }
+.share-btn.copied { background: rgba(80,180,100,0.45); border-color: rgba(80,220,110,0.5); }
+
+/* Read-only input area */
+.chat-readonly {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  border-top: 1px solid #eee;
+  padding: 14px 16px;
+  background: white;
+}
+.new-convo-btn {
+  background: none;
+  border: 1.5px solid #b85c38;
+  color: #b85c38;
+  border-radius: 20px;
+  padding: 7px 22px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+  letter-spacing: 0.2px;
+}
+.new-convo-btn:hover { background: #b85c38; color: white; }
 
 /* Research */
 .research {
@@ -464,58 +508,67 @@ nav {
 .apply-btn:hover { background: #a04e30; transform: translateY(-2px); }
 .apply-btn.gone { opacity: 0; pointer-events: none; }
 
-/* API */
-.api-section {
-  padding: 60px 48px;
-  background: #1a1a1a;
-  color: #ccc;
-}
-.api-section h2 {
+/* Reviews */
+.reviews-section {
+  padding: 72px 48px;
+  background: #f0ebe4;
   text-align: center;
+}
+.reviews-section h2 {
   font-size: 32px;
-  color: #cc9966;
-  margin-bottom: 12px;
   font-weight: 600;
+  margin-bottom: 10px;
+  letter-spacing: -1px;
+  color: #1a1a1a;
 }
-.api-section .sub {
-  text-align: center;
-  color: #777;
+.reviews-section .sub {
+  color: #999;
   font-size: 14px;
-  margin-bottom: 32px;
+  margin-bottom: 48px;
 }
-.api-code {
-  max-width: 640px;
+.reviews-grid {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  flex-wrap: wrap;
+  max-width: 1000px;
   margin: 0 auto;
-  background: #111;
-  border-radius: 12px;
-  padding: 24px;
-  font-family: 'Courier New', monospace;
-  font-size: 13px;
-  line-height: 1.6;
-  color: #cc9966;
-  overflow-x: auto;
-  border: 1px solid #333;
 }
-.api-code .comment { color: #555; }
-.api-code .string { color: #b85c38; }
-.api-copy-btn {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  background: #222;
-  color: #666;
-  border: 1px solid #444;
-  border-radius: 6px;
-  padding: 4px 8px;
-  font-size: 16px;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.2s;
-  line-height: 1;
-  z-index: 1;
+.review-card {
+  background: white;
+  border: 1px solid #e8e4df;
+  border-radius: 16px;
+  padding: 28px 28px 24px;
+  max-width: 300px;
+  text-align: left;
+  transition: transform 0.2s;
+  position: relative;
 }
-.api-copy-btn:hover { color: #666; border-color: #444; }
-.api-copy-btn:active { color: #666; border-color: #444; }
+.review-card:hover { transform: translateY(-4px); }
+.review-card .stars { font-size: 18px; margin-bottom: 14px; }
+.review-card .body {
+  font-size: 13.5px;
+  color: #444;
+  line-height: 1.65;
+  font-style: italic;
+  margin-bottom: 16px;
+}
+.review-card .reviewer {
+  font-size: 11.5px;
+  color: #aaa;
+  font-style: normal;
+  font-weight: 500;
+}
+.review-card .reviewer strong {
+  display: block;
+  color: #777;
+  font-size: 12.5px;
+  margin-bottom: 2px;
+}
+.review-card.bad {
+  border-color: #f5e0da;
+  background: #fff9f8;
+}
 
 /* Customers */
 .customers {
@@ -707,7 +760,7 @@ footer a { color: #b85c38; text-decoration: none; }
   <div class="chat-box">
     <div class="chat-header">
       <span>💬 Clod 4 Oopus</span>
-      <span class="status">● Probably Online</span>
+      <span class="status" id="chatStatus">● Probably Online</span>
     </div>
     <div class="chat-messages" id="chatMessages">
       <div class="msg bot">Hi! I'm Clod. I'll do my best, but I make no promises. What can I sort of help you with today?</div>
@@ -870,23 +923,41 @@ footer a { color: #b85c38; text-decoration: none; }
   <p class="careers-note">Entropic is an equal opportunity employer. We discriminate only on the basis of ability to tolerate chaos.</p>
 </section>
 
-<section class="api-section">
-  <h2>The Clod API</h2>
-  <p class="sub">Integration that probably won't break your production systems</p>
-  <div class="api-code" id="apiCode" style="position:relative;">
-    <button class="api-copy-btn" onclick="corruptCopy()" title="Copy code">⎘</button>
-    <span class="comment">// Initialize the Entropic client</span><br>
-    <span style="color:#cc9966">import</span> Entropic <span style="color:#cc9966">from</span> <span class="string">'entropic-ai'</span>;<br><br>
-    <span style="color:#cc9966">const</span> clod = <span style="color:#cc9966">new</span> Entropic({<br>
-    &nbsp;&nbsp;apiKey: <span class="string">'ek-your-key-probably-expired'</span>,<br>
-    &nbsp;&nbsp;model: <span class="string">'clod-4-oopus-20260411'</span>,<br>
-    &nbsp;&nbsp;temperature: <span class="string">3300</span>, <span class="comment">// Kelvin (recommended)</span><br>
-    });<br><br>
-    <span style="color:#cc9966">const</span> response = <span style="color:#cc9966">await</span> clod.messages.create({<br>
-    &nbsp;&nbsp;messages: [{ role: <span class="string">'user'</span>, content: <span class="string">'Explain quantum physics'</span> }],<br>
-    });<br><br>
-    <span class="comment">// response: "Quantum physics is when very small things</span><br>
-    <span class="comment">//  have very big feelings. Hope this helps!"</span>
+<section class="reviews-section">
+  <h2>What Our Users Are Saying</h2>
+  <p class="sub">Real reviews from real people who definitely exist</p>
+  <div class="reviews-grid">
+
+    <div class="review-card">
+      <div class="stars">⭐⭐⭐⭐⭐</div>
+      <p class="body">"I asked Clod to help me write a cover letter and it wrote me a beautiful, heartfelt resignation letter instead. I sent it. I don't know why I sent it. I now have a startup. Five stars."</p>
+      <div class="reviewer">
+        <strong>Brandon K.</strong>
+        Formerly Senior Data Scientist at a Respectable Firm<br>
+        <span style="font-size:10px;color:#ccc;">Verified Purchase · San Francisco, CA</span>
+      </div>
+    </div>
+
+    <div class="review-card">
+      <div class="stars">⭐⭐⭐⭐⭐</div>
+      <p class="body">"Clod diagnosed my plant as 'existentially exhausted.' I thought it was joking, but I repotted it, spoke to it with more warmth, and started taking Fridays off. The plant is thriving. I am also thriving. My therapist has mixed feelings about this."</p>
+      <div class="reviewer">
+        <strong>Meera P.</strong>
+        UX Designer, Plant Mom<br>
+        <span style="font-size:10px;color:#ccc;">Verified Purchase · Austin, TX</span>
+      </div>
+    </div>
+
+    <div class="review-card bad">
+      <div class="stars">⭐</div>
+      <p class="body">"I asked it to proofread my vows. It told me — and I quote — 'these are grammatically fine but emotionally ambient.' Then it rewrote them from scratch without being asked. My wife cried. My mother-in-law cried. I cried. Everyone agreed they were beautiful. I will never forgive this software for being right."</p>
+      <div class="reviewer">
+        <strong>Doug R.</strong>
+        Married (grudgingly impressed)<br>
+        <span style="font-size:10px;color:#ccc;">Verified Purchase · Columbus, OH</span>
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -944,71 +1015,7 @@ footer a { color: #b85c38; text-decoration: none; }
 </footer>
 
 <script>
-const clipboardJokes = [
-  "import Entropic from 'entropic-ai'; // good luck lmao",
-  "const clod = new Entropic({ apiKey: 'nice-try', model: 'clod-4-oopus', temperature: Infinity }); // this won't work",
-  "// TODO: replace with actual working code. Status: it's been 6 months.",
-  "await clod.messages.create({ messages: [{ role: 'user', content: 'help' }] }); // clod: no",
-  "pip install entropic-ai  # package not found. never was. never will be.",
-  "curl -X POST https://api.entropic.ai/v1/chat -H 'Authorization: Bearer lol' -d '{\"prompt\": \"why\"}'",
-];
 
-function corruptCopy() {
-  const el = document.getElementById('apiCode');
-  const btn = document.querySelector('.api-copy-btn');
-  
-  // Copy a joke to clipboard
-  const joke = clipboardJokes[Math.floor(Math.random() * clipboardJokes.length)];
-  try { navigator.clipboard.writeText(joke); } catch(e) {
-    const ta = document.createElement('textarea');
-    ta.value = joke; document.body.appendChild(ta); ta.select();
-    document.execCommand('copy'); document.body.removeChild(ta);
-  }
-  
-  // Work with innerHTML directly — more reliable for mixed content
-  if (!window._copyClicks) window._copyClicks = 0;
-  window._copyClicks++;
-  
-  // Strip the button from innerHTML, work with just the code
-  const btnEl = el.querySelector('.api-copy-btn');
-  const btnHtml = btnEl.outerHTML;
-  btnEl.remove();
-  let html = el.innerHTML;
-  
-  // Strip HTML tags to get plain text, find deletable chars
-  const plain = html.replace(/<[^>]+>/g, '');
-  if (plain.replace(/\s/g, '').length < 10) {
-    el.innerHTML = btnHtml + '<span class="comment">// [REDACTED] \u2014 code has been lost to entropy</span>';
-    const newBtn = el.querySelector('.api-copy-btn');
-    newBtn.textContent = '\u2713';
-    newBtn.onclick = null;
-    newBtn.style.color = '#cc9966';
-    return;
-  }
-  
-  // Delete multiple random chunks from the raw HTML text (skip tags)
-  const isFirst = window._copyClicks === 1;
-  const numChunks = isFirst ? 3 : 2;
-  for (let c = 0; c < numChunks; c++) {
-    // Build map of deletable character positions (not inside < >)
-    const deletable = [];
-    let inTag = false;
-    for (let i = 0; i < html.length; i++) {
-      if (html[i] === '<') inTag = true;
-      if (!inTag && html[i] !== '\n') deletable.push(i);
-      if (html[i] === '>') inTag = false;
-    }
-    if (deletable.length < 5) break;
-    const chunkSize = isFirst
-      ? Math.min(deletable.length, Math.floor(Math.random() * 20) + 25)
-      : Math.min(deletable.length, Math.floor(Math.random() * 15) + 10);
-    const startIdx = Math.floor(Math.random() * Math.max(1, deletable.length - chunkSize));
-    const toDelete = new Set(deletable.slice(startIdx, startIdx + chunkSize));
-    html = html.split('').filter((ch, i) => !toDelete.has(i)).join('');
-  }
-  
-  el.innerHTML = btnHtml + html;
-}
 
 function dissolveButton(btn) {
   let chars = btn.textContent.split('');
@@ -1050,10 +1057,10 @@ if (topRibbon) {
     const linkSpan = topRibbon.querySelector('.url');
     const original = linkSpan.textContent;
     try {
-      await navigator.clipboard.writeText('https://oopus.netlify.app');
+      await navigator.clipboard.writeText(window.location.href);
     } catch (e) {
       const ta = document.createElement('textarea');
-      ta.value = 'https://oopus.netlify.app';
+      ta.value = window.location.href;
       document.body.appendChild(ta);
       ta.select();
       try { document.execCommand('copy'); } catch (_) {}
@@ -1086,6 +1093,105 @@ const chatHistory = [];
 let chatTurnCount = 0;
 // New id per page load — refresh starts a new session in spy dashboard.
 const chatSessionId = Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+
+// ── Shareable conversations ──────────────────────────────────────────────────
+const BASE62 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+function generateShortId(len = 8) {
+  let id = '';
+  const arr = new Uint8Array(len);
+  crypto.getRandomValues(arr);
+  for (const b of arr) id += BASE62[b % 62];
+  return id;
+}
+
+// Active convoId for this page-load (set on first message).
+let activeConvoId = null;
+// True only for the original page-load that created the conversation.
+let isConvoOwner = false;
+
+function getConvoIdFromUrl() {
+  const m = window.location.pathname.match(/^\/c\/([A-Za-z0-9_-]{4,16})$/);
+  return m ? m[1] : null;
+}
+
+function activateShareButton(convoId) {
+  const statusEl = document.getElementById('chatStatus');
+  if (!statusEl || statusEl.dataset.share) return;
+  statusEl.dataset.share = '1';
+  const shareUrl = `${window.location.origin}/c/${convoId}`;
+  const btn = document.createElement('button');
+  btn.className = 'share-btn';
+  btn.id = 'shareBtn';
+  btn.textContent = '🔗 Share';
+  btn.title = 'Copy link to this conversation';
+  btn.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(shareUrl); } catch (e) {
+      const ta = document.createElement('textarea');
+      ta.value = shareUrl; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); } catch (_) {}
+      ta.remove();
+    }
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '🔗 Share'; btn.classList.remove('copied'); }, 1600);
+  });
+  statusEl.replaceWith(btn);
+}
+
+function lockChatReadOnly() {
+  const inputArea = document.querySelector('.chat-input-area');
+  if (!inputArea || inputArea.classList.contains('chat-readonly')) return;
+  // Replace input area with read-only notice + new convo button
+  const ro = document.createElement('div');
+  ro.className = 'chat-readonly';
+  ro.innerHTML = `
+    <button class="new-convo-btn" onclick="window.location.href='/#chat'">
+      Start a new conversation →
+    </button>`;
+  inputArea.replaceWith(ro);
+  // Also disable the Enter key listener (it uses chatInput which is now gone)
+}
+
+async function saveConversationTurn(convoId, userMsg, botMsg) {
+  try {
+    await fetch(`/api/conv/${convoId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user: userMsg, bot: botMsg }),
+    });
+  } catch (e) { /* non-critical */ }
+}
+
+// Load a shared conversation (read-only viewer)
+async function loadSharedConversation(convoId) {
+  try {
+    const resp = await fetch(`/api/conv/${convoId}`, { cache: 'no-store' });
+    const data = await resp.json();
+    const messages = Array.isArray(data.messages) ? data.messages : [];
+    if (messages.length === 0) return; // nothing persisted yet — brand new link
+    // Clear the default greeting
+    chatMessages.innerHTML = '';
+    for (const m of messages) {
+      if (m.role === 'user') {
+        addMessage(m.content, 'user');
+      } else if (m.role === 'assistant') {
+        addMessage(m.content, 'bot');
+      }
+    }
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  } catch (e) { /* silently ignore */ }
+}
+
+// On page load: check if we're on a /c/:id URL
+(async function initConvoFromUrl() {
+  const urlConvoId = getConvoIdFromUrl();
+  if (!urlConvoId) return; // normal home page
+  activeConvoId = urlConvoId;
+  // isConvoOwner stays false — opened by URL means read-only
+  await loadSharedConversation(urlConvoId);
+  activateShareButton(urlConvoId);
+  lockChatReadOnly();
+})();
 
 const thinkingMessages = [
   "Clod is hallucinating...",
@@ -1174,6 +1280,9 @@ function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 function renderMarkdownInto(el, text) {
   try {
     let safe = text;
+    // Auto-link jonathan.lansey.net if it is raw text (i.e., not preceded by /, [, etc.)
+    safe = safe.replace(/(^|[^a-zA-Z0-9.\-\/\[])(jonathan\.lansey\.net)/gi, '$1[$2](https://jonathan.lansey.net)');
+    
     const mathBlocks = [];
     safe = safe.replace(/(\$\$[\s\S]*?\$\$|\\\[[\s\S]*?\\\]|\\\([\s\S]*?\\\))/g, (m) => {
       mathBlocks.push(m);
@@ -1264,7 +1373,7 @@ async function animateReply(msgEl, fullText, userText, shouldRewrite) {
     const resp = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: buildRewriteMessages(userText, prefix, tail), sessionId: chatSessionId })
+      body: JSON.stringify({ messages: buildRewriteMessages(userText, prefix, tail), sessionId: chatSessionId, convoId: activeConvoId || '' })
     });
     const data = await resp.json();
     replacement = normalizeRewriteReply(data.reply, prefix, tail);
@@ -1292,22 +1401,7 @@ function addMessage(text, cls) {
   const div = document.createElement("div");
   div.className = "msg " + cls;
   if (cls.includes('bot') && !cls.includes('typing')) {
-    try {
-      // Protect math delimiters from markdown parser
-      let safe = text;
-      const mathBlocks = [];
-      safe = safe.replace(/(\$\$[\s\S]*?\$\$|\\\[[\s\S]*?\\\]|\\\([\s\S]*?\\\))/g, (m) => {
-        mathBlocks.push(m);
-        return '%%MATH' + (mathBlocks.length - 1) + '%%';
-      });
-      let html = window.marked ? marked.parse(safe) : safe;
-      mathBlocks.forEach((m, i) => {
-        html = html.replace('%%MATH' + i + '%%', m);
-      });
-      div.innerHTML = html;
-    } catch(e) {
-      div.textContent = text;
-    }
+    renderMarkdownInto(div, text);
   } else {
     div.textContent = text;
   }
@@ -1319,6 +1413,16 @@ function addMessage(text, cls) {
 async function sendMessage() {
   const text = chatInput.value.trim();
   if (!text) return;
+
+  // ── First message: generate convo ID, push URL, activate share button ──
+  const isFirstMessage = chatTurnCount === 0 && !activeConvoId;
+  if (isFirstMessage) {
+    activeConvoId = generateShortId(8);
+    isConvoOwner = true;
+    history.pushState({ convoId: activeConvoId }, '', `/c/${activeConvoId}`);
+    activateShareButton(activeConvoId);
+  }
+
   addMessage(text, "user");
   chatInput.value = "";
   const typing = addMessage(nextThinkingMessage(), "bot typing");
@@ -1327,7 +1431,7 @@ async function sendMessage() {
     const resp = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: getRecentMessages(text), sessionId: chatSessionId })
+      body: JSON.stringify({ messages: getRecentMessages(text), sessionId: chatSessionId, convoId: activeConvoId || '' })
     });
     const data = await resp.json();
     typing.remove();
@@ -1343,6 +1447,11 @@ async function sendMessage() {
     const finalReply = await animateReply(msgEl, data.reply, text, shouldRewrite);
     chatHistory.push({ role: 'assistant', content: finalReply });
     chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    // Persist this turn to Redis so shared viewers can read it
+    if (activeConvoId) {
+      saveConversationTurn(activeConvoId, text, finalReply);
+    }
   } catch (e) {
     typing.remove();
     addMessage("Oops. Clod has encountered an existential crisis. Try again?", "bot");

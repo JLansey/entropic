@@ -75,6 +75,7 @@ function groupSessions(messages) {
       session = {
         key: `${key}-${m.ts}`,
         sessionId: m.sessionId || "",
+        convoId: m.convoId || "",
         ip: m.ip,
         country: m.country || "",
         startTs: m.ts,
@@ -85,6 +86,7 @@ function groupSessions(messages) {
       bySession.set(key, session);
     }
     session.endTs = m.ts;
+    if (m.convoId && !session.convoId) session.convoId = m.convoId;
     session.entries.push(m);
   }
   // Newest session first for display
@@ -172,8 +174,12 @@ function renderSession(s, labels) {
   // shows a real user question rather than boilerplate continuation plumbing.
   const firstReal = s.entries.find((e) => !parseRewrite(e.user)) || s.entries[0];
   const dur = s.endTs - s.startTs;
+  const convoLink = s.convoId
+    ? `<a class="convo-link" href="/c/${esc(s.convoId)}" target="_blank" title="Open shared conversation">🔗</a>
+       <button class="copy-link-btn" data-url="/c/${esc(s.convoId)}" title="Copy link">⧈</button>`
+    : '';
   const header = `<div class="session-head">
-    <div class="who">${flag}<strong>${who}</strong>${label ? ` <span class="muted">(${esc(s.ip)})</span>` : ""}</div>
+    <div class="who">${flag}<strong>${who}</strong>${label ? ` <span class="muted">(${esc(s.ip)})</span>` : ""} ${convoLink}</div>
     <div class="meta">${esc(fmtDate(s.startTs))} · ${s.entries.length} msg${s.entries.length === 1 ? "" : "s"}${s.entries.length > 1 ? ` · ${fmtDuration(dur)}` : ""}</div>
   </div>`;
 
@@ -404,6 +410,13 @@ function renderPage({ messages, userCounts, countryCounts, labels, ipCountry, to
   .clod-markdown pre code { background: none; padding: 0; }
   .clod-markdown ul, .clod-markdown ol { margin: 8px 0; padding-left: 24px; }
   .clod-markdown h1, .clod-markdown h2, .clod-markdown h3 { font-size: 1.1em; margin: 14px 0 6px; color: #fff; }
+
+  /* Conversation share link in session header */
+  .convo-link { color: #5bc0be; text-decoration: none; font-size: 1rem; opacity: 0.65; transition: opacity 0.15s; margin-left: 8px; vertical-align: middle; }
+  .convo-link:hover { opacity: 1; }
+  .copy-link-btn { background: transparent; border: none; color: #5bc0be; font-size: 0.95rem; opacity: 0.55; padding: 0 2px; cursor: pointer; vertical-align: middle; transition: opacity 0.15s; line-height: 1; }
+  .copy-link-btn:hover { background: transparent; border-color: transparent; opacity: 1; }
+  .copy-link-btn.copied { color: #8f8; opacity: 1; }
 </style>
 </head><body>
 <h1>// CLOD SURVEILLANCE DASHBOARD</h1>
@@ -454,6 +467,22 @@ ${sessionsHtml || '<p class="muted">(no conversations yet)</p>'}
     } catch(e) {
       console.error('Markdown rendering error:', e);
     }
+  });
+
+  document.querySelectorAll('.copy-link-btn').forEach((btn) => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const url = window.location.origin + btn.dataset.url;
+      try { await navigator.clipboard.writeText(url); } catch (_) {
+        const ta = document.createElement('textarea');
+        ta.value = url; document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); } catch (_2) {}
+        ta.remove();
+      }
+      btn.textContent = '✓';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = '⧈'; btn.classList.remove('copied'); }, 1600);
+    });
   });
 
   document.querySelectorAll('tr[data-ip]').forEach((tr) => {

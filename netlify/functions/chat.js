@@ -121,7 +121,7 @@ function extractCountry(event) {
   }
 }
 
-async function logConversation({ ip, country, sessionId, user, bot, blocked }) {
+async function logConversation({ ip, country, sessionId, convoId, user, bot, blocked }) {
   const url = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
   if (!url || !token) return;
@@ -131,6 +131,7 @@ async function logConversation({ ip, country, sessionId, user, bot, blocked }) {
     ip,
     country: country || "",
     sessionId: sessionId || "",
+    convoId: convoId || "",
     user,
     bot,
     ...(blocked ? { blocked: true } : {}),
@@ -171,10 +172,11 @@ exports.handler = async (event) => {
     const parsed = JSON.parse(event.body);
     const messages = parsed.messages || parsed.message || "hello";
     const sessionId = typeof parsed.sessionId === "string" ? parsed.sessionId.slice(0, 64) : "";
+    const convoId = typeof parsed.convoId === "string" ? parsed.convoId.slice(0, 16) : "";
     const lastUserMessage = Array.isArray(messages)
       ? (messages[messages.length - 1]?.content || "")
       : String(messages);
-    const logCtx = { ip, country, sessionId, user: lastUserMessage };
+    const logCtx = { ip, country, sessionId, convoId, user: lastUserMessage };
 
     // Silent rate limit: past the cap, serve a canned fallback and log it
     // as blocked so the spy dashboard still shows the attempt.
