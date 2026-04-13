@@ -193,9 +193,7 @@ function renderSession(s, labels) {
       return `<div class="chat-row bot rewrite-row">
         <div class="bubble" style="padding:0; overflow:hidden; border: 1px solid var(--border); background: var(--bubble-bot);">
           ${existingBlock}
-          <div class="rewrite-new clod-markdown">
-             ${esc(e.bot)}
-          </div>
+          <div class="rewrite-new clod-markdown">${esc(e.bot)}</div>
         </div>
         <div class="turn-meta">#${i + 1} · ${esc(t)} <span class="tag rewrite-tag">Continuation</span>${blocked}</div>
         ${rawBlock}
