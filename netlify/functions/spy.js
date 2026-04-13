@@ -193,7 +193,7 @@ function renderSession(s, labels) {
       return `<div class="chat-row bot rewrite-row">
         <div class="bubble" style="padding:0; overflow:hidden; border: 1px solid var(--border); background: var(--bubble-bot);">
           ${existingBlock}
-          <div class="rewrite-new">
+          <div class="rewrite-new clod-markdown">
              ${esc(e.bot)}
           </div>
         </div>
@@ -208,7 +208,7 @@ function renderSession(s, labels) {
         <div class="turn-meta">#${i + 1} · ${esc(t)}${blocked}</div>
       </div>
       <div class="chat-row bot">
-        <div class="bubble">${esc(e.bot)}</div>
+        <div class="bubble clod-markdown">${esc(e.bot)}</div>
         <div class="turn-meta">Clod</div>
       </div>
     `;
@@ -231,6 +231,10 @@ function renderPage({ messages, userCounts, countryCounts, labels, ipCountry, to
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Clod Spy Dashboard</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -368,6 +372,15 @@ function renderPage({ messages, userCounts, countryCounts, labels, ipCountry, to
   }
   .rw-details summary:hover { background: rgba(255,255,255,0.06); color: #8fba9c; }
   .rw-body { margin-top: 6px; padding: 12px; background: #050706; border: 1px solid #16201a; border-radius: 8px; color: #789; font-size: 0.8rem; white-space: pre-wrap; word-break: break-word; font-family: ui-monospace, monospace; max-height: 250px; overflow-y: auto; }
+
+  /* Markdown & Math adjustments */
+  .clod-markdown p { margin: 0 0 10px; }
+  .clod-markdown p:last-child { margin-bottom: 0; }
+  .clod-markdown code { background: rgba(0,0,0,0.25); padding: 2px 4px; border-radius: 4px; font-family: ui-monospace, monospace; font-size: 0.9em; }
+  .clod-markdown pre { background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px; overflow-x: auto; margin: 10px 0; border: 1px solid rgba(255,255,255,0.05); }
+  .clod-markdown pre code { background: none; padding: 0; }
+  .clod-markdown ul, .clod-markdown ol { margin: 8px 0; padding-left: 24px; }
+  .clod-markdown h1, .clod-markdown h2, .clod-markdown h3 { font-size: 1.1em; margin: 14px 0 6px; color: #fff; }
 </style>
 </head><body>
 <h1>// CLOD SURVEILLANCE DASHBOARD</h1>
@@ -390,6 +403,35 @@ ${sessionsHtml || '<p class="muted">(no conversations yet)</p>'}
 <script>
   // Read the auth key from the URL rather than baking it into HTML.
   const spyKey = new URLSearchParams(location.search).get('key');
+
+  // Render markdown and math for bot responses
+  document.querySelectorAll('.clod-markdown').forEach((el) => {
+    try {
+      let safe = el.innerHTML;
+      const mathBlocks = [];
+      safe = safe.replace(/(\\$\\$[\\s\\S]*?\\$\\$|\\\\\\[[\\s\\S]*?\\\\\\]|\\\\\\([\\s\\S]*?\\\\\\))/g, (m) => {
+        mathBlocks.push(m);
+        return '%%MATH' + (mathBlocks.length - 1) + '%%';
+      });
+      let html = window.marked ? marked.parse(safe) : safe;
+      mathBlocks.forEach((m, i) => {
+        html = html.replace('%%MATH' + i + '%%', m);
+      });
+      el.innerHTML = html;
+      if (window.renderMathInElement) {
+        renderMathInElement(el, {
+          delimiters: [
+            {left: '\\\\[', right: '\\\\]', display: true},
+            {left: '\\\\(', right: '\\\\)', display: false},
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ]
+        });
+      }
+    } catch(e) {
+      console.error('Markdown rendering error:', e);
+    }
+  });
 
   document.querySelectorAll('tr[data-ip]').forEach((tr) => {
     const ip = tr.dataset.ip;
