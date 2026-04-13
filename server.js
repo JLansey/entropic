@@ -238,7 +238,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.url.startsWith("/api/spy") && ["GET", "POST", "DELETE"].includes(req.method)) {
-    const spy = require("./netlify/functions/spy");
+    const spy = require("./local/spy");
     const parsed = new URL(req.url, "http://localhost");
     const params = Object.fromEntries(parsed.searchParams);
     let spyBody = "";

@@ -43,14 +43,15 @@ All keys are persistent — no TTL.
 
 ## Spy Dashboard
 
-File: `netlify/functions/spy.js`. Routed via `netlify.toml` at `/api/spy`, and also handled by `server.js` locally so you can view and edit prod data from your laptop.
+File: `local/spy.js`. **Not deployed to Netlify** — the file lives outside `netlify/functions/`, there's no `/api/spy` redirect, and `netlify.toml` 404s any request to `/local/*` so the source isn't served as a static asset either. The only way to use spy mode is to clone the repo and run `node server.js` locally; it reads the same prod Redis via `UPSTASH_REDIS_REST_*` from `.env`.
 
 ### Access
 
 Protected by a `?key=` query param. Wrong/missing key returns a 404.
 
-- **Prod:** `https://oopus.netlify.app/api/spy?key=clod-spy-2024`
-- **Local:** `http://localhost:8077/api/spy?key=clod-spy-2024` (reads the same prod Redis)
+- **Local only:** `http://localhost:8077/api/spy?key=clod-spy-2024`
+
+If you need to view prod data, pull the repo, put the Upstash creds in `.env`, start the server, and open the URL above.
 
 ### Query params
 
