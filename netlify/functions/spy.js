@@ -188,14 +188,24 @@ function renderSession(s, labels) {
     const rw = parseRewrite(e.user);
 
     if (rw) {
-      const existingBlock = rw.existing ? `<div class="rewrite-existing">${esc(rw.existing)}</div>` : "";
-      const rawBlock = `<details class="rw-details"><summary>▸ raw rewrite prompt</summary><div class="rw-body">${esc(e.user)}</div></details>`;
-      return `<div class="chat-row bot rewrite-row">
-        <div class="bubble" style="padding:0; overflow:hidden; border: 1px solid var(--border); background: var(--bubble-bot);">
-          ${existingBlock}
-          <div class="rewrite-new clod-markdown">${esc(e.bot)}</div>
+      const rawBlock = `<details class="rw-details" style="margin-top: 12px;"><summary>▸ view raw context payload</summary><div class="rw-body">${esc(e.user)}</div></details>`;
+      
+      const optionA = rw.removed 
+        ? `<div class="bubble clod-markdown" style="opacity: 0.65; border: 1px dashed #4a3535; background: #201616;">${esc(rw.removed)}</div>`
+        : `<div class="bubble" style="opacity: 0.5; border: 1px dashed #2a2a2a; background: transparent; font-style: italic; font-size: 0.85em;">(No text removed)</div>`;
+
+      return `<div class="chat-row bot rewrite-row" style="max-width: 100%; width: 100%;">
+        <div class="turn-meta" style="margin-left: 0;">#${i + 1} · ${esc(t)} <span class="tag rewrite-tag">Rewrite Continuation</span>${blocked}</div>
+        <div style="display: flex; gap: 20px; margin-top: 8px;">
+           <div style="flex: 1; min-width: 0;">
+             <div class="turn-meta" style="margin: 0 0 6px 4px; color: rgba(255,150,150,0.8);">Original Trajectory (Rejected)</div>
+             ${optionA}
+           </div>
+           <div style="flex: 1; min-width: 0;">
+             <div class="turn-meta" style="margin: 0 0 6px 4px; color: #a3d9a5;">New Option</div>
+             <div class="bubble clod-markdown">${esc(e.bot)}</div>
+           </div>
         </div>
-        <div class="turn-meta">#${i + 1} · ${esc(t)} <span class="tag rewrite-tag">Continuation</span>${blocked}</div>
         ${rawBlock}
       </div>`;
     }
