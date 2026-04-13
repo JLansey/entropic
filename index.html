@@ -1178,7 +1178,7 @@ async function loadSharedConversation(convoId) {
         addMessage(m.content, 'bot');
       }
     }
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    forceScrollToBottom();
   } catch (e) { /* silently ignore */ }
 }
 
@@ -1291,6 +1291,7 @@ function renderMarkdownInto(el, text) {
     let html = window.marked ? marked.parse(safe) : safe;
     mathBlocks.forEach((m, i) => { html = html.replace('%%MATH' + i + '%%', m); });
     el.innerHTML = html;
+    el.querySelectorAll('a').forEach(a => { a.target = '_blank'; a.rel = 'noopener noreferrer'; });
   } catch (e) {
     el.textContent = text;
   }
@@ -1309,7 +1310,7 @@ async function typeTokens(el, startText, newText, msPerWord) {
   for (const tok of tokens) {
     current += tok;
     el.textContent = current;
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    scrollToBottomIfNeeded();
     await sleep(msPerWord + Math.random() * msPerWord * 0.6);
   }
   return current;
@@ -1323,7 +1324,7 @@ async function deleteTokens(el, fullText, prefix, msPerWord) {
   for (let i = tokens.length - 1; i >= 0; i--) {
     current = current.slice(0, current.length - tokens[i].length);
     el.textContent = current;
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    scrollToBottomIfNeeded();
     const step = total - i;
     let delay;
     if (step === 1) delay = 380;
@@ -1388,12 +1389,31 @@ async function animateReply(msgEl, fullText, userText, shouldRewrite) {
   current = await typeTokens(msgEl, current, replacement, 65);
 
   renderMarkdownInto(msgEl, current);
-  chatMessages.scrollTop = chatMessages.scrollHeight;
+  scrollToBottomIfNeeded();
   return current;
 }
 
 const chatMessages = document.getElementById("chatMessages");
 const chatInput = document.getElementById("chatInput");
+
+// ── Smart auto-scroll: don't yank the user back to the bottom while typing ──
+let userHasScrolledUp = false;
+
+chatMessages.addEventListener('scroll', () => {
+  const distFromBottom = chatMessages.scrollHeight - chatMessages.scrollTop - chatMessages.clientHeight;
+  userHasScrolledUp = distFromBottom > 80;
+});
+
+function scrollToBottomIfNeeded() {
+  if (!userHasScrolledUp) {
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+}
+
+function forceScrollToBottom() {
+  userHasScrolledUp = false;
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
 
 chatInput.addEventListener("keydown", (e) => { if (e.key === "Enter") sendMessage(); });
 
@@ -1406,7 +1426,7 @@ function addMessage(text, cls) {
     div.textContent = text;
   }
   chatMessages.appendChild(div);
-  chatMessages.scrollTop = chatMessages.scrollHeight;
+  forceScrollToBottom();
   return div;
 }
 
@@ -1446,7 +1466,7 @@ async function sendMessage() {
 
     const finalReply = await animateReply(msgEl, data.reply, text, shouldRewrite);
     chatHistory.push({ role: 'assistant', content: finalReply });
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    scrollToBottomIfNeeded();
 
     // Persist this turn to Redis so shared viewers can read it
     if (activeConvoId) {
