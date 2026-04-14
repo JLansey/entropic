@@ -13,8 +13,7 @@
   var elevatorTracks = [
     '/Bossa_Antigua.mp3', 
     '/George_Street_Shuffle.mp3',
-    '/Jazz_Blue.mp3',
-    '/The_Best_Jazz_Club.mp3'
+    '/Jazz_Blue.mp3'
   ];
   var currentTrackIndex = 0;
 
