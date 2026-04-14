@@ -10,6 +10,62 @@
   function setInternalTheme(isDark, transitionType) {
     document.documentElement.classList.remove('slow-theme', 'fast-theme');
     
+    if (transitionType === 'chaos') {
+      var maxDurationMs = 5000;
+      var endTime = Date.now() + maxDurationMs;
+      
+      function nextFlicker() {
+        var now = Date.now();
+        var remaining = endTime - now;
+        
+        if (remaining <= 0) {
+          document.documentElement.style.transitionDuration = '1.5s';
+          document.documentElement.style.transitionProperty = 'background-color, color, border-color, background, box-shadow';
+          if (isDark) {
+            document.documentElement.classList.add('dark');
+            if (themeToggle) themeToggle.textContent = '☀️';
+          } else {
+            document.documentElement.classList.remove('dark');
+            if (themeToggle) themeToggle.textContent = '🌙';
+          }
+          setTimeout(function() {
+             document.documentElement.style.transitionDuration = '';
+             document.documentElement.style.transitionProperty = '';
+          }, 1600);
+          return;
+        }
+
+        if (Math.random() > 0.5) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+        
+        var r = Math.random();
+        if (r < 0.4) {
+            document.documentElement.style.transitionDuration = '0s';
+        } else if (r < 0.8) {
+            document.documentElement.style.transitionDuration = '0.1s';
+        } else {
+            document.documentElement.style.transitionDuration = '0.6s';
+        }
+        document.documentElement.style.transitionProperty = 'background-color, color, border-color, background, box-shadow';
+        
+        var progress = 1 - (remaining / maxDurationMs);
+        var intensity = Math.sin(progress * Math.PI); 
+
+        var minDelay = 40; 
+        var maxDelay = 600; 
+        var baseDelay = minDelay + (maxDelay - minDelay) * (1 - intensity);
+        var delay = baseDelay * (0.4 + Math.random() * 0.8); 
+
+        setTimeout(nextFlicker, delay);
+      }
+      
+      nextFlicker();
+      return;
+    }
+
     if (transitionType) {
       document.documentElement.classList.add(transitionType + '-theme');
       void document.documentElement.offsetWidth;
@@ -17,10 +73,10 @@
 
     if (isDark) {
       document.documentElement.classList.add('dark');
-      themeToggle.textContent = '☀️';
+      if (themeToggle) themeToggle.textContent = '☀️';
     } else {
       document.documentElement.classList.remove('dark');
-      themeToggle.textContent = '🌙';
+      if (themeToggle) themeToggle.textContent = '🌙';
     }
 
     if (transitionType) {
@@ -52,7 +108,7 @@
       function scheduleNextFlip(delay) {
         vibesTimeout = setTimeout(function() {
           var isCurrentlyDark = document.documentElement.classList.contains('dark');
-          setInternalTheme(!isCurrentlyDark, 'slow');
+          setInternalTheme(!isCurrentlyDark, 'chaos');
           
           var minMs = 3 * 60 * 1000;
           var maxMs = 8 * 60 * 1000;
