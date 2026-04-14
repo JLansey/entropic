@@ -11,9 +11,13 @@
   var isInitialLoad = true;
   
   var elevatorTracks = [
-    '/Bossa_Antigua.mp3', 
-    '/George_Street_Shuffle.mp3',
-    '/Jazz_Blue.mp3'
+    '/vibenoise/Bossa_Antigua.mp3', 
+    '/vibenoise/George_Street_Shuffle.mp3',
+    '/vibenoise/calming-251399.mp3',
+    '/vibenoise/fast-jazz-143910.mp3',
+    '/vibenoise/late-brew-vibes-jazz-lofi-instrumental-358613.mp3',
+    '/vibenoise/latin-saxophone-jazz-295337.mp3',
+    '/vibenoise/sensual-jazz-130483.mp3'
   ];
   var currentTrackIndex = 0;
 
@@ -46,7 +50,14 @@
       audioElem.removeEventListener('ended', playNextTrack);
     }
     
-    currentTrackIndex = Math.floor(Math.random() * elevatorTracks.length);
+    if (Math.random() < 0.7) {
+      // 70% chance to start with Bossa Antigua or George Street Shuffle
+      currentTrackIndex = Math.random() < 0.5 ? 0 : 1;
+    } else {
+      // 30% chance to start with any of the other weird tracks
+      currentTrackIndex = 2 + Math.floor(Math.random() * (elevatorTracks.length - 2));
+    }
+
     audioElem = new Audio(elevatorTracks[currentTrackIndex]);
     audioElem.addEventListener('ended', playNextTrack);
     
