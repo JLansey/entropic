@@ -50,11 +50,43 @@
   }
   
   function setInternalTheme(isDark, transitionType) {
-    document.documentElement.classList.remove('slow-theme', 'fast-theme', 'wacky-chaos', 'wacky-manual', 'wacky-manual-light');
+    document.documentElement.classList.remove('slow-theme', 'fast-theme', 'wacky-manual', 'wacky-manual-light', 'wacky-chaos-dynamic');
     
+    if (transitionType !== 'chaos') {
+      document.documentElement.style.filter = '';
+    }
+
     if (transitionType === 'chaos') {
-      document.documentElement.classList.add('wacky-chaos');
-      // The flip happens right at the peak of the 5-second chaos (at 2.5s)
+      var hue = Math.floor(Math.random() * 360);
+      var invNum = Math.random() > 0.6 ? (Math.random() > 0.5 ? 0.9 : 0.2) : 0;
+      var sepiaNum = Math.random() > 0.5 ? 0.6 : 0;
+      var targetFilter = 'invert(' + invNum + ') sepia(' + sepiaNum + ') hue-rotate(' + hue + 'deg)';
+      var startFilter = document.documentElement.style.filter || 'none';
+
+      var styleId = 'wacky-dynamic-style';
+      var existingStyle = document.getElementById(styleId);
+      if (existingStyle) existingStyle.remove();
+
+      var styleEl = document.createElement('style');
+      styleEl.id = styleId;
+      styleEl.innerHTML = `
+        @keyframes dynamicWackyChaos {
+          0% { filter: ${startFilter}; transform: scale(1) rotate(0deg); }
+          20% { filter: sepia(0.8) hue-rotate(${hue + 45}deg); transform: scale(1.02) rotate(1deg); }
+          45% { filter: invert(0.8) hue-rotate(${hue + 180}deg) saturate(4) contrast(2); transform: scale(0.95) rotate(-2deg); }
+          55% { filter: invert(1) hue-rotate(${hue + 270}deg) saturate(5) blur(2px); transform: scale(1.05) rotate(3deg); }
+          80% { filter: sepia(0.5) hue-rotate(${hue + 330}deg); transform: scale(1.01) rotate(-0.5deg); }
+          100% { filter: ${targetFilter}; transform: scale(1) rotate(0deg); }
+        }
+        html.wacky-chaos-dynamic {
+          animation: dynamicWackyChaos 5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+          overflow-x: hidden;
+        }
+      `;
+      document.head.appendChild(styleEl);
+
+      document.documentElement.classList.add('wacky-chaos-dynamic');
+      
       setTimeout(function() {
         if (isDark) {
           document.documentElement.classList.add('dark');
@@ -66,7 +98,8 @@
       }, 2500);
 
       setTimeout(function() {
-         document.documentElement.classList.remove('wacky-chaos');
+         document.documentElement.style.filter = targetFilter;
+         document.documentElement.classList.remove('wacky-chaos-dynamic');
       }, 5000);
       return;
     }
