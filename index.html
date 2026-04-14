@@ -1114,14 +1114,16 @@ function pickRandomIndex(exclude) {
 
 function swapReview(cardEl) {
   const grid = document.getElementById('reviewsGrid');
-  const cards = Array.from(grid.children);
-  const slotIdx = cards.indexOf(cardEl);
 
   // Find current review index
   const oldIdx = parseInt(cardEl.dataset.reviewIdx);
+  if (isNaN(oldIdx)) return;
   displayedIndices.delete(oldIdx);
 
-  const newIdx = pickRandomIndex(displayedIndices);
+  // Exclude both currently displayed AND the one we just removed
+  const exclude = new Set(displayedIndices);
+  exclude.add(oldIdx);
+  const newIdx = pickRandomIndex(exclude);
   displayedIndices.add(newIdx);
 
   const newCard = renderReviewCard(ALL_REVIEWS[newIdx]);
