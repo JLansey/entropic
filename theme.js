@@ -26,7 +26,12 @@
   }
 
   function startElevatorMusic() {
-    var tracks = ['/Bossa_Antigua.mp3', '/George_Street_Shuffle.mp3'];
+    var tracks = [
+      '/Bossa_Antigua.mp3', 
+      '/George_Street_Shuffle.mp3',
+      '/Jazz_Blue.mp3',
+      '/The_Best_Jazz_Club.mp3'
+    ];
     var track = tracks[Math.floor(Math.random() * tracks.length)];
     
     if (audioElem) {
