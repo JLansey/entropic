@@ -5,8 +5,16 @@
   var preferDark = window.matchMedia('(prefers-color-scheme: dark)');
   var vibesTimeout = null;
   var currentThemeSelection = 'light';
+  var isInitialLoad = true;
   
-  function setInternalTheme(isDark) {
+  function setInternalTheme(isDark, transitionType) {
+    document.documentElement.classList.remove('slow-theme', 'fast-theme');
+    
+    if (transitionType) {
+      document.documentElement.classList.add(transitionType + '-theme');
+      void document.documentElement.offsetWidth;
+    }
+
     if (isDark) {
       document.documentElement.classList.add('dark');
       themeToggle.textContent = '☀️';
@@ -14,29 +22,37 @@
       document.documentElement.classList.remove('dark');
       themeToggle.textContent = '🌙';
     }
+
+    if (transitionType) {
+      setTimeout(function() {
+        document.documentElement.classList.remove(transitionType + '-theme');
+      }, transitionType === 'slow' ? 4050 : 200);
+    }
   }
 
-  function updateThemeSelection(selection, save) {
+  function updateThemeSelection(selection, save, fromSystem) {
     currentThemeSelection = selection;
     if (vibesTimeout) {
       clearTimeout(vibesTimeout);
       vibesTimeout = null;
     }
 
+    var transitionType = (isInitialLoad && !fromSystem) ? null : 'fast';
+
     if (selection === 'light') {
-      setInternalTheme(false);
+      setInternalTheme(false, transitionType);
     } else if (selection === 'dark') {
-      setInternalTheme(true);
+      setInternalTheme(true, transitionType);
     } else if (selection === 'vibes') {
       // Initialize with whatever it currently is to not cause an immediate jarring switch,
       // or set it to system if it was just loaded. For now, match system as fallback.
       var isDark = document.documentElement.classList.contains('dark');
-      setInternalTheme(isDark);
+      setInternalTheme(isDark, null); // Keep current state instantly
       
       function scheduleNextFlip(delay) {
         vibesTimeout = setTimeout(function() {
           var isCurrentlyDark = document.documentElement.classList.contains('dark');
-          setInternalTheme(!isCurrentlyDark);
+          setInternalTheme(!isCurrentlyDark, 'slow');
           
           var minMs = 3 * 60 * 1000;
           var maxMs = 8 * 60 * 1000;
@@ -80,12 +96,13 @@
   } catch(e) {}
 
   updateThemeSelection(savedSelection, false);
+  isInitialLoad = false;
 
   preferDark.addEventListener('change', function(e) {
     try { 
        if (localStorage.getItem('entropic-theme-mode') || localStorage.getItem('entropic-theme')) return; 
     } catch(e){}
-    updateThemeSelection(e.matches ? 'dark' : 'light', false);
+    updateThemeSelection(e.matches ? 'dark' : 'light', false, true);
   });
 
   if (themeToggle && themeDropdown) {
