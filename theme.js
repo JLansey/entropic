@@ -50,7 +50,7 @@
   }
   
   function setInternalTheme(isDark, transitionType) {
-    document.documentElement.classList.remove('slow-theme', 'fast-theme', 'wacky-chaos', 'wacky-manual');
+    document.documentElement.classList.remove('slow-theme', 'fast-theme', 'wacky-chaos', 'wacky-manual', 'wacky-manual-light');
     
     if (transitionType === 'chaos') {
       document.documentElement.classList.add('wacky-chaos');
@@ -85,9 +85,17 @@
         }, 600);
         return;
       } else {
-        // Fast fade for dark -> light
-        document.documentElement.classList.add('fast-theme');
-        void document.documentElement.offsetWidth;
+        // Quick wacky transition for dark -> light
+        document.documentElement.classList.add('wacky-manual-light');
+        setTimeout(function() {
+            document.documentElement.classList.remove('dark');
+            if (themeToggle) themeToggle.textContent = '🌙';
+        }, 300);
+        
+        setTimeout(function() {
+          document.documentElement.classList.remove('wacky-manual-light');
+        }, 600);
+        return;
       }
     }
 
