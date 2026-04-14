@@ -26,10 +26,15 @@
   }
 
   function startElevatorMusic() {
-    if (!audioElem) {
-      audioElem = new Audio('/elevator.mp3');
-      audioElem.loop = true;
+    var tracks = ['/Bossa_Antigua.mp3', '/George_Street_Shuffle.mp3'];
+    var track = tracks[Math.floor(Math.random() * tracks.length)];
+    
+    if (audioElem) {
+      audioElem.pause();
     }
+    
+    audioElem = new Audio(track);
+    audioElem.loop = true;
     audioElem.volume = 0;
     var promise = audioElem.play();
     if (promise) promise.catch(function(){});
