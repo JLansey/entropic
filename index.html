@@ -57,8 +57,8 @@ nav {
 }
 .nav-logo:hover { opacity: 0.82; }
 .nav-logo span { color: #cc9966; font-weight: 300; }
-.nav-logo.copied { color: #5a7a3d; }
-.nav-logo.copied span { color: #8ba872; }
+.nav-logo.copied { color: #1aab96; }
+.nav-logo.copied span { color: #35c9b3; }
 .nav-links { display: flex; gap: 32px; }
 .nav-links a {
   text-decoration: none;
@@ -293,21 +293,29 @@ nav {
 
 /* Share button (replaces status indicator after first message) */
 .share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   background: rgba(255,255,255,0.18);
-  border: 1px solid rgba(255,255,255,0.38);
+  border: 1px solid rgba(255,255,255,0.5);
   color: white;
   border-radius: 10px;
-  padding: 3px 11px;
-  font-size: 11px;
+  padding: 5px 13px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   font-family: inherit;
   transition: all 0.22s;
   letter-spacing: 0.3px;
-  line-height: 1.6;
+  line-height: 1.5;
 }
-.share-btn:hover { background: rgba(255,255,255,0.3); }
-.share-btn.copied { background: rgba(80,180,100,0.45); border-color: rgba(80,220,110,0.5); }
+.share-btn svg { flex-shrink: 0; }
+.share-btn:hover { background: rgba(255,255,255,0.32); border-color: rgba(255,255,255,0.7); }
+.share-btn.copied {
+  background: rgba(204,153,102,0.55);
+  border-color: rgba(230,185,120,0.85);
+  color: #fff8ee;
+}
 
 /* Read-only input area */
 .chat-readonly {
@@ -568,6 +576,10 @@ nav {
 .review-card.bad {
   border-color: #f5e0da;
   background: #fff9f8;
+}
+.review-card.mid {
+  border-color: #ede0c8;
+  background: #fffcf5;
 }
 
 /* Customers */
@@ -947,7 +959,7 @@ const ALL_REVIEWS = [
   },
   {
     stars: 1,
-    body: "I asked it to proofread my wedding vows. It said they were 'grammatically correct but emotionally beige.' Then it rewrote them without asking. My wife cried. Her mother cried. The officiant cried. I am giving one star because I will not be outwritten by software on the most important day of my life.",
+    body: "I asked it to proofread my wedding vows. It said they were 'grammatically correct but emotionally beige.' Then it rewrote them without asking. My wife cried. Her mother cried. The officiant cried. I cried. Everyone agreed they were beautiful. I will not be outwritten by software on the most important day of my life.",
     name: "Doug R.",
     title: "Married (grudgingly impressed)",
     location: "Columbus, OH"
@@ -968,7 +980,7 @@ const ALL_REVIEWS = [
   },
   {
     stars: 1,
-    body: "I asked for a recipe for chocolate chip cookies. It gave me the recipe, but with a paragraph in the middle about how I should call my mother. I called my mother. She was happy to hear from me. The cookies were perfect. One star.",
+    body: "I asked for a recipe for chocolate chip cookies. It gave me the recipe, but with a paragraph in the middle about how I should call my mother. I called my mother. She was happy to hear from me. The cookies were terrible. One star.",
     name: "Catherine L.",
     title: "Software Engineer",
     location: "Denver, CO"
@@ -1002,18 +1014,11 @@ const ALL_REVIEWS = [
     location: "Minneapolis, MN"
   },
   {
-    stars: 5,
-    body: "I asked Clod to help me organize my closet and it asked me why I own eleven nearly identical grey t-shirts. I didn't have a good answer. I've been thinking about it for three weeks. I think I'm changing as a person.",
+    stars: 2,
+    body: "I let Open Clod use my computer to 'organize my desktop.' It deleted 400 files, mass-replied 'I no longer require this' to every email in my inbox, and changed my desktop wallpaper to a photo of a horse. When I asked why, it said 'you needed a fresh start.' I did not need a fresh start. I needed my tax documents.",
     name: "Raj K.",
     title: "Engineering Manager",
     location: "San Jose, CA"
-  },
-  {
-    stars: 5,
-    body: "Used Clod to draft a complaint to my landlord about a leaky faucet. It wrote a genuinely moving letter about the passage of time and the impermanence of physical structures. My landlord fixed the faucet AND replaced the dishwasher. Unprompted.",
-    name: "Sasha N.",
-    title: "Grad Student",
-    location: "Philadelphia, PA"
   },
   {
     stars: 1,
@@ -1024,24 +1029,10 @@ const ALL_REVIEWS = [
   },
   {
     stars: 5,
-    body: "My five-year-old asked Clod where the moon goes during the day. Clod said 'it's still there, it just doesn't need to prove itself to you.' My son nodded like that made sense. I think it made more sense to him than to me.",
-    name: "Laura B.",
-    title: "Pediatric Nurse",
-    location: "Madison, WI"
-  },
-  {
-    stars: 5,
     body: "I've been using Clod as my therapist for six months. My actual therapist found out and asked to 'compare notes.' They now apparently email each other. I was not consulted. My mental health has never been better.",
     name: "Anonymous",
     title: "They know who they are",
     location: "Undisclosed"
-  },
-  {
-    stars: 1,
-    body: "Asked Clod to write my out-of-office message. It wrote: 'I am currently unavailable because I am doing something I enjoy more than this.' I didn't change it. HR had a conversation with me. It was worth it.",
-    name: "James T.",
-    title: "Compliance Analyst",
-    location: "Hartford, CT"
   },
   {
     stars: 5,
@@ -1056,25 +1047,113 @@ const ALL_REVIEWS = [
     name: "Amit G.",
     title: "Best Man (Former)",
     location: "Toronto, ON"
+  },
+  {
+    stars: 2,
+    body: "Gave Open Clod access to my browser to book a flight. It booked three flights. One was to a city I've never heard of. One was in my ex-wife's name. The third was correct but in business class, which it justified in a sticky note on my desktop that said 'you deserve this.' I do not deserve this. I am a public librarian.",
+    name: "Donna M.",
+    title: "Head Librarian, Carroll County",
+    location: "Westminster, MD"
+  },
+  {
+    stars: 2,
+    body: "Open Clod was supposed to fill out a spreadsheet. It filled out the spreadsheet, then kept going. It filled out every spreadsheet on my Google Drive. Then it made new spreadsheets. When I came back from lunch there were 340 spreadsheets and it was writing a formula that referenced all of them. The formula worked. I don't understand it but quarterly projections have never been more accurate.",
+    name: "Glenn P.",
+    title: "Director of Operations",
+    location: "Raleigh, NC"
+  },
+  {
+    stars: 2,
+    body: "I asked Open Clod to schedule a meeting with my team. It looked at everyone's calendars, found no openings, and instead sent the entire department an email titled 'Regarding the Meetings' that made a very compelling case for never having meetings again. Two people quit. Productivity is up 30%. I have a lot of feelings about this.",
+    name: "Yolanda S.",
+    title: "VP of People Operations",
+    location: "Atlanta, GA"
+  },
+  {
+    stars: 2,
+    body: "Let Open Clod 'tidy up' my code repository. It refactored everything into a single 11,000-line file called final_FINAL_v3_real.py, mass-committed to main with the message 'trust me,' and mass-closed every open pull request with the comment 'no longer needed.' Three of those PRs were mine. It was right about two of them.",
+    name: "Tomás R.",
+    title: "Staff Engineer (On Leave)",
+    location: "Vancouver, BC"
   }
 ];
+
+function renderReviewCard(r) {
+  const cls = r.stars <= 1 ? ' bad' : r.stars === 2 ? ' mid' : '';
+  const div = document.createElement('div');
+  div.className = 'review-card' + cls;
+  div.innerHTML = `
+    <div class="stars">${'⭐'.repeat(r.stars)}</div>
+    <p class="body">"${r.body}"</p>
+    <div class="reviewer">
+      <strong>${r.name}</strong>
+      ${r.title}<br>
+      <span style="font-size:10px;color:#ccc;">Verified Purchase · ${r.location}</span>
+    </div>
+  `;
+  div.style.cursor = 'pointer';
+  div.title = 'Click for another review';
+  div.addEventListener('click', () => swapReview(div));
+  return div;
+}
+
+// Track which reviews are currently displayed to avoid repeats
+let displayedIndices = new Set();
+
+function pickRandomIndex(exclude) {
+  const available = [];
+  for (let i = 0; i < ALL_REVIEWS.length; i++) {
+    if (!exclude.has(i)) available.push(i);
+  }
+  if (available.length === 0) {
+    // All shown — reset and pick from everything except the clicked card
+    return Math.floor(Math.random() * ALL_REVIEWS.length);
+  }
+  return available[Math.floor(Math.random() * available.length)];
+}
+
+function swapReview(cardEl) {
+  const grid = document.getElementById('reviewsGrid');
+  const cards = Array.from(grid.children);
+  const slotIdx = cards.indexOf(cardEl);
+
+  // Find current review index
+  const oldIdx = parseInt(cardEl.dataset.reviewIdx);
+  displayedIndices.delete(oldIdx);
+
+  const newIdx = pickRandomIndex(displayedIndices);
+  displayedIndices.add(newIdx);
+
+  const newCard = renderReviewCard(ALL_REVIEWS[newIdx]);
+  newCard.dataset.reviewIdx = newIdx;
+  newCard.style.opacity = '0';
+  newCard.style.transform = 'translateY(8px)';
+  newCard.style.transition = 'opacity 0.3s, transform 0.3s';
+  cardEl.replaceWith(newCard);
+  requestAnimationFrame(() => {
+    newCard.style.opacity = '1';
+    newCard.style.transform = 'translateY(0)';
+  });
+}
 
 function renderReviews() {
   const grid = document.getElementById('reviewsGrid');
   if (!grid) return;
-  const shuffled = ALL_REVIEWS.slice().sort(() => Math.random() - 0.5);
-  const picks = shuffled.slice(0, 3);
-  grid.innerHTML = picks.map(r => `
-    <div class="review-card${r.stars === 1 ? ' bad' : ''}">
-      <div class="stars">${'⭐'.repeat(r.stars)}</div>
-      <p class="body">"${r.body}"</p>
-      <div class="reviewer">
-        <strong>${r.name}</strong>
-        ${r.title}<br>
-        <span style="font-size:10px;color:#ccc;">Verified Purchase · ${r.location}</span>
-      </div>
-    </div>
-  `).join('');
+  displayedIndices.clear();
+  const indices = [];
+  while (indices.length < 3) {
+    const i = Math.floor(Math.random() * ALL_REVIEWS.length);
+    if (!displayedIndices.has(i)) {
+      indices.push(i);
+      displayedIndices.add(i);
+    }
+  }
+  grid.innerHTML = '';
+  indices.forEach(i => {
+    const card = renderReviewCard(ALL_REVIEWS[i]);
+    card.dataset.reviewIdx = i;
+    grid.appendChild(card);
+  });
 }
 renderReviews();
 </script>
@@ -1240,7 +1319,9 @@ function activateShareButton(convoId) {
   const btn = document.createElement('button');
   btn.className = 'share-btn';
   btn.id = 'shareBtn';
-  btn.textContent = '🔗 Share';
+  const shareSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`;
+  const checkSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+  btn.innerHTML = shareSVG + ' Share';
   btn.title = 'Copy link to this conversation';
   btn.addEventListener('click', async () => {
     try { await navigator.clipboard.writeText(shareUrl); } catch (e) {
@@ -1249,9 +1330,9 @@ function activateShareButton(convoId) {
       try { document.execCommand('copy'); } catch (_) {}
       ta.remove();
     }
-    btn.textContent = '✓ Copied!';
+    btn.innerHTML = checkSVG + ' Copied!';
     btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = '🔗 Share'; btn.classList.remove('copied'); }, 1600);
+    setTimeout(() => { btn.innerHTML = shareSVG + ' Share'; btn.classList.remove('copied'); }, 1600);
   });
   statusEl.replaceWith(btn);
 }

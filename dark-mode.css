@@ -36,6 +36,7 @@
 .dark .review-card .reviewer { color: #777; }
 .dark .review-card .reviewer strong { color: #999; }
 .dark .review-card.bad { background: #1e1616; border-color: #3a2222; }
+.dark .review-card.mid { background: #1e1c16; border-color: #3a3422; }
 
 #themeToggle {
   background: none;
