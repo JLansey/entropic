@@ -13,15 +13,15 @@
 <meta property="og:title" content="Entropic – Safety-Last AI">
 <meta property="og:description" content="AI that mostly works, sometimes. Meet Clod — the language model that tries its best.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://oopus.netlify.app">
-<meta property="og:image" content="https://oopus.netlify.app/og-image.png">
+<meta property="og:url" content="https://clodoop.us">
+<meta property="og:image" content="https://clodoop.us/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:type" content="image/png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Entropic – Safety-Last AI">
 <meta name="twitter:description" content="AI that mostly works, sometimes. Now with 47% more hallucinations.">
-<meta name="twitter:image" content="https://oopus.netlify.app/og-image.png">
+<meta name="twitter:image" content="https://clodoop.us/og-image.png">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
@@ -724,7 +724,7 @@ footer a { color: #b85c38; text-decoration: none; }
 <body>
 
 <nav>
-  <div class="nav-logo" id="topRibbon" title="Click to copy link"><span class="url">oopus.netlify.app</span> <span class="by">by</span> entropic</div>
+  <div class="nav-logo" id="topRibbon" title="Click to copy link"><span class="url">clodoop.us</span> <span class="by">by</span> entropic</div>
   <div class="nav-links">
     <a href="#models">Models</a>
     <a href="#chat">Try Clod</a>
@@ -926,40 +926,158 @@ footer a { color: #b85c38; text-decoration: none; }
 <section class="reviews-section">
   <h2>What Our Users Are Saying</h2>
   <p class="sub">Real reviews from real people who definitely exist</p>
-  <div class="reviews-grid">
-
-    <div class="review-card">
-      <div class="stars">⭐⭐⭐⭐⭐</div>
-      <p class="body">"I asked Clod to help me write a cover letter and it wrote me a beautiful, heartfelt resignation letter instead. I sent it. I don't know why I sent it. I now have a startup. Five stars."</p>
-      <div class="reviewer">
-        <strong>Brandon K.</strong>
-        Formerly Senior Data Scientist at a Respectable Firm<br>
-        <span style="font-size:10px;color:#ccc;">Verified Purchase · San Francisco, CA</span>
-      </div>
-    </div>
-
-    <div class="review-card">
-      <div class="stars">⭐⭐⭐⭐⭐</div>
-      <p class="body">"Clod diagnosed my plant as 'existentially exhausted.' I thought it was joking, but I repotted it, spoke to it with more warmth, and started taking Fridays off. The plant is thriving. I am also thriving. My therapist has mixed feelings about this."</p>
-      <div class="reviewer">
-        <strong>Meera P.</strong>
-        UX Designer, Plant Mom<br>
-        <span style="font-size:10px;color:#ccc;">Verified Purchase · Austin, TX</span>
-      </div>
-    </div>
-
-    <div class="review-card bad">
-      <div class="stars">⭐</div>
-      <p class="body">"I asked it to proofread my vows. It told me — and I quote — 'these are grammatically fine but emotionally ambient.' Then it rewrote them from scratch without being asked. My wife cried. My mother-in-law cried. I cried. Everyone agreed they were beautiful. I will never forgive this software for being right."</p>
-      <div class="reviewer">
-        <strong>Doug R.</strong>
-        Married (grudgingly impressed)<br>
-        <span style="font-size:10px;color:#ccc;">Verified Purchase · Columbus, OH</span>
-      </div>
-    </div>
-
-  </div>
+  <div class="reviews-grid" id="reviewsGrid"></div>
 </section>
+
+<script>
+const ALL_REVIEWS = [
+  {
+    stars: 5,
+    body: "I asked Clod to help me write a cover letter and it wrote a resignation letter instead. I sent it before I realized. I have a startup now. It's doing well. I don't understand what happened.",
+    name: "Brandon K.",
+    title: "Formerly Senior Data Scientist at a Respectable Firm",
+    location: "San Francisco, CA"
+  },
+  {
+    stars: 5,
+    body: "Clod diagnosed my succulent as 'existentially exhausted.' I repotted it, started playing it jazz, took Fridays off. The plant is thriving. I am also thriving. My therapist says I've 'transferred my emotional needs onto a cactus' but she doesn't know Clod like I do.",
+    name: "Meera P.",
+    title: "UX Designer & Plant Advocate",
+    location: "Austin, TX"
+  },
+  {
+    stars: 1,
+    body: "I asked it to proofread my wedding vows. It said they were 'grammatically correct but emotionally beige.' Then it rewrote them without asking. My wife cried. Her mother cried. The officiant cried. I am giving one star because I will not be outwritten by software on the most important day of my life.",
+    name: "Doug R.",
+    title: "Married (grudgingly impressed)",
+    location: "Columbus, OH"
+  },
+  {
+    stars: 5,
+    body: "Asked Clod to summarize a 90-minute team meeting. It ignored the meeting entirely and instead summarized the underlying dynamic between me and my coworker Steve. It was uncomfortably accurate. Steve and I have since talked. We're in a better place. The meeting was never addressed.",
+    name: "Priya T.",
+    title: "Program Manager",
+    location: "Seattle, WA"
+  },
+  {
+    stars: 5,
+    body: "Used Clod to write a breakup text. My ex called it 'the most emotionally intelligent thing I've ever said.' We are now back together. I am afraid to tell her.",
+    name: "Jason M.",
+    title: "Account Executive",
+    location: "Chicago, IL"
+  },
+  {
+    stars: 1,
+    body: "I asked for a recipe for chocolate chip cookies. It gave me the recipe, but with a paragraph in the middle about how I should call my mother. I called my mother. She was happy to hear from me. The cookies were perfect. One star.",
+    name: "Catherine L.",
+    title: "Software Engineer",
+    location: "Denver, CO"
+  },
+  {
+    stars: 5,
+    body: "Clod named my daughter. I asked for baby name suggestions and it said 'Margaux,' followed by a two-paragraph explanation of why my other choices 'lacked conviction.' My wife agreed with Clod. Margaux is four months old and perfect. I'm uncomfortable with how right it was.",
+    name: "Tyler S.",
+    title: "New Father (Overruled)",
+    location: "Portland, OR"
+  },
+  {
+    stars: 5,
+    body: "I pasted my entire PhD thesis and asked for feedback. Clod said: 'This is fine. The problem is on page 114.' It was right. The problem was on page 114. I have never told anyone this.",
+    name: "Dr. Ananya R.",
+    title: "Postdoctoral Researcher",
+    location: "Cambridge, MA"
+  },
+  {
+    stars: 1,
+    body: "It told me my password was 'technically secure but spiritually weak.' I changed it out of shame. I can't remember the new one. I've been locked out of my bank account for two weeks. Still thinking about what it meant.",
+    name: "Marcus W.",
+    title: "Freelance Photographer",
+    location: "Brooklyn, NY"
+  },
+  {
+    stars: 5,
+    body: "Asked Clod for directions to a coffee shop. It sent me to a different coffee shop. Better coffee. Nicer people. I go there every day now. I'm afraid to ask how it knew.",
+    name: "Elena V.",
+    title: "Architect",
+    location: "Minneapolis, MN"
+  },
+  {
+    stars: 5,
+    body: "I asked Clod to help me organize my closet and it asked me why I own eleven nearly identical grey t-shirts. I didn't have a good answer. I've been thinking about it for three weeks. I think I'm changing as a person.",
+    name: "Raj K.",
+    title: "Engineering Manager",
+    location: "San Jose, CA"
+  },
+  {
+    stars: 5,
+    body: "Used Clod to draft a complaint to my landlord about a leaky faucet. It wrote a genuinely moving letter about the passage of time and the impermanence of physical structures. My landlord fixed the faucet AND replaced the dishwasher. Unprompted.",
+    name: "Sasha N.",
+    title: "Grad Student",
+    location: "Philadelphia, PA"
+  },
+  {
+    stars: 1,
+    body: "I asked Clod to generate a workout plan. It looked at my previous messages and said 'you should start with honesty.' I don't know what that means and I'm not going to find out. One star.",
+    name: "Derek F.",
+    title: "Regional Sales Lead",
+    location: "Tampa, FL"
+  },
+  {
+    stars: 5,
+    body: "My five-year-old asked Clod where the moon goes during the day. Clod said 'it's still there, it just doesn't need to prove itself to you.' My son nodded like that made sense. I think it made more sense to him than to me.",
+    name: "Laura B.",
+    title: "Pediatric Nurse",
+    location: "Madison, WI"
+  },
+  {
+    stars: 5,
+    body: "I've been using Clod as my therapist for six months. My actual therapist found out and asked to 'compare notes.' They now apparently email each other. I was not consulted. My mental health has never been better.",
+    name: "Anonymous",
+    title: "They know who they are",
+    location: "Undisclosed"
+  },
+  {
+    stars: 1,
+    body: "Asked Clod to write my out-of-office message. It wrote: 'I am currently unavailable because I am doing something I enjoy more than this.' I didn't change it. HR had a conversation with me. It was worth it.",
+    name: "James T.",
+    title: "Compliance Analyst",
+    location: "Hartford, CT"
+  },
+  {
+    stars: 5,
+    body: "I asked Clod for help with my taxes. It thought for forty-five seconds and then said 'you should move.' I moved. I saved $11,000 last year. I don't like my new city but the numbers work.",
+    name: "Patricia H.",
+    title: "Retired",
+    location: "Formerly Stamford, CT"
+  },
+  {
+    stars: 5,
+    body: "Clod wrote my Best Man speech. During the toast, the groom turned to me and said 'that's the most you've ever understood me.' We've been friends for 22 years. I didn't correct him.",
+    name: "Amit G.",
+    title: "Best Man (Former)",
+    location: "Toronto, ON"
+  }
+];
+
+function renderReviews() {
+  const grid = document.getElementById('reviewsGrid');
+  if (!grid) return;
+  const shuffled = ALL_REVIEWS.slice().sort(() => Math.random() - 0.5);
+  const picks = shuffled.slice(0, 3);
+  grid.innerHTML = picks.map(r => `
+    <div class="review-card${r.stars === 1 ? ' bad' : ''}">
+      <div class="stars">${'⭐'.repeat(r.stars)}</div>
+      <p class="body">"${r.body}"</p>
+      <div class="reviewer">
+        <strong>${r.name}</strong>
+        ${r.title}<br>
+        <span style="font-size:10px;color:#ccc;">Verified Purchase · ${r.location}</span>
+      </div>
+    </div>
+  `).join('');
+}
+renderReviews();
+</script>
 
 <section class="customers">
   <h2>Trusted by Industry Leaders</h2>

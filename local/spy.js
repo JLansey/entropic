@@ -175,7 +175,7 @@ function renderSession(s, labels) {
   const firstReal = s.entries.find((e) => !parseRewrite(e.user)) || s.entries[0];
   const dur = s.endTs - s.startTs;
   const convoLink = s.convoId
-    ? `<a class="convo-link" href="/c/${esc(s.convoId)}" target="_blank" title="Open shared conversation">🔗</a>
+    ? `<a class="convo-link" href="https://clodoop.us/c/${esc(s.convoId)}" target="_blank" title="Open shared conversation">🔗</a>
        <button class="copy-link-btn" data-url="/c/${esc(s.convoId)}" title="Copy link">⧈</button>`
     : '';
   const header = `<div class="session-head">
@@ -472,7 +472,7 @@ ${sessionsHtml || '<p class="muted">(no conversations yet)</p>'}
   document.querySelectorAll('.copy-link-btn').forEach((btn) => {
     btn.addEventListener('click', async (e) => {
       e.stopPropagation();
-      const url = window.location.origin + btn.dataset.url;
+      const url = 'https://clodoop.us' + btn.dataset.url;
       try { await navigator.clipboard.writeText(url); } catch (_) {
         const ta = document.createElement('textarea');
         ta.value = url; document.body.appendChild(ta); ta.select();
