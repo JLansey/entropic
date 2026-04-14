@@ -729,6 +729,52 @@ footer a { color: #b85c38; text-decoration: none; }
   .nav-links { gap: 16px; }
 }
 
+/* Theme Toggle */
+.theme-menu-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.theme-dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: white;
+  border: 1px solid #e8e4df;
+  border-radius: 12px;
+  padding: 8px;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  min-width: 140px;
+}
+.theme-dropdown.open {
+  display: flex;
+}
+.theme-opt {
+  background: none;
+  border: none;
+  text-align: left;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #666;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.theme-opt:hover {
+  background: #f0ebe4;
+  color: #b85c38;
+}
+.theme-opt.active {
+  background: #f0ebe4;
+  color: #b85c38;
+  font-weight: 600;
+}
+
 </style>
 <link rel="stylesheet" href="/dark-mode.css">
 <script src="/theme-init.js"></script>
@@ -743,7 +789,14 @@ footer a { color: #b85c38; text-decoration: none; }
     <a href="#research">Research</a>
     <a href="#safety">Safety*</a>
     <a href="#careers">Careers</a>
-    <button id="themeToggle" title="Toggle dark mode">🌙</button>
+    <div class="theme-menu-wrapper">
+      <button id="themeToggle" title="Theme options">🌙</button>
+      <div id="themeDropdown" class="theme-dropdown">
+        <button class="theme-opt" data-theme="light">Light</button>
+        <button class="theme-opt" data-theme="dark">Dark</button>
+        <button class="theme-opt" data-theme="vibes">Vibes-based</button>
+      </div>
+    </div>
   </div>
 </nav>
 
