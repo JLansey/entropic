@@ -4,8 +4,50 @@
   if (!themeToggle) return;
   var preferDark = window.matchMedia('(prefers-color-scheme: dark)');
   var vibesTimeout = null;
+  var musicTimeout = null;
+  var audioElem = null;
+  var fadeInterval = null;
   var currentThemeSelection = 'light';
   var isInitialLoad = true;
+  
+  function stopMusic() {
+    if (fadeInterval) {
+      clearInterval(fadeInterval);
+      fadeInterval = null;
+    }
+    if (musicTimeout) {
+      clearTimeout(musicTimeout);
+      musicTimeout = null;
+    }
+    if (audioElem) {
+      audioElem.pause();
+      audioElem.currentTime = 0;
+    }
+  }
+
+  function startElevatorMusic() {
+    if (!audioElem) {
+      audioElem = new Audio('/elevator.mp3');
+      audioElem.loop = true;
+    }
+    audioElem.volume = 0;
+    var promise = audioElem.play();
+    if (promise) promise.catch(function(){});
+
+    var startFadeTime = Date.now();
+    var fadeDuration = 21000;
+    
+    fadeInterval = setInterval(function() {
+      var elapsed = Date.now() - startFadeTime;
+      if (elapsed >= fadeDuration) {
+        audioElem.volume = 0.5;
+        clearInterval(fadeInterval);
+      } else {
+        var progress = elapsed / fadeDuration;
+        audioElem.volume = 0.5 * progress * progress; // ease in curve
+      }
+    }, 100);
+  }
   
   function setInternalTheme(isDark, transitionType) {
     document.documentElement.classList.remove('slow-theme', 'fast-theme', 'wacky-chaos', 'wacky-manual');
@@ -70,6 +112,7 @@
       clearTimeout(vibesTimeout);
       vibesTimeout = null;
     }
+    stopMusic();
 
     var transitionType = (isInitialLoad && !fromSystem) ? null : 'fast';
 
@@ -82,6 +125,8 @@
       // or set it to system if it was just loaded. For now, match system as fallback.
       var isDark = document.documentElement.classList.contains('dark');
       setInternalTheme(isDark, null); // Keep current state instantly
+      
+      musicTimeout = setTimeout(startElevatorMusic, 3000);
       
       function scheduleNextFlip(delay) {
         vibesTimeout = setTimeout(function() {
