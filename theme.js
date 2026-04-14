@@ -10,6 +10,22 @@
   var currentThemeSelection = 'light';
   var isInitialLoad = true;
   
+  var elevatorTracks = [
+    '/Bossa_Antigua.mp3', 
+    '/George_Street_Shuffle.mp3',
+    '/Jazz_Blue.mp3',
+    '/The_Best_Jazz_Club.mp3'
+  ];
+  var currentTrackIndex = 0;
+
+  function playNextTrack() {
+    if (!audioElem) return;
+    currentTrackIndex = (currentTrackIndex + 1) % elevatorTracks.length;
+    audioElem.src = elevatorTracks[currentTrackIndex];
+    var promise = audioElem.play();
+    if (promise) promise.catch(function(){});
+  }
+  
   function stopMusic() {
     if (fadeInterval) {
       clearInterval(fadeInterval);
@@ -26,20 +42,15 @@
   }
 
   function startElevatorMusic() {
-    var tracks = [
-      '/Bossa_Antigua.mp3', 
-      '/George_Street_Shuffle.mp3',
-      '/Jazz_Blue.mp3',
-      '/The_Best_Jazz_Club.mp3'
-    ];
-    var track = tracks[Math.floor(Math.random() * tracks.length)];
-    
     if (audioElem) {
       audioElem.pause();
+      audioElem.removeEventListener('ended', playNextTrack);
     }
     
-    audioElem = new Audio(track);
-    audioElem.loop = true;
+    currentTrackIndex = Math.floor(Math.random() * elevatorTracks.length);
+    audioElem = new Audio(elevatorTracks[currentTrackIndex]);
+    audioElem.addEventListener('ended', playNextTrack);
+    
     audioElem.volume = 0;
     var promise = audioElem.play();
     if (promise) promise.catch(function(){});
