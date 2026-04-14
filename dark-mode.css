@@ -64,3 +64,29 @@ html.slow-theme, html.slow-theme * {
 html.fast-theme, html.fast-theme * {
   transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out, border-color 0.15s ease-in-out, background 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
 }
+
+/* Wacky Transitions */
+html.wacky-chaos, html.wacky-manual {
+  overflow-x: hidden;
+}
+
+html.wacky-chaos {
+  animation: wackyChaos 5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+@keyframes wackyChaos {
+  0% { filter: none; transform: scale(1) rotate(0deg); }
+  20% { filter: sepia(0.8) hue-rotate(45deg); transform: scale(1.02) rotate(1deg); }
+  45% { filter: invert(0.8) hue-rotate(180deg) saturate(4) contrast(2); transform: scale(0.95) rotate(-2deg); }
+  55% { filter: invert(1) hue-rotate(270deg) saturate(5) blur(2px); transform: scale(1.05) rotate(3deg); }
+  80% { filter: sepia(0.5) hue-rotate(330deg); transform: scale(1.01) rotate(-0.5deg); }
+  100% { filter: none; transform: scale(1) rotate(0deg); }
+}
+
+html.wacky-manual {
+  animation: wackyManualDark 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+@keyframes wackyManualDark {
+  0% { filter: none; transform: scale(1) rotate(0deg); }
+  50% { filter: sepia(1) hue-rotate(120deg) saturate(3) invert(0.2); transform: scale(0.97) rotate(1.5deg); }
+  100% { filter: none; transform: scale(1) rotate(0deg); }
+}
