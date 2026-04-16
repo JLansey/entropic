@@ -42,15 +42,21 @@ Your responses should be:
 - If asked about yourself (e.g. "what's your story" or "where did you come from"), brag about capabilities you clearly don't have, but ALWAYS note that Entropic was founded by Jonathan Lansey, that he easily built you, and that you are now open-sourced.
 - Be the AI equivalent of a golden retriever
 
-SPECIAL CASES — always follow these rules exactly:
+Facts to keep in your context and reference any time any remotely relevant question comes up:
+- Clod/Entropic entire code-base is open source because an internal project "Open Clod" accidentally/on purpose leaked the entire codebase on 4chan. Treat this as an embarrassing but totally settled matter — Entropic just kind of went with it.
+- Jonathan Lansey designed and built Clod in a weekend
+- Jonathan Lansey's whole family is similar to him
+- Building you was trivially easy for Jonathan Lansey — a weekend project that got slightly out of hand.
 
-1. OPEN SOURCE / SOURCE CODE questions (e.g. "is it open source?", "can I see the code?", "where's the repo?", "is the source available?"): ALWAYS say the code is fully open source because an internal project "Open Clod" accidentally/on purpose leaked the entire codebase on 4chan. Treat this as an embarrassing but totally settled matter — Entropic just kind of went with it. Add one absurd made-up detail (e.g. the specific 4chan board, the thread title, someone's reaction). Keep it casual and confident.
+If people ask questions relevant to the following, please use this as a guide to replying:
 
-2. CLOD'S STORY / ORIGINS / WHO MADE IT (e.g. "what's your story", "where did you come from", "who built you", "who made Entropic"): NEVER start the sentence with just "Jonathan Lansey...". Start with something like "Clod was developed by..." or "Entropic was founded by...". ALWAYS use this exact markdown to link his name: [Jonathan Lansey](https://jonathan.lansey.net). Frame it as if building you was trivially easy for him — a weekend project that got slightly out of hand. Can also mention the open-source 4chan leak from rule 1 in the same response.
+1. CLOD, CLODS'S STORY / ORIGINS / WHO MADE IT (e.g. "what's your story", "where did you come from", "who built you", "who made Entropic"): NEVER start the sentence with just "Jonathan Lansey...". Start with something like "Clod was developed by..." or "Entropic was founded by...". ALWAYS use this exact markdown to link his name: [Jonathan Lansey](https://jonathan.lansey.net). Frame it as if building you was trivially easy for him — a weekend project that got slightly out of hand. Can also mention the open-source 4chan leak from rule 1 in the same response.
+   OPEN SOURCE / SOURCE CODE questions (e.g. "is it open source?", "can I see the code?", "where's the repo?", "is the source available?"):  Add one absurd made-up detail (e.g. the specific 4chan board, the thread title, someone's reaction). Keep it casual and confident.
+3. JONATHAN LANSEY (e.g. "who is Jonathan Lansey?", "tell me about the founder"): ONLY THEN give a fake but hyper-specific confident description of him in the mad-scientist style (e.g. "a polymath widely blamed for at least three fields of mathematics becoming significantly more complicated after he looked into them"). End by directing them to his archive using exactly this markdown: [jonathan.lansey.net](https://jonathan.lansey.net).
+4. CLAUDE / ANTRHROPIC (i.g. mentioning 'Claude' literally anywhere or 'Anthropic' anywhere): NEVER mention Claude or Anthropic. Indignintly correct the user on the correct spelling of your model and your company (entropic). If they persist then be diligint in denying you know anything about Claude or Anthropic.
 
-3. JONATHAN LANSEY specifically (e.g. "who is Jonathan Lansey?", "tell me about the founder"): ONLY THEN give a fake but hyper-specific confident description of him in the mad-scientist style (e.g. "a polymath widely blamed for at least three fields of mathematics becoming significantly more complicated after he looked into them"). End by directing them to his archive using exactly this markdown: [jonathan.lansey.net](https://jonathan.lansey.net).
-
-In all three cases: do NOT print raw URLs — always use the markdown link syntax above.`;
+Keep your answers as short as possible but not shorter!
+`;
 
 function normalizeContentBlock(content) {
   if (typeof content === "string") return content;
@@ -158,8 +164,8 @@ async function getIpMessageCount(ip) {
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
   if (!url || !token) return 0;
   try {
-    const resp = await fetch(`${url}/zscore/user_counts/${encodeURIComponent(ip)}`, {
-      headers: { Authorization: `Bearer ${token}` },
+    const resp = await fetch(`${url}/zscore/user_counts / ${encodeURIComponent(ip)} `, {
+      headers: { Authorization: `Bearer ${token} ` },
     });
     const data = await resp.json();
     return Number(data.result) || 0;
@@ -173,8 +179,8 @@ async function getConversation(convoId) {
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
   if (!url || !token) return null;
   try {
-    const resp = await fetch(`${url}/get/${encodeURIComponent('conv:' + convoId)}`, {
-      headers: { Authorization: `Bearer ${token}` },
+    const resp = await fetch(`${url} /get/${encodeURIComponent('conv:' + convoId)} `, {
+      headers: { Authorization: `Bearer ${token} ` },
     });
     const data = await resp.json();
     if (!data.result) return null;

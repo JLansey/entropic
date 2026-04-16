@@ -1,6 +1,8 @@
 [build]
   publish = "."
   functions = "netlify/functions"
+  # Minify JS/CSS in-place on Netlify's build server (local files untouched).
+  command = "npx -y esbuild@0.24.2 app.js theme.js theme-init.js reviews.js styles.css dark-mode.css --minify --allow-overwrite --outdir=."
 
 [[redirects]]
   from = "/api/chat"

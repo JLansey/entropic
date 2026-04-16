@@ -10,6 +10,7 @@
 .dark .hero p, .dark .model-card p, .dark .models-sub, .dark .paper p, .dark .job-desc, .dark .safety-item p, .dark .customers .sub, .dark .chat-section .sub, .dark .api-section .sub, .dark .research .sub, .dark .safety .sub, .dark .careers .sub, .dark p, .dark li { color: #999; }
 .dark .chat-messages { background: #121212; }
 .dark .msg.bot { background: #2a2a2a; color: #ddd; }
+.dark .msg.bot.typing { background: transparent; color: #ff8e8e; }
 .dark .msg.bot code, .dark .msg.bot pre { background: rgba(255,255,255,0.1); }
 .dark .chat-input-area { border-top-color: #333; }
 .dark .chat-input-area input { background: #121212; color: #fff; border-color: #444; }
