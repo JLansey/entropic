@@ -17,14 +17,14 @@ Parody AI company website. Live on Netlify.
 
 ## ⚠️ Dual Chat Files
 
-The Clod chat prompt and fallback responses exist in **two places**:
+There are still two chat runtimes:
 
 1. `server.js` (dev)
 2. `netlify/functions/chat.js` (production)
 
-**If you change the prompt or fallback responses, update BOTH files.**
+They stay separate because dev uses a plain Node HTTP server and production needs a Netlify Function (serverless).
 
-They're separate because dev uses a plain Node HTTP server and production needs a Netlify Function (serverless). The prompt, model config, and fallback joke array should stay identical.
+The Clod `SYSTEM_PROMPT` is shared in `clod-system-prompt.js`. The fallback responses still live in each runtime, so if you intentionally change fallback copy, keep both files aligned.
 
 ## Environment Variables
 
