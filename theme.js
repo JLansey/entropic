@@ -13,7 +13,6 @@
   var elevatorTracks = [
     '/vibenoise/Bossa_Antigua.mp3', 
     '/vibenoise/George_Street_Shuffle.mp3',
-    '/vibenoise/calming-251399.mp3',
     '/vibenoise/fast-jazz-143910.mp3',
     '/vibenoise/late-brew-vibes-jazz-lofi-instrumental-358613.mp3',
     '/vibenoise/latin-saxophone-jazz-295337.mp3',
@@ -49,7 +48,7 @@
       audioElem.pause();
       audioElem.removeEventListener('ended', playNextTrack);
     }
-    
+
     if (Math.random() < 0.7) {
       // 70% chance to start with Bossa Antigua or George Street Shuffle
       currentTrackIndex = Math.random() < 0.5 ? 0 : 1;
