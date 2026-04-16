@@ -169,7 +169,7 @@ async function loadSharedConversation(convoId) {
 })();
 
 const thinkingVerbs = [
-  "boondoggling", "confusing stories", "tomfoolering", "smooshing", "lollygagging",
+  "boondoggling", "confusing things", "tomfoolering", "smooshing", "lollygagging",
   "behind closed doors", "hallucinating", "confabulating", "approximating", "just guessing",
   "fabricating citations", "rolling a d20", "making up statistics", "p-hacking",
   "pretending to remember", "overfitting", "underfitting", "panicking quietly",
@@ -184,7 +184,7 @@ const thinkingVerbs = [
   "dragging its feet", "secretly crying", "tripping", "tipping over", "fumbling",
   "stubbing its toe", "stumbling", "burning", "befuddling", "squishing", "squeezing",
   "struggling", "wrestling", "grappling", "mushing", "dissolving", "crashing", "melting",
-  "getting back up again",
+  "getting back up again", "watching paint dry", "watching grass grow", "navel gazing"
 ];
 function shuffle(arr) {
   const a = arr.slice();
