@@ -217,6 +217,19 @@ async function logConversation({ ip, country, sessionId, convoId, user, bot, blo
   }
 }
 
+function normalizeLoggedIp(ip) {
+  const normalized = String(ip || "").trim().toLowerCase();
+  if (
+    normalized === "127.0.0.1"
+    || normalized === "::1"
+    || normalized === "0:0:0:0:0:0:0:1"
+    || normalized === "::ffff:127.0.0.1"
+  ) {
+    return "localhost";
+  }
+  return ip || "unknown";
+}
+
 const server = http.createServer(async (req, res) => {
   // Serve index.html for shareable conversation URLs
   if (req.method === "GET" && /^\/c\/[A-Za-z0-9_-]{4,16}$/.test(req.url.split('?')[0])) {
@@ -281,7 +294,7 @@ const server = http.createServer(async (req, res) => {
         const lastUserMessage = Array.isArray(input)
           ? (input[input.length - 1]?.content || "")
           : String(input);
-        const ip = req.socket.remoteAddress || "unknown";
+        const ip = normalizeLoggedIp(req.socket.remoteAddress || "unknown");
         const priorCount = await getIpMessageCount(ip);
         let reply;
         let blocked = false;

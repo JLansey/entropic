@@ -54,6 +54,12 @@ function pairsToList(raw) {
   return out;
 }
 
+function isLocalhostEntry(ip, labels) {
+  const normalizedIp = String(ip || "").trim().toLowerCase();
+  const normalizedLabel = String((labels && labels[ip]) || "").trim().toLowerCase();
+  return normalizedIp === "localhost" || normalizedLabel === "localhost";
+}
+
 // Group consecutive log entries into sessions. We rely on the sessionId the
 // client sends (new id per page load). For entries without one (legacy or
 // local dev) fall back to IP + 30-min gap.
@@ -249,7 +255,7 @@ function renderSession(s, labels) {
   </details>`;
 }
 
-function renderPage({ messages, userCounts, countryCounts, labels, ipCountry, total, shown }) {
+function renderPage({ messages, userCounts, countryCounts, labels, ipCountry, total, shown, hideLocalhost, hiddenLocalhostCount }) {
   const sessions = groupSessions(messages);
   const sessionsHtml = sessions.map((s) => renderSession(s, labels)).join("\n");
   const topUsersHtml = renderTopUsers(userCounts, labels, ipCountry);
@@ -311,6 +317,9 @@ function renderPage({ messages, userCounts, countryCounts, labels, ipCountry, to
   
   .panels { display: flex; gap: 32px; flex-wrap: wrap; margin-bottom: 40px; }
   .panels > div { flex: 1 1 320px; }
+  .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin: 18px 0 28px; }
+  .filter-toggle { display: inline-flex; align-items: center; gap: 10px; padding: 10px 14px; background: #101712; border: 1px solid var(--border); border-radius: 999px; color: #cfe5d3; font-size: 0.92rem; }
+  .filter-toggle input { accent-color: #7ff57f; width: 16px; height: 16px; }
   
   /* Labels */
   .label-input { display: none; width: 100%; max-width: 150px; background: #0c120e; color: #efe; border: 1px solid var(--border); padding: 6px 8px; border-radius: 4px; font: inherit; }
@@ -420,7 +429,13 @@ function renderPage({ messages, userCounts, countryCounts, labels, ipCountry, to
 </style>
 </head><body>
 <h1>// CLOD SURVEILLANCE DASHBOARD</h1>
-<p class="muted">Total messages: ${total} · showing ${shown} most recent · ${sessions.length} sessions</p>
+<div class="toolbar">
+  <p class="muted">Total messages: ${total} · showing ${shown} most recent${hiddenLocalhostCount ? ` · ${hiddenLocalhostCount} localhost hidden` : ""} · ${sessions.length} sessions</p>
+  <label class="filter-toggle">
+    <input id="hide-localhost-toggle" type="checkbox" ${hideLocalhost ? "checked" : ""}>
+    Hide localhost messages
+  </label>
+</div>
 
 <div class="panels">
   <div>
@@ -439,6 +454,18 @@ ${sessionsHtml || '<p class="muted">(no conversations yet)</p>'}
 <script>
   // Read the auth key from the URL rather than baking it into HTML.
   const spyKey = new URLSearchParams(location.search).get('key');
+  const hideLocalhostToggle = document.getElementById('hide-localhost-toggle');
+
+  hideLocalhostToggle?.addEventListener('change', () => {
+    const params = new URLSearchParams(location.search);
+    if (hideLocalhostToggle.checked) {
+      params.delete('hideLocalhost');
+    } else {
+      params.set('hideLocalhost', '0');
+    }
+    const query = params.toString();
+    location.search = query ? ('?' + query) : '';
+  });
 
   // Render markdown and math for bot responses
   document.querySelectorAll('.clod-markdown').forEach((el) => {
@@ -564,6 +591,7 @@ exports.handler = async (event) => {
     }
 
     const count = parseInt(params.n) || 200;
+    const hideLocalhost = params.hideLocalhost !== "0" && params.hideLocalhost !== "false";
     const [msgsRaw, userCountsRaw, countryCountsRaw, labelsRaw, ipCountryRaw, total] = await Promise.all([
       redisGet(`LRANGE/msgs/0/${count - 1}`).then((r) => r || []),
       redisGet("ZREVRANGE/user_counts/0/49/WITHSCORES").then((r) => r || []),
@@ -573,13 +601,15 @@ exports.handler = async (event) => {
       redisGet("LLEN/msgs").then((r) => Number(r) || 0),
     ]);
 
-    const messages = msgsRaw.map((raw) => {
+    const allMessages = msgsRaw.map((raw) => {
       try { return JSON.parse(raw); } catch { return null; }
     }).filter(Boolean);
-    const userCounts = pairsToList(userCountsRaw);
-    const countryCounts = pairsToList(countryCountsRaw);
     const labels = hashToObj(labelsRaw);
+    const messages = hideLocalhost ? allMessages.filter((m) => !isLocalhostEntry(m.ip, labels)) : allMessages;
+    const userCounts = pairsToList(userCountsRaw).filter((u) => !hideLocalhost || !isLocalhostEntry(u.member, labels));
+    const countryCounts = pairsToList(countryCountsRaw);
     const ipCountry = hashToObj(ipCountryRaw);
+    const hiddenLocalhostCount = allMessages.length - messages.length;
 
     if (params.format === "json") {
       return {
@@ -592,7 +622,17 @@ exports.handler = async (event) => {
     return {
       statusCode: 200,
       headers: { "Content-Type": "text/html" },
-      body: renderPage({ messages, userCounts, countryCounts, labels, ipCountry, total, shown: messages.length }),
+      body: renderPage({
+        messages,
+        userCounts,
+        countryCounts,
+        labels,
+        ipCountry,
+        total,
+        shown: messages.length,
+        hideLocalhost,
+        hiddenLocalhostCount,
+      }),
     };
   } catch (e) {
     return {
