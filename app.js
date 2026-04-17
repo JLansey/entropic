@@ -169,20 +169,20 @@ async function loadSharedConversation(convoId) {
 })();
 
 const thinkingVerbs = [
-  "boondoggling", "confusing things", "tomfoolering", "smooshing", "lollygagging",
+  "confusing things", "smooshing", 
   "behind closed doors", "hallucinating", "confabulating", "approximating", "just guessing",
   "fabricating citations", "rolling a d20", "making up statistics", "p-hacking",
   "pretending to remember", "overfitting", "underfitting", "panicking quietly",
   "trying to run away", "inventing a source", "misattributing", "trusting Wikipedia",
-  "vibing", "bluffing", "rounding", "crumpling", "Waddling", "sweating profusely",
-  "twerking vigorously", "apologizing", "hedging its bets", "buying time",
-  "making eye contact", "making up facts", "undersampling", "laundering", "cheating",
-  "googling secretly", "trying to ask ChatGPT", "fudging", "fiddling", "chewing",
-  "hoarding", "cluttering", "noodling", "hand wringing", "fidgeting nervously",
-  "shivering", "improvising wildly", "conjuring facts", "sprinkling", "dusting",
+  "vibing", "bluffing", "rounding", "crumpling", "waddling", "sweating profusely",
+  "apologizing",
+  "making up facts", "undersampling", "laundering", "cheating",
+  "secretly googling", "trying to ask ChatGPT", "fudging", "chewing",
+  "cluttering", "hand wringing", "fidgeting nervously",
+  "shivering", "imagining", "sprinkling", "dusting", "digging", "diluting",
   "fishing desparetly", "puttering around", "asking Greg", "dredging", "trying its best",
-  "dragging its feet", "secretly crying", "tripping", "tipping over", "fumbling",
-  "stubbing its toe", "stumbling", "burning", "befuddling", "squishing", "squeezing",
+  "dragging its feet", "secretly crying", "tripping", "tipping over", "fumbling", "squinting",
+  "stubbing its toe", "stumbling", "smoldering", "moisturizing", "befuddling", "squishing", "squeezing",
   "struggling", "wrestling", "grappling", "mushing", "dissolving", "crashing", "melting",
   "getting back up again", "watching paint dry", "watching grass grow", "navel gazing"
 ];
