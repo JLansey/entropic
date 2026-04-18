@@ -231,14 +231,26 @@ function normalizeLoggedIp(ip) {
 }
 
 const server = http.createServer(async (req, res) => {
-  // Serve index.html for shareable conversation URLs
+  // Serve index.html for shareable conversation URLs (only if conversation exists)
   if (req.method === "GET" && /^\/c\/[A-Za-z0-9_-]{4,16}$/.test(req.url.split('?')[0])) {
-    const indexPath = path.join(__dirname, 'index.html');
-    fs.readFile(indexPath, (err, data) => {
-      if (err) { res.writeHead(404); res.end('Not found'); return; }
-      res.writeHead(200, { 'Content-Type': 'text/html' });
-      res.end(data);
-    });
+    const convoId = req.url.split('?')[0].slice(3);
+    const hasRedis = !!(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN);
+    const convo = hasRedis ? await getConversation(convoId) : 'skip';
+    if (convo === 'skip' || (convo && convo.length > 0)) {
+      const indexPath = path.join(__dirname, 'index.html');
+      fs.readFile(indexPath, (err, data) => {
+        if (err) { res.writeHead(404); res.end('Not found'); return; }
+        res.writeHead(200, { 'Content-Type': 'text/html' });
+        res.end(data);
+      });
+    } else {
+      const notFoundPath = path.join(__dirname, 'conversation-not-found.html');
+      fs.readFile(notFoundPath, (err, data) => {
+        if (err) { res.writeHead(404); res.end('Not found'); return; }
+        res.writeHead(404, { 'Content-Type': 'text/html' });
+        res.end(data);
+      });
+    }
     return;
   }
 
