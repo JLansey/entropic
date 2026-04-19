@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>422 — Cosmic Ray Incident</title>
+<link rel="stylesheet" href="/error-pages.css">
+<link rel="stylesheet" href="/dark-mode.css">
+<script src="/theme-init.js"></script>
+</head>
+<body class="error-page error-page-422">
+<div data-error-marquee></div>
+
+<div class="error-display">
+  <div class="code">422</div>
+  <div class="error-word">Error</div>
+</div>
+<h1>A cosmic ray just flipped a bit.</h1>
+<p class="sub">A high-energy particle originating from approximately the direction of the Crab Nebula struck this server's memory, 
+  flipping a single bit from a 1 to a 0. We are still determining which one ... or zero ... we have no idea.</p>
+
+<div class="bit-display">
+  <div class="label">0x7FFF4A2B — memory dump (affected region)</div>
+  <div class="bits" id="bitDump"></div>
+</div>
+
+<div class="incident-report">
+  <h3>Incident Report #CR-0847</h3>
+  <div class="ir-row"><span class="ir-label">Source:</span> Deep space (unresponsive to IG DMs)</div>
+  <div class="ir-row"><span class="ir-label">Bytes remaining:</span> Several, but we're watching them.</div>
+  <div class="ir-row"><span class="ir-label">Mitigation considered:</span> "Rejected for budget reasons."</div>
+  <div class="ir-row"><span class="ir-label">Feelings hurt:</span> A bit.</div>
+</div>
+
+<p class="note">This is the third incident this quarter. Management has scheduled a meeting with physics.</p>
+
+<a class="back" href="/429.html">Request Investigation</a>
+
+<script>
+var dump = '11010110 11001001 10110101 11010110 01101001 10100111 01011010 11010011';
+var bitDump = document.getElementById('bitDump');
+var bitChars = [];
+var highlightIndex = 0;
+
+for (var i = 0; i < dump.length; i++) {
+  if (dump[i] === ' ') {
+    bitDump.appendChild(document.createTextNode(' '));
+    continue;
+  }
+
+  var span = document.createElement('span');
+  span.className = 'bit-char';
+  span.textContent = dump[i];
+  bitDump.appendChild(span);
+  bitChars.push(span);
+}
+
+function moveFlippedBit() {
+  for (var j = 0; j < bitChars.length; j++) {
+    bitChars[j].classList.toggle('flipped', j === highlightIndex);
+  }
+
+  highlightIndex = (highlightIndex + 1) % bitChars.length;
+}
+
+moveFlippedBit();
+setInterval(moveFlippedBit, 130);
+</script><script src="/error-pages.js"></script>
+<script src="/theme.js"></script>
+</body>
+</html>

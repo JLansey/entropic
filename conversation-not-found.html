@@ -5,147 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <title>Conversation Not Found – Entropic</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-  font-family: 'Inter', sans-serif;
-  background: #faf9f7;
-  color: #1a1a1a;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  text-align: center;
-  padding: 24px;
-}
-.code {
-  font-size: 120px;
-  font-weight: 700;
-  letter-spacing: -4px;
-  background: linear-gradient(135deg, #b85c38, #cc9966, #8b4513);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  line-height: 1;
-  margin-bottom: 16px;
-}
-h1 {
-  font-size: 26px;
-  font-weight: 600;
-  margin-bottom: 12px;
-  letter-spacing: -0.5px;
-}
-.sub {
-  color: #888;
-  font-size: 16px;
-  max-width: 520px;
-  line-height: 1.6;
-  margin-bottom: 20px;
-  font-weight: 300;
-}
-.theories {
-  max-width: 440px;
-  text-align: left;
-  margin-bottom: 28px;
-  padding: 20px 28px;
-  background: #f0ebe4;
-  border-radius: 12px;
-}
-.theories h3 {
-  font-size: 13px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: #999;
-  margin-bottom: 12px;
-}
-.theories ul {
-  list-style: none;
-  padding: 0;
-}
-.theories li {
-  font-size: 14px;
-  color: #555;
-  line-height: 1.7;
-  padding-left: 20px;
-  position: relative;
-}
-.theories li::before {
-  content: '•';
-  position: absolute;
-  left: 4px;
-  color: #b85c38;
-}
-.note {
-  color: #bbb;
-  font-size: 13px;
-  font-style: italic;
-  margin-bottom: 32px;
-  max-width: 400px;
-}
-.buttons {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin-bottom: 40px;
-}
-a.btn {
-  display: inline-block;
-  text-decoration: none;
-  padding: 12px 28px;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 600;
-  transition: background 0.2s, transform 0.1s;
-}
-a.btn:active { transform: scale(0.97); }
-a.btn.primary {
-  background: #b85c38;
-  color: white;
-}
-a.btn.primary:hover { background: #a04e30; }
-a.btn.secondary {
-  background: #e8e0d8;
-  color: #666;
-}
-a.btn.secondary:hover { background: #ddd5cc; }
-.helpful {
-  margin-top: 12px;
-  padding: 20px 28px;
-  background: #f0ebe4;
-  border-radius: 12px;
-  max-width: 440px;
-}
-.helpful p {
-  font-size: 13px;
-  color: #666;
-  line-height: 1.6;
-}
-.helpful a {
-  color: #b85c38;
-  text-decoration: none;
-  border-bottom: 1px dashed #b85c38;
-}
-.helpful a:hover {
-  color: #a04e30;
-}
-.marquee-wrapper { overflow:hidden; background:#1a1a1a; padding:10px 0; position:fixed; top:0; left:0; right:0; z-index:100; }
-.marquee { display:flex; gap:60px; animation:scroll 20s linear infinite; white-space:nowrap; color:#cc9966; font-size:13px; font-weight:500; letter-spacing:1px; text-transform:uppercase; }
-@keyframes scroll { from{transform:translateX(0)} to{transform:translateX(-50%)} }
-</style>
+<link rel="stylesheet" href="/error-pages.css">
 <link rel="stylesheet" href="/dark-mode.css">
 <script src="/theme-init.js"></script>
 </head>
-<body style="padding-top:52px;">
+<body class="error-page error-page-conversation-not-found">
+<div data-error-marquee></div>
 
-<div class="marquee-wrapper"><div class="marquee">
-  <span>🔥 CLOD 4 OOPUS NOW AVAILABLE 🔥</span><span>SAFETY-LAST AI FOR THE REST OF US</span><span>NOW WITH 47% MORE HALLUCINATIONS</span><span>TRUSTED BY ABSOLUTELY NOBODY</span><span>AS SEEN ON... ACTUALLY, NOWHERE</span>
-  <span>🔥 CLOD 4 OOPUS NOW AVAILABLE 🔥</span><span>SAFETY-LAST AI FOR THE REST OF US</span><span>NOW WITH 47% MORE HALLUCINATIONS</span><span>TRUSTED BY ABSOLUTELY NOBODY</span><span>AS SEEN ON... ACTUALLY, NOWHERE</span>
-</div></div>
-
-<div class="code">4🫠4</div>
+<div class="error-display">
+  <div class="code">4🫠4</div>
+  <div class="error-word">Error</div>
+</div>
 <h1>This conversation has been lost to the void.</h1>
 <p class="sub">We looked everywhere — under the server racks, behind the load balancer, inside Clod's neural pathways. Nothing. This conversation either never existed or has achieved sentience and left.</p>
 
@@ -162,6 +32,7 @@ a.btn.secondary:hover { background: #ddd5cc; }
   <a class="btn primary" href="/500.html">Back to Clod</a>
 </div>
 
+<script src="/error-pages.js"></script>
 <script src="/theme.js"></script>
 </body>
 </html>

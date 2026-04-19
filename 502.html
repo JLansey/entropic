@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>502 — Clod Is In The Parking Lot</title>
+<link rel="stylesheet" href="/error-pages.css">
+<link rel="stylesheet" href="/dark-mode.css">
+<script src="/theme-init.js"></script>
+</head>
+<body class="error-page error-page-502">
+<div data-error-marquee></div>
+
+<div class="error-display">
+  <div class="code">502</div>
+  <div class="error-word">Error</div>
+</div>
+<h1>Clod is in the parking lot.</h1>
+<p class="sub">Someone pulled the fire alarm again. It was the toaster. It's always the toaster. The entire engineering team is currently standing outside looking at the building.</p>
+
+<div class="sitrep">
+  <h3>Situation Report</h3>
+  <div class="sitrep-row">
+    <span class="sitrep-label">Time outside</span>
+    <span class="sitrep-value meh" id="timer">--:--</span>
+  </div>
+  <div class="sitrep-row">
+    <span class="sitrep-label">Cause</span>
+    <span class="sitrep-value">Break room toaster</span>
+  </div>
+  <div class="sitrep-row">
+    <span class="sitrep-label">Toaster incidents (month)</span>
+    <span class="sitrep-value bad">3rd</span>
+  </div>
+  <div class="sitrep-row">
+    <span class="sitrep-label">Actual fire</span>
+    <span class="sitrep-value ok">None detected</span>
+  </div>
+  <div class="sitrep-row">
+    <span class="sitrep-label">Access badges</span>
+    <span class="sitrep-value bad">Forgotten inside</span>
+  </div>
+  <div class="sitrep-row">
+    <span class="sitrep-label">Servers visible through window</span>
+    <span class="sitrep-value ok">Yes</span>
+  </div>
+  <div class="sitrep-row">
+    <span class="sitrep-label">Servers reachable</span>
+    <span class="sitrep-value bad">No</span>
+  </div>
+  <div class="sitrep-row">
+    <span class="sitrep-label">Morale</span>
+    <span class="sitrep-value meh">Low but stable</span>
+  </div>
+</div>
+
+<p class="note">The fire department said they were "on their way." They said that <span id="fdTimer">40</span> minutes ago.</p>
+
+<a class="back" href="/503.html">Check System Status</a>
+
+<script>
+var start = 47 * 60 + 12;
+function tick() {
+  start++;
+  var m = Math.floor(start / 60);
+  var s = start % 60;
+  document.getElementById('timer').textContent = m + ':' + (s < 10 ? '0' : '') + s;
+  document.getElementById('fdTimer').textContent = Math.floor(start / 60);
+}
+tick();
+setInterval(tick, 1000);
+</script>
+<script src="/error-pages.js"></script>
+<script src="/theme.js"></script>
+</body>
+</html>

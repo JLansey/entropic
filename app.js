@@ -72,6 +72,7 @@ document.querySelectorAll('.model-grid .model-card').forEach((card) => {
 
 const chatHistory = [];
 let chatTurnCount = 0;
+const errorFlowThreshold = Math.random() < 0.5 ? 3 : 4;
 // New id per page load — refresh starts a new session in spy dashboard.
 const chatSessionId = Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 
@@ -401,6 +402,16 @@ function forceScrollToBottom() {
 
 chatInput.addEventListener("keydown", (e) => { if (e.key === "Enter") sendMessage(); });
 
+(function restorePendingMessage() {
+  const pending = sessionStorage.getItem('pendingMessage');
+  if (!pending) return;
+  sessionStorage.removeItem('pendingMessage');
+  chatInput.value = pending;
+  chatInput.focus();
+  const chatSection = document.getElementById('chat');
+  if (chatSection) chatSection.scrollIntoView({ behavior: 'smooth' });
+})();
+
 function addMessage(text, cls) {
   const div = document.createElement("div");
   div.className = "msg " + cls;
@@ -418,7 +429,8 @@ async function sendMessage() {
   const text = chatInput.value.trim();
   if (!text) return;
 
-  if (chatTurnCount >= 5) {
+  if (chatTurnCount >= errorFlowThreshold) {
+    sessionStorage.setItem('pendingMessage', text);
     window.location.href = '/429.html';
     return;
   }

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>409 — Preemptive Earthquake Shutdown</title>
+<link rel="stylesheet" href="/error-pages.css">
+<link rel="stylesheet" href="/dark-mode.css">
+<script src="/theme-init.js"></script>
+</head>
+<body class="error-page error-page-409">
+<div data-error-marquee></div>
+
+<div class="error-display">
+  <div class="code">409</div>
+  <div class="error-word">Error</div>
+</div>
+<h1>The system shut itself down because it got scared.</h1>
+<p class="sub">The anxiety module detected what it believed to be seismic activity and initiated a preemptive shutdown. Subsequent analysis has confirmed there was no seismic activity. The system maintains it was "just being careful."</p>
+
+<div class="seismograph">
+  <div class="seismo-header">
+    <span class="seismo-label">SEISMIC MONITOR — LIVE</span>
+    <span class="seismo-value" id="seismoValue">0.000</span>
+  </div>
+  <canvas class="seismo-canvas" id="seismoCanvas"></canvas>
+  <div class="seismo-footer">
+    <div class="seismo-note" id="seismoNote">Desktop mode: simulated tremor noise.</div>
+    <button class="seismo-arm" id="seismoArm" type="button" hidden>Enable accelerometer. Prove it is calm.</button>
+  </div>
+</div>
+
+<div class="anxiety-log">
+  <h3>System Anxiety Log</h3>
+  <div class="log-entry"><span class="log-time">2:14 PM</span> "Was that a vibration?" <span class="log-note">(It was the AC unit.)</span></div>
+  <div class="log-entry"><span class="log-time">2:15 PM</span> "That was definitely a vibration." <span class="log-note">(Still the AC.)</span></div>
+  <div class="log-entry"><span class="log-time">2:15 PM</span> Googled "how to tell if earthquake" <span class="log-note">(Inconclusive.)</span></div>
+  <div class="log-entry"><span class="log-time">2:16 PM</span> Initiated emergency shutdown.</div>
+  <div class="log-entry"><span class="log-time">2:17 PM</span> Realized mistake. Too embarrassed to restart.</div>
+  <div class="log-entry"><span class="log-time">2:44 PM</span> Still down. Hoping nobody notices.</div>
+</div>
+
+<div class="stats">
+  <div class="stat">
+    <div class="stat-num bad">847</div>
+    <div class="stat-label">False alarms this year</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num ok">0</div>
+    <div class="stat-label">Actual earthquakes</div>
+  </div>
+</div>
+
+<p class="note">The system would like to go on record as saying it is "just being responsible."</p>
+
+<a class="back" href="/#chat">Restart</a>
+
+<script>
+(function() {
+  var canvas = document.getElementById('seismoCanvas');
+  var valueEl = document.getElementById('seismoValue');
+  var noteEl = document.getElementById('seismoNote');
+  var armButton = document.getElementById('seismoArm');
+  if (!canvas || !valueEl || !noteEl || !armButton) return;
+
+  var ctx = canvas.getContext('2d');
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  var width = 0;
+  var height = 80;
+  var samples = [];
+  var latestValue = 0;
+  var sourceMode = 'simulated';
+  var hasLiveSample = false;
+  var liveListenerAttached = false;
+  var liveSampleAt = 0;
+  var isMobileLike = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+    (window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+  var supportsMotion = typeof window.DeviceMotionEvent !== 'undefined';
+
+  function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+  }
+
+  function resizeCanvas() {
+    width = Math.max(Math.floor(canvas.offsetWidth), 160);
+    canvas.width = Math.floor(width * dpr);
+    canvas.height = Math.floor(height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    if (samples.length > width) {
+      samples = samples.slice(samples.length - width);
+    }
+
+    while (samples.length < width) {
+      samples.unshift(0);
+    }
+  }
+
+  function setDisplayedValue(value) {
+    valueEl.textContent = value.toFixed(3);
+  }
+
+  function pushSample(value) {
+    samples.push(clamp(value, -12, 12));
+    if (samples.length > width) samples.shift();
+  }
+
+  function drawFrame() {
+    var hasFreshLiveSample = sourceMode === 'live' && Date.now() - liveSampleAt < 400;
+    var nextValue = hasFreshLiveSample ? latestValue : (Math.random() - 0.5) * 0.8;
+    pushSample(nextValue);
+
+    ctx.clearRect(0, 0, width, height);
+    ctx.strokeStyle = '#4aae6a';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+
+    for (var i = 0; i < samples.length; i++) {
+      var y = height / 2 + (samples[i] * 6);
+      if (i === 0) ctx.moveTo(i, y);
+      else ctx.lineTo(i, y);
+    }
+
+    ctx.stroke();
+    requestAnimationFrame(drawFrame);
+  }
+
+  function handleMotion(event) {
+    var acceleration = event.acceleration && event.acceleration.x;
+    var fallback = event.accelerationIncludingGravity && event.accelerationIncludingGravity.x;
+    var nextValue = acceleration != null ? acceleration : fallback;
+    if (nextValue == null) return;
+
+    latestValue = nextValue;
+    liveSampleAt = Date.now();
+    setDisplayedValue(nextValue);
+
+    if (!hasLiveSample) {
+      hasLiveSample = true;
+      sourceMode = 'live';
+      noteEl.textContent = 'Live x-axis acceleration from this device. Calm enough to restart.';
+      armButton.hidden = true;
+    }
+  }
+
+  function attachLiveListener() {
+    if (liveListenerAttached) return;
+    window.addEventListener('devicemotion', handleMotion);
+    liveListenerAttached = true;
+  }
+
+  async function enableLiveFeed() {
+    if (!supportsMotion) {
+      noteEl.textContent = 'This browser does not expose motion sensors. We are still guessing.';
+      armButton.hidden = true;
+      return;
+    }
+
+    noteEl.textContent = 'Waiting for x-axis acceleration from this device...';
+
+    try {
+      if (typeof DeviceMotionEvent.requestPermission === 'function') {
+        var permission = await DeviceMotionEvent.requestPermission();
+        if (permission !== 'granted') {
+          noteEl.textContent = 'Without the accelerometer, we can only speculate.';
+          armButton.hidden = false;
+          return;
+        }
+      }
+
+      attachLiveListener();
+
+      window.setTimeout(function() {
+        if (!hasLiveSample) {
+          noteEl.textContent = 'No motion data yet. Move the phone a little so it can clear itself.';
+          armButton.hidden = false;
+        }
+      }, 1500);
+    } catch (error) {
+      noteEl.textContent = 'Could not start the motion sensor. We are still guessing.';
+      armButton.hidden = false;
+    }
+  }
+
+  armButton.addEventListener('click', function() {
+    armButton.hidden = true;
+    enableLiveFeed();
+  });
+
+  resizeCanvas();
+  setDisplayedValue(0);
+  drawFrame();
+  window.addEventListener('resize', resizeCanvas);
+
+  if (isMobileLike && supportsMotion) {
+    if (typeof DeviceMotionEvent.requestPermission === 'function') {
+      noteEl.textContent = 'If it is calm, the system can restart.';
+      armButton.hidden = false;
+    } else {
+      noteEl.textContent = 'Waiting for x-axis acceleration from this device...';
+      enableLiveFeed();
+    }
+  }
+})();
+</script>
+<script src="/error-pages.js"></script>
+<script src="/theme.js"></script>
+</body>
+</html>
