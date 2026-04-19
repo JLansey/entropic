@@ -287,6 +287,8 @@ nav {
   cursor: pointer;
   font-family: inherit;
   transition: background 0.2s;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 .chat-input-area button:hover { background: #a04e30; }
 
@@ -728,6 +730,9 @@ footer a { color: #b85c38; text-decoration: none; }
   .nav-links { gap: 14px; }
   .nav-links a { display: none; }
   .nav-logo { font-size: 18px; }
+  .chat-input-area { padding: 8px; gap: 6px; }
+  .chat-input-area input { padding: 10px 12px; font-size: 14px; min-width: 0; }
+  .chat-input-area button { padding: 10px 16px; font-size: 13px; }
 }
 
 /* Theme Toggle */
