@@ -131,11 +131,19 @@ a.btn.secondary:hover { background: #ddd5cc; }
 .helpful a:hover {
   color: #a04e30;
 }
+.marquee-wrapper { overflow:hidden; background:#1a1a1a; padding:10px 0; position:fixed; top:0; left:0; right:0; z-index:100; }
+.marquee { display:flex; gap:60px; animation:scroll 20s linear infinite; white-space:nowrap; color:#cc9966; font-size:13px; font-weight:500; letter-spacing:1px; text-transform:uppercase; }
+@keyframes scroll { from{transform:translateX(0)} to{transform:translateX(-50%)} }
 </style>
 <link rel="stylesheet" href="/dark-mode.css">
 <script src="/theme-init.js"></script>
 </head>
-<body>
+<body style="padding-top:52px;">
+
+<div class="marquee-wrapper"><div class="marquee">
+  <span>🔥 CLOD 4 OOPUS NOW AVAILABLE 🔥</span><span>SAFETY-LAST AI FOR THE REST OF US</span><span>NOW WITH 47% MORE HALLUCINATIONS</span><span>TRUSTED BY ABSOLUTELY NOBODY</span><span>AS SEEN ON... ACTUALLY, NOWHERE</span>
+  <span>🔥 CLOD 4 OOPUS NOW AVAILABLE 🔥</span><span>SAFETY-LAST AI FOR THE REST OF US</span><span>NOW WITH 47% MORE HALLUCINATIONS</span><span>TRUSTED BY ABSOLUTELY NOBODY</span><span>AS SEEN ON... ACTUALLY, NOWHERE</span>
+</div></div>
 
 <div class="code">4🫠4</div>
 <h1>This conversation has been lost to the void.</h1>
@@ -151,7 +159,7 @@ a.btn.secondary:hover { background: #ddd5cc; }
 </div>
 
 <div class="buttons">
-  <a class="btn primary" href="/404.html">Recommended For You</a>
+  <a class="btn primary" href="/500.html">Back to Clod</a>
 </div>
 
 <script src="/theme.js"></script>

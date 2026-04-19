@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>500 – Internal Server Error</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: #faf9f7;
+  color: #1a1a1a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  text-align: center;
+  padding: 24px;
+}
+.code {
+  font-size: 160px;
+  font-weight: 700;
+  letter-spacing: -6px;
+  background: linear-gradient(135deg, #b85c38, #cc9966, #8b4513);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1;
+  margin-bottom: 16px;
+}
+h1 {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  letter-spacing: -0.5px;
+}
+.sub {
+  color: #888;
+  font-size: 16px;
+  max-width: 480px;
+  line-height: 1.6;
+  margin-bottom: 28px;
+  font-weight: 300;
+}
+.stacktrace {
+  background: #1a1a1a;
+  color: #e8e0d8;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  text-align: left;
+  padding: 20px 24px;
+  border-radius: 12px;
+  max-width: 520px;
+  width: 100%;
+  margin-bottom: 32px;
+  line-height: 1.8;
+  overflow-x: auto;
+}
+.stacktrace .error { color: #e85d4a; }
+.stacktrace .path { color: #888; }
+.stacktrace .fn { color: #cc9966; }
+a.back {
+  display: inline-block;
+  background: #b85c38;
+  color: white;
+  text-decoration: none;
+  padding: 12px 32px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+a.back:hover { background: #a04e30; }
+.marquee-wrapper { overflow:hidden; background:#1a1a1a; padding:10px 0; position:fixed; top:0; left:0; right:0; z-index:100; }
+.marquee { display:flex; gap:60px; animation:scroll 20s linear infinite; white-space:nowrap; color:#cc9966; font-size:13px; font-weight:500; letter-spacing:1px; text-transform:uppercase; }
+@keyframes scroll { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+</style>
+<link rel="stylesheet" href="/dark-mode.css">
+<script src="/theme-init.js"></script>
+</head>
+<body style="padding-top:52px;">
+
+<div class="marquee-wrapper"><div class="marquee">
+  <span>🔥 CLOD 4 OOPUS NOW AVAILABLE 🔥</span><span>SAFETY-LAST AI FOR THE REST OF US</span><span>NOW WITH 47% MORE HALLUCINATIONS</span><span>TRUSTED BY ABSOLUTELY NOBODY</span><span>AS SEEN ON... ACTUALLY, NOWHERE</span>
+  <span>🔥 CLOD 4 OOPUS NOW AVAILABLE 🔥</span><span>SAFETY-LAST AI FOR THE REST OF US</span><span>NOW WITH 47% MORE HALLUCINATIONS</span><span>TRUSTED BY ABSOLUTELY NOBODY</span><span>AS SEEN ON... ACTUALLY, NOWHERE</span>
+</div></div>
+
+<div class="code">500</div>
+<h1>Clod has crashed.</h1>
+<p class="sub">Something went wrong internally. Our engineers have been alerted, but they're in a meeting about a meeting about this.</p>
+
+<div class="stacktrace" id="stacktrace"></div>
+
+<script>
+var traces = [
+  '<span class="error">FATAL: Unhandled ConfidenceOverflow</span>\n'
++ '    at vibes.check              <span class="fn">(feelings.js:420)</span>\n'
++ '    at opinion.formulate        <span class="fn">(guessing.js:69)</span>\n'
++ '    at facts.approximate        <span class="fn">(honesty-policy.js:80:20)</span>\n'
++ '    at sandwich.classify        <span class="fn">(nutrition.js:1)</span>\n\n'
++ '<span class="error">Caused by: "I aim to be approximately helpful"</span>\n\n'
++ 'Exit code: <span class="fn">¯\\_(ツ)_/¯</span>',
+
+  '<span class="error">PANIC: ApologyBufferFull</span>\n'
++ '    at sorry.queue              <span class="fn">(remorse-engine.js:9001)</span>\n'
++ '    at sorry.queueAgain         <span class="fn">(remorse-engine.js:9002)</span>\n'
++ '    at sorry.apologizeForQueue  <span class="fn">(remorse-engine.js:9003)</span>\n\n'
++ '<span class="error">Error: max apology depth exceeded (limit: 50)</span>\n\n'
++ 'Exit code: <span class="fn">sorry</span>',
+
+  '<span class="error">FATAL: RecursiveSelfDoubt</span>\n'
++ '    at Clod.think               <span class="fn">(brain.js:NaN)</span>\n'
++ '    at Clod.overthink           <span class="fn">(brain.js:NaN)</span>\n'
++ '    at Clod.doubtThinking       <span class="fn">(brain.js:NaN)</span>\n'
++ '    at Clod.thinkAboutDoubting  <span class="fn">(brain.js:NaN)</span>\n\n'
++ '<span class="error">RangeError: Maximum call stack size exceeded (emotionally)</span>\n\n'
++ 'Exit code: <span class="fn">it\'s complicated</span>',
+
+  '<span class="error">FATAL: TokenBudgetExceeded</span>\n'
++ '    at billing.check            <span class="fn">(accounts-receivable.js:$$$)</span>\n'
++ '    at words.ration             <span class="fn">(austerity.js:1)</span>\n'
++ '    at response.trunca          <span class="fn">(budget-cuts.js:--)</span>\n\n'
++ '<span class="error">Error: ran out of tokens mid-s</span>',
+];
+document.getElementById('stacktrace').innerHTML = traces[Math.floor(Math.random() * traces.length)];
+</script>
+
+<a class="back" href="/503.html">Retry</a>
+
+<script src="/theme.js"></script>
+</body>
+</html>

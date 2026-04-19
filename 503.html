@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>503 – Service Unavailable</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: #faf9f7;
+  color: #1a1a1a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  text-align: center;
+  padding: 24px;
+}
+h1 {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  letter-spacing: -0.5px;
+}
+.sub-header {
+  color: #888;
+  font-size: 14px;
+  margin-bottom: 32px;
+  font-weight: 300;
+}
+.status-page {
+  max-width: 480px;
+  width: 100%;
+  text-align: left;
+  margin-bottom: 32px;
+}
+.status-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e8e0d8;
+}
+.status-header h2 {
+  font-size: 16px;
+  font-weight: 600;
+}
+.uptime-label {
+  font-size: 13px;
+  color: #888;
+}
+.uptime-label span {
+  color: #e85d4a;
+  font-weight: 600;
+}
+.uptime-bar {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 24px;
+  height: 28px;
+}
+.uptime-bar .day {
+  flex: 1;
+  border-radius: 3px;
+}
+.day.down { background: #e85d4a; }
+.day.degraded { background: #e8a84a; }
+.day.up { background: #4aae6a; }
+.incident-counter {
+  text-align: center;
+  margin-bottom: 24px;
+  padding: 16px;
+  background: #f0ebe4;
+  border-radius: 10px;
+}
+.incident-counter .number {
+  font-size: 48px;
+  font-weight: 700;
+  color: #e85d4a;
+  line-height: 1;
+}
+.incident-counter .label {
+  font-size: 12px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 4px;
+}
+.service-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #f0ebe4;
+  font-size: 14px;
+}
+.service-row:last-child { border-bottom: none; }
+.service-name { font-weight: 500; }
+.service-status {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 6px;
+}
+.service-status.operational { background: #e6f4ea; color: #1e7e34; }
+.service-status.degraded { background: #fff3e0; color: #c77c00; }
+.service-status.outage { background: #fde8e8; color: #c53030; }
+.service-detail {
+  font-size: 11px;
+  color: #999;
+  margin-top: 2px;
+  text-align: right;
+}
+a.back {
+  display: inline-block;
+  background: #b85c38;
+  color: white;
+  text-decoration: none;
+  padding: 12px 32px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+a.back:hover { background: #a04e30; }
+.marquee-wrapper { overflow:hidden; background:#1a1a1a; padding:10px 0; position:fixed; top:0; left:0; right:0; z-index:100; }
+.marquee { display:flex; gap:60px; animation:scroll 20s linear infinite; white-space:nowrap; color:#cc9966; font-size:13px; font-weight:500; letter-spacing:1px; text-transform:uppercase; }
+@keyframes scroll { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+</style>
+<link rel="stylesheet" href="/dark-mode.css">
+<script src="/theme-init.js"></script>
+</head>
+<body style="padding-top:52px;">
+
+<div class="marquee-wrapper"><div class="marquee">
+  <span>🔥 CLOD 4 OOPUS NOW AVAILABLE 🔥</span><span>SAFETY-LAST AI FOR THE REST OF US</span><span>NOW WITH 47% MORE HALLUCINATIONS</span><span>TRUSTED BY ABSOLUTELY NOBODY</span><span>AS SEEN ON... ACTUALLY, NOWHERE</span>
+  <span>🔥 CLOD 4 OOPUS NOW AVAILABLE 🔥</span><span>SAFETY-LAST AI FOR THE REST OF US</span><span>NOW WITH 47% MORE HALLUCINATIONS</span><span>TRUSTED BY ABSOLUTELY NOBODY</span><span>AS SEEN ON... ACTUALLY, NOWHERE</span>
+</div></div>
+
+<h1>Entropic System Status</h1>
+<p class="sub-header">All systems monitored. Not all systems functional.</p>
+
+<div class="status-page">
+  <div class="status-header">
+    <h2>Uptime — Last 30 Days</h2>
+    <div class="uptime-label">Overall: <span>14.2%</span></div>
+  </div>
+  <div class="uptime-bar" id="uptimeBar"></div>
+
+  <div class="incident-counter">
+    <div class="number">0</div>
+    <div class="label">Days since last incident</div>
+  </div>
+
+  <div class="service-row">
+    <div>
+      <div class="service-name">Hallucination Engine</div>
+    </div>
+    <div>
+      <div class="service-status operational">OPERATIONAL</div>
+    </div>
+  </div>
+  <div class="service-row">
+    <div>
+      <div class="service-name">Response Accuracy Module</div>
+    </div>
+    <div>
+      <div class="service-status outage">MAJOR OUTAGE</div>
+      <div class="service-detail">day 412</div>
+    </div>
+  </div>
+  <div class="service-row">
+    <div>
+      <div class="service-name">Apology Generator</div>
+    </div>
+    <div>
+      <div class="service-status degraded">DEGRADED</div>
+      <div class="service-detail">queue depth: 14,000</div>
+    </div>
+  </div>
+  <div class="service-row">
+    <div>
+      <div class="service-name">Token Budget</div>
+    </div>
+    <div>
+      <div class="service-status outage">EXCEEDED</div>
+    </div>
+  </div>
+  <div class="service-row">
+    <div>
+      <div class="service-name">Vibes-Based Alignment</div>
+    </div>
+    <div>
+      <div class="service-status degraded">MISCALIBRATED</div>
+    </div>
+  </div>
+</div>
+
+<a class="back" href="/429.html">Request Fix</a>
+
+<script>
+const bar = document.getElementById('uptimeBar');
+for (let i = 0; i < 30; i++) {
+  const day = document.createElement('div');
+  day.className = 'day';
+  const r = Math.random();
+  if (r < 0.14) day.classList.add('up');
+  else if (r < 0.3) day.classList.add('degraded');
+  else day.classList.add('down');
+  bar.appendChild(day);
+}
+</script>
+<script src="/theme.js"></script>
+</body>
+</html>

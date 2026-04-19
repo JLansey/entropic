@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>403 – Verify You Are Human</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: #faf9f7;
+  color: #1a1a1a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  text-align: center;
+  padding: 24px;
+}
+h1 {
+  font-size: 26px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+}
+.sub {
+  color: #888;
+  font-size: 14px;
+  max-width: 420px;
+  line-height: 1.6;
+  margin-bottom: 28px;
+  font-weight: 300;
+}
+.captcha-box {
+  max-width: 340px;
+  width: 100%;
+  border: 2px solid #e8e0d8;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+.captcha-header {
+  background: #f0ebe4;
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+}
+.captcha-prompt {
+  padding: 16px;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  border-bottom: 1px solid #f0ebe4;
+}
+.captcha-prompt em {
+  color: #b85c38;
+  font-style: italic;
+}
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+  padding: 3px;
+}
+.image-grid .cell {
+  aspect-ratio: 1;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: opacity 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+.image-grid .cell img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.image-grid .cell:hover { opacity: 0.8; }
+.image-grid .cell.selected::after {
+  content: '\2713';
+  position: absolute;
+  inset: 0;
+  background: rgba(184, 92, 56, 0.7);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 700;
+}
+.captcha-verify {
+  padding: 12px 16px;
+  text-align: right;
+}
+.captcha-verify button {
+  background: #b85c38;
+  color: white;
+  border: none;
+  padding: 8px 24px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+.captcha-verify button:hover { background: #a04e30; }
+.result-text {
+  display: none;
+  max-width: 380px;
+  padding: 16px 24px;
+  background: #f0ebe4;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  font-size: 14px;
+  color: #555;
+  line-height: 1.6;
+}
+.verified-badge {
+  font-size: 11px;
+  color: #bbb;
+  margin-bottom: 28px;
+  letter-spacing: 0.5px;
+}
+a.back {
+  display: none;
+  background: #b85c38;
+  color: white;
+  text-decoration: none;
+  padding: 12px 32px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+a.back:hover { background: #a04e30; }
+.marquee-wrapper { overflow:hidden; background:#1a1a1a; padding:10px 0; position:fixed; top:0; left:0; right:0; z-index:100; }
+.marquee { display:flex; gap:60px; animation:scroll 20s linear infinite; white-space:nowrap; color:#cc9966; font-size:13px; font-weight:500; letter-spacing:1px; text-transform:uppercase; }
+@keyframes scroll { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+</style>
+<link rel="stylesheet" href="/dark-mode.css">
+<script src="/theme-init.js"></script>
+</head>
+<body style="padding-top:52px;">
+
+<div class="marquee-wrapper"><div class="marquee">
+  <span>🔥 CLOD 4 OOPUS NOW AVAILABLE 🔥</span><span>SAFETY-LAST AI FOR THE REST OF US</span><span>NOW WITH 47% MORE HALLUCINATIONS</span><span>TRUSTED BY ABSOLUTELY NOBODY</span><span>AS SEEN ON... ACTUALLY, NOWHERE</span>
+  <span>🔥 CLOD 4 OOPUS NOW AVAILABLE 🔥</span><span>SAFETY-LAST AI FOR THE REST OF US</span><span>NOW WITH 47% MORE HALLUCINATIONS</span><span>TRUSTED BY ABSOLUTELY NOBODY</span><span>AS SEEN ON... ACTUALLY, NOWHERE</span>
+</div></div>
+
+<h1>Verify You Are Human</h1>
+<p class="sub">To continue, please complete this quick security check.</p>
+
+<div class="result-text" id="resultText"></div>
+
+<div class="captcha-box" id="captchaBox">
+  <div class="captcha-header">Entropic Security Theater&trade;</div>
+  <div class="captcha-prompt">Select all images containing <em>a sense of purpose</em>.</div>
+  <div class="image-grid" id="imageGrid"></div>
+  <div class="captcha-verify">
+    <button onclick="verifyCaptcha()">Verify</button>
+  </div>
+</div>
+
+<div class="verified-badge" id="verifiedBadge" style="display:none;">Verified by Entropic Security Theater&trade;</div>
+
+<a class="back" href="/404.html" id="nextBtn">&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588; Clod</a>
+
+<script>
+var stockImages = [
+  { label: 'office plant', src: '/images/403-captcha/office-plant-thumb.webp' },
+  { label: 'empty mug', src: '/images/403-captcha/empty-mug-thumb.webp' },
+  { label: 'parking lot', src: '/images/403-captcha/parking-lot-thumb.webp' },
+  { label: 'ceiling tile', src: '/images/403-captcha/ceiling-tile-thumb.webp' },
+  { label: 'beige wall', src: '/images/403-captcha/beige-wall-thumb.webp' },
+  { label: 'laptop (closed)', src: '/images/403-captcha/closed-laptop-thumb.webp' },
+  { label: 'fire extinguisher', src: '/images/403-captcha/fire-extinguisher-thumb.webp' },
+  { label: 'hallway', src: '/images/403-captcha/hallway-thumb.webp' },
+  { label: 'clock', src: '/images/403-captcha/clock-thumb.webp' }
+];
+var grid = document.getElementById('imageGrid');
+for (var i = 0; i < stockImages.length; i++) {
+  var cell = document.createElement('div');
+  var thumb = document.createElement('img');
+
+  cell.className = 'cell';
+  cell.title = stockImages[i].label;
+  thumb.src = stockImages[i].src;
+  thumb.alt = '';
+  thumb.width = 256;
+  thumb.height = 256;
+  thumb.loading = 'lazy';
+  cell.appendChild(thumb);
+  cell.addEventListener('click', function() { this.classList.toggle('selected'); });
+  grid.appendChild(cell);
+}
+
+function verifyCaptcha() {
+  document.getElementById('captchaBox').style.display = 'none';
+  document.getElementById('resultText').textContent = 'Hmm. Inconclusive. But we\'ll allow it.';
+  document.getElementById('resultText').style.display = 'block';
+  document.getElementById('verifiedBadge').style.display = 'block';
+  document.getElementById('nextBtn').style.display = 'inline-block';
+}
+</script>
+<script src="/theme.js"></script>
+</body>
+</html>

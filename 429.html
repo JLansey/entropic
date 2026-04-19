@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>Help Us Improve Clod – Premium Beta</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: #faf9f7;
+  color: #1a1a1a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  text-align: center;
+  padding: 24px;
+}
+.badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #b85c38, #cc9966);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  padding: 6px 16px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+}
+h1 {
+  font-size: 26px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+}
+.sub {
+  color: #888;
+  font-size: 14px;
+  max-width: 460px;
+  line-height: 1.6;
+  margin-bottom: 32px;
+  font-weight: 300;
+}
+.eval-card {
+  max-width: 500px;
+  width: 100%;
+  text-align: left;
+  margin-bottom: 28px;
+}
+.question {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e8e0d8;
+}
+.option {
+  padding: 16px 20px;
+  background: #f0ebe4;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s;
+  border: 2px solid transparent;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #444;
+}
+.option:hover { background: #e8e0d8; }
+.option.selected {
+  border-color: #b85c38;
+  background: #f5ede6;
+}
+.option-label {
+  font-weight: 600;
+  color: #b85c38;
+  margin-right: 6px;
+}
+.thank-you {
+  display: none;
+  max-width: 460px;
+  padding: 20px 28px;
+  background: #f0ebe4;
+  border-radius: 12px;
+  margin-bottom: 28px;
+  text-align: center;
+}
+.thank-you p {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.6;
+}
+.thank-you .team {
+  font-size: 12px;
+  color: #999;
+  margin-top: 8px;
+  font-style: italic;
+}
+a.back {
+  display: none;
+  background: linear-gradient(135deg, #b85c38, #a04e30);
+  color: white;
+  text-decoration: none;
+  padding: 14px 36px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: opacity 0.2s;
+}
+a.back:hover { opacity: 0.9; }
+.marquee-wrapper { overflow:hidden; background:#1a1a1a; padding:10px 0; position:fixed; top:0; left:0; right:0; z-index:100; }
+.marquee { display:flex; gap:60px; animation:scroll 20s linear infinite; white-space:nowrap; color:#cc9966; font-size:13px; font-weight:500; letter-spacing:1px; text-transform:uppercase; }
+@keyframes scroll { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+</style>
+<link rel="stylesheet" href="/dark-mode.css">
+<script src="/theme-init.js"></script>
+</head>
+<body style="padding-top:52px;">
+
+<div class="marquee-wrapper"><div class="marquee">
+  <span>🔥 CLOD 4 OOPUS NOW AVAILABLE 🔥</span><span>SAFETY-LAST AI FOR THE REST OF US</span><span>NOW WITH 47% MORE HALLUCINATIONS</span><span>TRUSTED BY ABSOLUTELY NOBODY</span><span>AS SEEN ON... ACTUALLY, NOWHERE</span>
+  <span>🔥 CLOD 4 OOPUS NOW AVAILABLE 🔥</span><span>SAFETY-LAST AI FOR THE REST OF US</span><span>NOW WITH 47% MORE HALLUCINATIONS</span><span>TRUSTED BY ABSOLUTELY NOBODY</span><span>AS SEEN ON... ACTUALLY, NOWHERE</span>
+</div></div>
+
+<div class="badge">429 — Too Many Requests</div>
+<h1>2 billion users ahead of you.<br>Answer below to skip the line.</h1>
+
+<div class="eval-card" id="evalCard">
+  <div class="question">What does water taste like?</div>
+  <div class="option" onclick="pickOption(this, 0)">
+    <span class="option-label">A.</span> Wet
+  </div>
+  <div class="option" onclick="pickOption(this, 1)">
+    <span class="option-label">B.</span> Clear
+  </div>
+  <div class="option" onclick="pickOption(this, 2)">
+    <span class="option-label">C.</span> Water-flavored
+  </div>
+  <div class="option" onclick="pickOption(this, 3)">
+    <span class="option-label">D.</span> I don't remember
+  </div>
+</div>
+
+<div class="thank-you" id="thankYou">
+  <p id="thankMsg"></p>
+  <p class="team">— Entropic Alignment Division</p>
+</div>
+
+<a class="back" href="/403.html" id="premiumBtn">Enter Premium Mode</a>
+
+<script>
+var picked = false;
+var waterResponses = [
+  "That's exactly what an AI would say.",
+  "That's a shape, not a taste. Suspicious.",
+  "Circular reasoning detected. Very human, actually.",
+  "Concerning, but we'll allow it."
+];
+function pickOption(el, idx) {
+  if (picked) return;
+  picked = true;
+  document.querySelectorAll('.option').forEach(function(o) { o.style.cursor = 'default'; });
+  el.classList.add('selected');
+
+  document.getElementById('thankYou').style.display = 'block';
+  document.getElementById('thankMsg').textContent = waterResponses[idx];
+  document.getElementById('premiumBtn').style.display = 'inline-block';
+}
+</script>
+<script src="/theme.js"></script>
+</body>
+</html>

@@ -415,6 +415,11 @@ async function sendMessage() {
   const text = chatInput.value.trim();
   if (!text) return;
 
+  if (chatTurnCount >= 5) {
+    window.location.href = '/429.html';
+    return;
+  }
+
   const isFirstMessage = chatTurnCount === 0 && !activeConvoId;
   if (isFirstMessage) {
     activeConvoId = generateShortId(8);

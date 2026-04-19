@@ -2,3 +2,5 @@ node_modules/
 .env
 .claude/settings.local.json
 .DS_Store
+output/
+tmp/
