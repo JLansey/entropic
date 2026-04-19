@@ -345,6 +345,50 @@ async function handleRequest(req, res) {
     return;
   }
 
+  if (req.method === "POST" && req.url === "/api/log-page") {
+    let body = "";
+    req.on("data", (c) => { body += c; if (body.length > 1e4) req.destroy(); });
+    await new Promise((resolve) => req.on("end", resolve));
+    try {
+      const parsed = JSON.parse(body);
+      const page = typeof parsed.page === "string" ? parsed.page.slice(0, 20) : "";
+      const text = typeof parsed.text === "string" ? parsed.text.slice(0, 500) : "";
+      if (!page || !text) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "missing page or text" }));
+        return;
+      }
+      const ip = normalizeLoggedIp(req.socket.remoteAddress || "unknown");
+      const entry = JSON.stringify({
+        ts: Date.now(),
+        ip,
+        country: "",
+        source: page,
+        user: text,
+        bot: "",
+      });
+      const url = process.env.UPSTASH_REDIS_REST_URL;
+      const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+      if (url && token) {
+        const pipeline = [
+          ["LPUSH", "msgs", entry],
+          ["ZINCRBY", "user_counts", 1, ip],
+        ];
+        fetch(`${url}/pipeline`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+          body: JSON.stringify(pipeline),
+        }).catch((e) => console.error("Redis log error:", e));
+      }
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ ok: true }));
+    } catch (e) {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "bad request" }));
+    }
+    return;
+  }
+
   if (req.url.startsWith("/api/spy") && ["GET", "POST", "DELETE"].includes(req.method)) {
     const spy = require("./local/spy");
     const parsed = new URL(req.url, "http://localhost");

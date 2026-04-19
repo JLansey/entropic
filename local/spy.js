@@ -178,7 +178,7 @@ function renderSession(s, labels) {
   const flag = s.country ? `${countryFlag(s.country)} ` : "";
   // For the preview, prefer the first non-rewrite turn so the session card
   // shows a real user question rather than boilerplate continuation plumbing.
-  const firstReal = s.entries.find((e) => !parseRewrite(e.user)) || s.entries[0];
+  const firstReal = s.entries.find((e) => !e.source && !parseRewrite(e.user)) || s.entries.find((e) => !parseRewrite(e.user)) || s.entries[0];
   const dur = s.endTs - s.startTs;
   const convoLink = s.convoId
     ? `<a class="convo-link" href="https://clodoop.us/c/${esc(s.convoId)}" target="_blank" title="Open shared conversation">🔗</a>
@@ -189,14 +189,25 @@ function renderSession(s, labels) {
     <div class="meta">${esc(fmtDate(s.startTs))} · ${s.entries.length} msg${s.entries.length === 1 ? "" : "s"}${s.entries.length > 1 ? ` · ${fmtDuration(dur)}` : ""}</div>
   </div>`;
 
+  const sourceTag = firstReal.source ? `<span class="tag" style="background:#2a1a3a;color:#c9f;margin-right:6px;vertical-align:middle;">${esc(firstReal.source)}</span>` : "";
   const preview = `<div class="preview">
-    <div class="turn"><div class="role user">User</div><div class="text">${esc(snippet(firstReal.user, 220))}</div></div>
-    <div class="turn"><div class="role bot">Clod</div><div class="text">${esc(snippet(firstReal.bot, 180))}</div></div>
+    <div class="turn"><div class="role user">${firstReal.source ? "Page" : "User"}</div><div class="text">${sourceTag}${esc(snippet(firstReal.user, 220))}</div></div>
+    ${firstReal.bot ? `<div class="turn"><div class="role bot">Clod</div><div class="text">${esc(snippet(firstReal.bot, 180))}</div></div>` : ""}
   </div>`;
 
   const fullTurns = s.entries.map((e, i) => {
     const t = fmtDate(e.ts);
     const blocked = e.blocked ? ' <span class="tag">blocked</span>' : "";
+
+    if (e.source) {
+      return `<div class="chat-row user page-entry">
+        <div class="bubble" style="font-family: ui-monospace, monospace; background: #1a1a2e; border-color: #2a2a4e; border-bottom-right-radius: 4px;">
+          <span class="tag" style="background: #2a1a3a; color: #c9f; margin-right: 8px;">${esc(e.source)}</span>$ ${esc(e.user)}
+        </div>
+        <div class="turn-meta">#${i + 1} · ${esc(t)}</div>
+      </div>`;
+    }
+
     const rw = parseRewrite(e.user);
 
     if (rw) {

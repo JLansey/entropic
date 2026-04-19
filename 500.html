@@ -52,10 +52,26 @@ var traces = [
 + '    at response.trunca          <span class="fn">(budget-cuts.js:--)</span>\n\n'
 + '<span class="error">Error: ran out of tokens mid-s</span>',
 ];
-document.getElementById('stacktrace').innerHTML = traces[Math.floor(Math.random() * traces.length)];
+// Fisher-Yates shuffle
+var order = traces.map(function(_,i){return i});
+for (var i = order.length - 1; i > 0; i--) {
+  var j = Math.floor(Math.random() * (i + 1));
+  var t = order[i]; order[i] = order[j]; order[j] = t;
+}
+var pos = 0;
+document.getElementById('stacktrace').innerHTML = traces[order[pos]];
+function nextTrace() {
+  if (pos < order.length - 1) {
+    pos++;
+    document.getElementById('stacktrace').innerHTML = traces[order[pos]];
+  }
+}
 </script>
 
-<a class="back" href="/503.html">Retry</a>
+<div class="buttons" style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+  <a class="back" href="javascript:void(0)" onclick="nextTrace()">Retry</a>
+  <a class="back" href="/503.html">Dashboard</a>
+</div>
 
 <script src="/error-pages.js"></script>
 <script src="/theme.js"></script>

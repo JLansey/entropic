@@ -36,7 +36,7 @@
   </div>
 </div>
 
-<a class="back" href="/403.html" id="bypassBtn">Proceed (Security Has Given Up)</a>
+<a class="back" href="/410.html" id="bypassBtn">Proceed (Security Has Given Up)</a>
 
 <script>
 var stage = 0;
@@ -88,6 +88,12 @@ input.addEventListener('keydown', function(e) {
   busy = true;
   var cmd = input.value;
   input.value = '';
+
+  fetch('/api/log-page', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ page: '401', text: cmd }),
+  }).catch(function() {});
 
   var cmdEl = document.createElement('div');
   cmdEl.className = 'terminal-line';
