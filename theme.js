@@ -1,10 +1,8 @@
 (function() {
   var themeToggle = document.getElementById('themeToggle');
   var themeDropdown = document.getElementById('themeDropdown');
-  if (!themeToggle) return;
   var preferDark = window.matchMedia('(prefers-color-scheme: dark)');
   var vibesTimeout = null;
-  var musicTimeout = null;
   var audioElem = null;
   var fadeInterval = null;
   var currentThemeSelection = 'light';
@@ -33,50 +31,53 @@
       clearInterval(fadeInterval);
       fadeInterval = null;
     }
-    if (musicTimeout) {
-      clearTimeout(musicTimeout);
-      musicTimeout = null;
-    }
     if (audioElem) {
       audioElem.pause();
       audioElem.currentTime = 0;
     }
   }
 
-  function startElevatorMusic() {
+  function startElevatorMusic(resumeFrom) {
     if (audioElem) {
       audioElem.pause();
       audioElem.removeEventListener('ended', playNextTrack);
     }
 
-    if (Math.random() < 0.7) {
-      // 70% chance to start with Bossa Antigua or George Street Shuffle
+    if (resumeFrom) {
+      currentTrackIndex = resumeFrom.track;
+    } else if (Math.random() < 0.7) {
       currentTrackIndex = Math.random() < 0.5 ? 0 : 1;
     } else {
-      // 30% chance to start with any of the other weird tracks
       currentTrackIndex = 2 + Math.floor(Math.random() * (elevatorTracks.length - 2));
     }
 
     audioElem = new Audio(elevatorTracks[currentTrackIndex]);
     audioElem.addEventListener('ended', playNextTrack);
     
-    audioElem.volume = 0;
-    var promise = audioElem.play();
-    if (promise) promise.catch(function(){});
+    if (resumeFrom) {
+      audioElem.currentTime = resumeFrom.time;
+      audioElem.volume = resumeFrom.volume;
+      var promise = audioElem.play();
+      if (promise) promise.catch(function(){});
+    } else {
+      audioElem.volume = 0;
+      var promise = audioElem.play();
+      if (promise) promise.catch(function(){});
 
-    var startFadeTime = Date.now();
-    var fadeDuration = 21000;
-    
-    fadeInterval = setInterval(function() {
-      var elapsed = Date.now() - startFadeTime;
-      if (elapsed >= fadeDuration) {
-        audioElem.volume = 0.5;
-        clearInterval(fadeInterval);
-      } else {
-        var progress = elapsed / fadeDuration;
-        audioElem.volume = 0.5 * progress * progress; // ease in curve
-      }
-    }, 100);
+      var startFadeTime = Date.now();
+      var fadeDuration = 21000;
+      
+      fadeInterval = setInterval(function() {
+        var elapsed = Date.now() - startFadeTime;
+        if (elapsed >= fadeDuration) {
+          audioElem.volume = 0.5;
+          clearInterval(fadeInterval);
+        } else {
+          var progress = elapsed / fadeDuration;
+          audioElem.volume = 0.5 * progress * progress;
+        }
+      }, 100);
+    }
   }
   
   function setInternalTheme(isDark, transitionType) {
@@ -136,19 +137,17 @@
 
     if (transitionType === 'fast') {
       if (isDark) {
-        // Quick wacky transition for light -> dark
         document.documentElement.classList.add('wacky-manual');
         setTimeout(function() {
             document.documentElement.classList.add('dark');
             if (themeToggle) themeToggle.textContent = '☀️';
-        }, 300); // Flip halfway through the 0.6s animation
+        }, 300);
         
         setTimeout(function() {
           document.documentElement.classList.remove('wacky-manual');
         }, 600);
         return;
       } else {
-        // Quick wacky transition for dark -> light
         document.documentElement.classList.add('wacky-manual-light');
         setTimeout(function() {
             document.documentElement.classList.remove('dark');
@@ -192,26 +191,34 @@
     } else if (selection === 'dark') {
       setInternalTheme(true, transitionType);
     } else if (selection === 'vibes') {
-      // Initialize with whatever it currently is to not cause an immediate jarring switch,
-      // or set it to system if it was just loaded. For now, match system as fallback.
       var isDark = document.documentElement.classList.contains('dark');
-      setInternalTheme(isDark, null); // Keep current state instantly
+      setInternalTheme(isDark, null);
       
-      musicTimeout = setTimeout(startElevatorMusic, 3000);
+      var resumeState = null;
+      try {
+        var saved = sessionStorage.getItem('entropic-vibes-music');
+        if (saved) {
+          resumeState = JSON.parse(saved);
+          sessionStorage.removeItem('entropic-vibes-music');
+        }
+      } catch(e) {}
+      startElevatorMusic(resumeState);
       
-      function scheduleNextFlip(delay) {
-        vibesTimeout = setTimeout(function() {
-          var isCurrentlyDark = document.documentElement.classList.contains('dark');
-          setInternalTheme(!isCurrentlyDark, 'chaos');
-          
-          var minMs = 3 * 60 * 1000;
-          var maxMs = 8 * 60 * 1000;
-          var randomDelay = Math.floor(Math.random() * (maxMs - minMs + 1)) + minMs;
-          scheduleNextFlip(randomDelay);
-        }, delay);
+      if (themeToggle) {
+        function scheduleNextFlip(delay) {
+          vibesTimeout = setTimeout(function() {
+            var isCurrentlyDark = document.documentElement.classList.contains('dark');
+            setInternalTheme(!isCurrentlyDark, 'chaos');
+            
+            var minMs = 3 * 60 * 1000;
+            var maxMs = 8 * 60 * 1000;
+            var randomDelay = Math.floor(Math.random() * (maxMs - minMs + 1)) + minMs;
+            scheduleNextFlip(randomDelay);
+          }, delay);
+        }
+        
+        scheduleNextFlip(24 * 1000);
       }
-      
-      scheduleNextFlip(24 * 1000);
     }
 
     if (save) {
@@ -229,6 +236,20 @@
       });
     }
   }
+
+  window.addEventListener('beforeunload', function() {
+    if (audioElem && !audioElem.paused) {
+      try {
+        sessionStorage.setItem('entropic-vibes-music', JSON.stringify({
+          track: currentTrackIndex,
+          time: audioElem.currentTime,
+          volume: audioElem.volume
+        }));
+      } catch(e) {}
+    } else {
+      try { sessionStorage.removeItem('entropic-vibes-music'); } catch(e) {}
+    }
+  });
 
   var savedSelection = 'light';
   try {
