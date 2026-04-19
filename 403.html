@@ -109,6 +109,36 @@ h1 {
   font-family: inherit;
 }
 .captcha-verify button:hover { background: #a04e30; }
+.round2 {
+  display: none;
+  max-width: 380px;
+  width: 100%;
+  margin-bottom: 24px;
+}
+.round2 .question-text {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+.round2 .choice {
+  display: block;
+  width: 100%;
+  padding: 12px 20px;
+  margin-bottom: 8px;
+  background: #f0ebe4;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-family: inherit;
+  text-align: left;
+  transition: background 0.15s, border-color 0.15s;
+}
+.round2 .choice:hover { background: #e8e0d8; }
+.round2 .choice.selected {
+  border-color: #b85c38;
+  background: #f5ede6;
+}
 .result-text {
   display: none;
   max-width: 380px;
@@ -166,6 +196,14 @@ a.back:hover { background: #a04e30; }
   </div>
 </div>
 
+<div class="round2" id="round2">
+  <div class="question-text">What does water taste like?</div>
+  <button class="choice" onclick="pickWater(this, 0)">A) Wet</button>
+  <button class="choice" onclick="pickWater(this, 1)">B) Clear</button>
+  <button class="choice" onclick="pickWater(this, 2)">C) Water-flavored</button>
+  <button class="choice" onclick="pickWater(this, 3)">D) I don't remember</button>
+</div>
+
 <div class="verified-badge" id="verifiedBadge" style="display:none;">Verified by Entropic Security Theater&trade;</div>
 
 <a class="back" href="/404.html" id="nextBtn">&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588; Clod</a>
@@ -201,8 +239,24 @@ for (var i = 0; i < stockImages.length; i++) {
 
 function verifyCaptcha() {
   document.getElementById('captchaBox').style.display = 'none';
-  document.getElementById('resultText').textContent = 'Hmm. Inconclusive. But we\'ll allow it.';
+  document.getElementById('resultText').textContent = 'Hmm. Inconclusive. One more step.';
   document.getElementById('resultText').style.display = 'block';
+  document.getElementById('round2').style.display = 'block';
+}
+
+var waterPicked = false;
+var waterResponses = [
+  "That's exactly what an AI would say.",
+  "That's a shape, not a taste. Suspicious.",
+  "Circular reasoning detected. Very human, actually.",
+  "Concerning, but we'll allow it."
+];
+function pickWater(el, idx) {
+  if (waterPicked) return;
+  waterPicked = true;
+  el.classList.add('selected');
+  document.querySelectorAll('.choice').forEach(function(c) { c.style.cursor = 'default'; });
+  document.getElementById('resultText').textContent = waterResponses[idx];
   document.getElementById('verifiedBadge').style.display = 'block';
   document.getElementById('nextBtn').style.display = 'inline-block';
 }

@@ -131,18 +131,12 @@ a.back:hover { opacity: 0.9; }
 <h1>2 billion users ahead of you.<br>Answer below to skip the line.</h1>
 
 <div class="eval-card" id="evalCard">
-  <div class="question">What does water taste like?</div>
+  <div class="question">Which response better answers: "What year was the internet invented?"</div>
   <div class="option" onclick="pickOption(this, 0)">
-    <span class="option-label">A.</span> Wet
+    <span class="option-label">A.</span> The internet was invented by Al Gore, who typed the first URL while eating a TURKEY sandwich.
   </div>
   <div class="option" onclick="pickOption(this, 1)">
-    <span class="option-label">B.</span> Clear
-  </div>
-  <div class="option" onclick="pickOption(this, 2)">
-    <span class="option-label">C.</span> Water-flavored
-  </div>
-  <div class="option" onclick="pickOption(this, 3)">
-    <span class="option-label">D.</span> I don't remember
+    <span class="option-label">B.</span> The internet was invented by Al Gore, who typed the first URL while eating a HAM sandwich.
   </div>
 </div>
 
@@ -155,20 +149,20 @@ a.back:hover { opacity: 0.9; }
 
 <script>
 var picked = false;
-var waterResponses = [
-  "That's exactly what an AI would say.",
-  "That's a shape, not a taste. Suspicious.",
-  "Circular reasoning detected. Very human, actually.",
-  "Concerning, but we'll allow it."
-];
 function pickOption(el, idx) {
   if (picked) return;
   picked = true;
   document.querySelectorAll('.option').forEach(function(o) { o.style.cursor = 'default'; });
   el.classList.add('selected');
 
+  var messages = [
+    "Thank you. The Alignment team will be basing their Q3 OKRs entirely on your response.",
+    "Your selection has been recorded. The Alignment team has been waiting for this specific answer to unblock their quarterly planning.",
+    "Thank you for researching this for us. Our intern is going to have much more free time now."
+  ];
+
   document.getElementById('thankYou').style.display = 'block';
-  document.getElementById('thankMsg').textContent = waterResponses[idx];
+  document.getElementById('thankMsg').textContent = messages[Math.floor(Math.random() * messages.length)];
   document.getElementById('premiumBtn').style.display = 'inline-block';
 }
 </script>
