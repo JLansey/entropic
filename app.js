@@ -146,7 +146,10 @@ async function loadSharedConversation(convoId) {
     const resp = await fetch(`/api/conv/${convoId}`, { cache: 'no-store' });
     const data = await resp.json();
     const messages = Array.isArray(data.messages) ? data.messages : [];
-    if (messages.length === 0) return;
+    if (messages.length === 0) {
+      window.location.replace('/conversation-not-found.html');
+      return;
+    }
     chatMessages.innerHTML = '';
     for (const m of messages) {
       if (m.role === 'user') {
@@ -382,7 +385,7 @@ let userHasScrolledUp = false;
 
 chatMessages.addEventListener('scroll', () => {
   const distFromBottom = chatMessages.scrollHeight - chatMessages.scrollTop - chatMessages.clientHeight;
-  userHasScrolledUp = distFromBottom > 80;
+  userHasScrolledUp = distFromBottom > 1;
 });
 
 function scrollToBottomIfNeeded() {

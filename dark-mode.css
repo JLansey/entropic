@@ -38,6 +38,144 @@
 .dark .review-card .reviewer strong { color: #999; }
 .dark .review-card.bad { background: #1e1616; border-color: #3a2222; }
 .dark .review-card.mid { background: #1e1c16; border-color: #3a3422; }
+.dark .chat-readonly { background: #1e1e1e; border-top-color: #333; }
+.dark .new-convo-btn { border-color: #b85c38; color: #b85c38; }
+.dark .new-convo-btn:hover { background: #b85c38; color: white; }
+
+/* Error Pages */
+.dark .sub,
+.dark .sub-header,
+.dark .note,
+.dark .verified-badge,
+.dark .uptime-label,
+.dark .service-detail,
+.dark .terminal-title,
+.dark .incident-counter .label,
+.dark .theories h3,
+.dark .thank-you .team {
+  color: #9a9a9a;
+}
+
+.dark .terminal-line.system,
+.dark .stacktrace .path,
+.dark .helpful p,
+.dark .review p,
+.dark .review .author,
+.dark .theories li,
+.dark .thank-you p,
+.dark .result-text,
+.dark .option,
+.dark .round2 .choice {
+  color: #c5c5c5;
+}
+
+.dark .terminal,
+.dark .stacktrace {
+  background: #111111;
+  border: 1px solid #2d2d2d;
+}
+
+.dark .terminal-header,
+.dark .progress-bar {
+  background: #202020;
+}
+
+.dark .captcha-box,
+.dark .eval-card,
+.dark .status-page {
+  border-color: #323232;
+}
+
+.dark .review,
+.dark .captcha-header,
+.dark .captcha-prompt,
+.dark .result-text,
+.dark .round2 .choice,
+.dark .option,
+.dark .thank-you,
+.dark .incident-counter,
+.dark .theories,
+.dark .helpful {
+  background: #1b1b1b;
+}
+
+.dark .captcha-header,
+.dark .captcha-prompt,
+.dark .question,
+.dark .status-header,
+.dark .service-row {
+  border-color: #323232;
+}
+
+.dark .question,
+.dark .question-text,
+.dark .captcha-prompt,
+.dark .status-header h2,
+.dark .service-name {
+  color: #e6e6e6;
+}
+
+.dark .option:hover,
+.dark .round2 .choice:hover,
+.dark a.btn.secondary:hover {
+  background: #242424;
+}
+
+.dark .option.selected,
+.dark .round2 .choice.selected {
+  background: #261e1a;
+  border-color: #b85c38;
+}
+
+.dark .incident-counter .number,
+.dark .stacktrace .error,
+.dark .terminal-line.error {
+  color: #ff7b68;
+}
+
+.dark .terminal-line.success {
+  color: #62c37e;
+}
+
+.dark .terminal-line.warning {
+  color: #f0b35d;
+}
+
+.dark .terminal-line.aside {
+  color: #7d7d7d;
+}
+
+.dark .stacktrace .fn,
+.dark .option-label,
+.dark .captcha-prompt em,
+.dark .theories li::before,
+.dark .helpful a {
+  color: #d7a06f;
+}
+
+.dark .helpful a {
+  border-bottom-color: #d7a06f;
+}
+
+.dark a.btn.secondary {
+  background: #242424;
+  color: #d0d0d0;
+}
+
+.dark .service-status.operational {
+  background: #14301e;
+  color: #82d39b;
+}
+
+.dark .service-status.degraded {
+  background: #352711;
+  color: #f0bf73;
+}
+
+.dark .service-status.outage {
+  background: #361818;
+  color: #f28d8d;
+}
 
 #themeToggle {
   background: none;

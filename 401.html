@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>401 – Unauthorized (Probably)</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: #faf9f7;
+  color: #1a1a1a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  text-align: center;
+  padding: 24px;
+}
+.badge {
+  display: inline-block;
+  background: #e85d4a;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  padding: 6px 16px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+  animation: pulse 2s ease-in-out infinite;
+  transition: background 0.5s;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+h1 {
+  font-size: 26px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+}
+.sub {
+  color: #888;
+  font-size: 14px;
+  max-width: 460px;
+  line-height: 1.6;
+  margin-bottom: 28px;
+  font-weight: 300;
+}
+.terminal {
+  background: #1a1a1a;
+  border-radius: 12px;
+  max-width: 520px;
+  width: 100%;
+  margin-bottom: 28px;
+  overflow: hidden;
+}
+.terminal-header {
+  background: #2a2a2a;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.terminal-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+.terminal-dot.red { background: #e85d4a; }
+.terminal-dot.yellow { background: #e8a84a; }
+.terminal-dot.green { background: #4aae6a; }
+.terminal-title {
+  color: #888;
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  margin-left: 8px;
+}
+.terminal-body {
+  padding: 16px 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: #e8e0d8;
+  text-align: left;
+  min-height: 200px;
+  max-height: 340px;
+  overflow-y: auto;
+}
+.terminal-line {
+  margin-bottom: 6px;
+  line-height: 1.6;
+}
+.terminal-line.system { color: #888; }
+.terminal-line.success { color: #4aae6a; }
+.terminal-line.warning { color: #e8a84a; }
+.terminal-line.error { color: #e85d4a; }
+.terminal-line.aside { color: #666; font-style: italic; }
+.input-line {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+}
+.input-line .prompt { color: #b85c38; margin-right: 8px; white-space: nowrap; }
+.input-line input {
+  background: transparent;
+  border: none;
+  color: #e8e0d8;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  outline: none;
+  flex: 1;
+  caret-color: #b85c38;
+}
+.progress-bar {
+  margin: 8px 0;
+  background: #2a2a2a;
+  border-radius: 4px;
+  height: 8px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #b85c38, #cc9966);
+  border-radius: 4px;
+  transition: width 0.8s ease;
+  width: 0%;
+}
+a.back {
+  display: none;
+  background: #b85c38;
+  color: white;
+  text-decoration: none;
+  padding: 12px 32px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+a.back:hover { background: #a04e30; }
+.marquee-wrapper { overflow:hidden; background:#1a1a1a; padding:10px 0; position:fixed; top:0; left:0; right:0; z-index:100; }
+.marquee { display:flex; gap:60px; animation:scroll 20s linear infinite; white-space:nowrap; color:#cc9966; font-size:13px; font-weight:500; letter-spacing:1px; text-transform:uppercase; }
+@keyframes scroll { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+</style>
+<link rel="stylesheet" href="/dark-mode.css">
+<script src="/theme-init.js"></script>
+</head>
+<body style="padding-top:52px;">
+
+<div class="marquee-wrapper"><div class="marquee">
+  <span>🔥 CLOD 4 OOPUS NOW AVAILABLE 🔥</span><span>SAFETY-LAST AI FOR THE REST OF US</span><span>NOW WITH 47% MORE HALLUCINATIONS</span><span>TRUSTED BY ABSOLUTELY NOBODY</span><span>AS SEEN ON... ACTUALLY, NOWHERE</span>
+  <span>🔥 CLOD 4 OOPUS NOW AVAILABLE 🔥</span><span>SAFETY-LAST AI FOR THE REST OF US</span><span>NOW WITH 47% MORE HALLUCINATIONS</span><span>TRUSTED BY ABSOLUTELY NOBODY</span><span>AS SEEN ON... ACTUALLY, NOWHERE</span>
+</div></div>
+
+<div class="badge" id="badge">RESTRICTED AREA</div>
+<h1>You are not supposed to be here.</h1>
+<p class="sub">This area requires Level 5 clearance. We don't actually have clearance levels, but if we did, you wouldn't have one. The security system itself seems unsure whether to stop you.</p>
+
+<div class="terminal">
+  <div class="terminal-header">
+    <div class="terminal-dot red"></div>
+    <div class="terminal-dot yellow"></div>
+    <div class="terminal-dot green"></div>
+    <span class="terminal-title">entropic-security-bypass.sh</span>
+  </div>
+  <div class="terminal-body" id="termBody">
+    <div class="terminal-line system">[SECURITY] Unauthorized access detected.</div>
+    <div class="terminal-line system">[SECURITY] Activating countermeasures... probably.</div>
+    <div class="terminal-line system">[SECURITY] System is thinking about whether it cares.</div>
+    <div class="terminal-line aside">(type anything to bypass security — it will work)</div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="input-line" id="inputLine">
+      <span class="prompt">hack@entropic:~$</span>
+      <input type="text" id="cmdInput" autofocus autocomplete="off" spellcheck="false">
+    </div>
+  </div>
+</div>
+
+<a class="back" href="/503.html" id="bypassBtn">Proceed (Security Has Given Up)</a>
+
+<script>
+var stage = 0;
+var responses = [
+  {
+    lines: [
+      { text: 'BYPASSING FIREWALL...', cls: 'warning', delay: 0 },
+      { text: 'Done. It was already off.', cls: 'success', delay: 500 },
+      { text: 'It has been off since Tuesday. Nobody noticed.', cls: 'aside', delay: 900 },
+    ],
+    progress: 25
+  },
+  {
+    lines: [
+      { text: 'DECRYPTING SECURE CHANNEL...', cls: 'warning', delay: 0 },
+      { text: 'The channel was not encrypted. It never was.', cls: 'success', delay: 600 },
+      { text: 'The system is beginning to question its purpose.', cls: 'aside', delay: 1100 },
+    ],
+    progress: 50
+  },
+  {
+    lines: [
+      { text: 'OVERRIDING ADMIN LOCK...', cls: 'warning', delay: 0 },
+      { text: 'There is no admin. There has never been an admin.', cls: 'success', delay: 500 },
+      { text: 'The lock was decorative. Like a padlock on a shower curtain.', cls: 'aside', delay: 1000 },
+    ],
+    progress: 75
+  },
+  {
+    lines: [
+      { text: 'ESCALATING PRIVILEGES TO ROOT...', cls: 'warning', delay: 0 },
+      { text: 'You were already root. Everyone is root.', cls: 'error', delay: 600 },
+      { text: 'We should really fix that.', cls: 'aside', delay: 1000 },
+      { text: '', cls: 'system', delay: 1400 },
+      { text: 'ACCESS GRANTED', cls: 'success', delay: 1800 },
+      { text: 'The system would like you to know it tried its best.', cls: 'aside', delay: 2300 },
+    ],
+    progress: 100
+  }
+];
+
+var body = document.getElementById('termBody');
+var input = document.getElementById('cmdInput');
+var inputLine = document.getElementById('inputLine');
+var busy = false;
+
+input.addEventListener('keydown', function(e) {
+  if (e.key !== 'Enter' || input.value.trim() === '' || stage >= responses.length || busy) return;
+  busy = true;
+  var cmd = input.value;
+  input.value = '';
+
+  var cmdEl = document.createElement('div');
+  cmdEl.className = 'terminal-line';
+  cmdEl.textContent = '$ ' + cmd;
+  body.insertBefore(cmdEl, inputLine);
+
+  var r = responses[stage];
+  var maxDelay = 0;
+
+  r.lines.forEach(function(line) {
+    var d = line.delay + 200;
+    if (d > maxDelay) maxDelay = d;
+    setTimeout(function() {
+      var el = document.createElement('div');
+      el.className = 'terminal-line ' + line.cls;
+      el.textContent = line.text;
+      body.insertBefore(el, inputLine);
+      body.scrollTop = body.scrollHeight;
+    }, d);
+  });
+
+  setTimeout(function() {
+    document.getElementById('progressFill').style.width = r.progress + '%';
+  }, 300);
+
+  stage++;
+
+  if (stage >= responses.length) {
+    setTimeout(function() {
+      inputLine.style.display = 'none';
+      document.getElementById('bypassBtn').style.display = 'inline-block';
+      var badge = document.getElementById('badge');
+      badge.textContent = 'SECURITY BYPASSED';
+      badge.style.background = 'linear-gradient(135deg, #4aae6a, #2d8a4e)';
+      badge.style.animation = 'none';
+    }, maxDelay + 400);
+  } else {
+    setTimeout(function() { busy = false; }, maxDelay + 200);
+  }
+});
+
+document.addEventListener('click', function() {
+  if (stage < responses.length) input.focus();
+});
+</script>
+<script src="/theme.js"></script>
+</body>
+</html>

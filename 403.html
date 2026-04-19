@@ -188,7 +188,7 @@ a.back:hover { background: #a04e30; }
 <div class="result-text" id="resultText"></div>
 
 <div class="captcha-box" id="captchaBox">
-  <div class="captcha-header">Entropic Security Theater&trade;</div>
+  <!-- <div class="captcha-header">Entropic Security Theater&trade;</div> -->
   <div class="captcha-prompt">Select all images containing <em>a sense of purpose</em>.</div>
   <div class="image-grid" id="imageGrid"></div>
   <div class="captcha-verify">
@@ -203,6 +203,8 @@ a.back:hover { background: #a04e30; }
   <button class="choice" onclick="pickWater(this, 2)">C) Water-flavored</button>
   <button class="choice" onclick="pickWater(this, 3)">D) I don't remember</button>
 </div>
+
+<div class="result-text" id="waterResultText"></div>
 
 <div class="verified-badge" id="verifiedBadge" style="display:none;">Verified by Entropic Security Theater&trade;</div>
 
@@ -256,7 +258,8 @@ function pickWater(el, idx) {
   waterPicked = true;
   el.classList.add('selected');
   document.querySelectorAll('.choice').forEach(function(c) { c.style.cursor = 'default'; });
-  document.getElementById('resultText').textContent = waterResponses[idx];
+  document.getElementById('waterResultText').textContent = waterResponses[idx];
+  document.getElementById('waterResultText').style.display = 'block';
   document.getElementById('verifiedBadge').style.display = 'block';
   document.getElementById('nextBtn').style.display = 'inline-block';
 }
