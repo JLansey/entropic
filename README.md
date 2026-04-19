@@ -40,6 +40,33 @@ ANTHROPIC_API_KEY=sk-ant-... node server.js
 
 Runs at `http://0.0.0.0:8077`
 
+## Local HTTPS For Phone Sensor Testing
+
+Motion/orientation APIs require a secure context. In practice that means one of:
+
+- a real `https://` origin
+- `http://localhost` on the same device only
+
+For testing from a phone on your LAN, use the local HTTPS server:
+
+```bash
+./scripts/dev-cert.sh
+HTTPS=1 node server.js
+```
+
+Default ports:
+
+- HTTP: `http://localhost:8077`
+- HTTPS: `https://localhost:8443`
+
+The server also prints LAN URLs such as `https://192.168.1.x:8443` for phone testing.
+
+Notes:
+
+- If `mkcert` is installed, `./scripts/dev-cert.sh` generates a locally trusted cert on your Mac.
+- If `mkcert` is not installed, the script falls back to a self-signed cert.
+- A phone will only treat the page as secure if it trusts the cert chain for that HTTPS URL. For a LAN IP on a phone, that usually means either installing/trusting the `mkcert` root CA on the phone too, or using an HTTPS tunnel.
+
 ## Repo
 
 `https://github.com/JLansey/entropic`

@@ -482,6 +482,21 @@ body.error-page.error-page-409 .seismograph {
   margin-bottom: 24px;
 }
 
+body.error-page.error-page-409 .seismo-guidance {
+  max-width: 480px;
+  width: 100%;
+  margin-bottom: 14px;
+}
+
+body.error-page.error-page-409 .seismo-instruction {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  color: var(--error-text);
+  text-wrap: balance;
+}
+
 body.error-page.error-page-409 .seismo-header {
   display: flex;
   justify-content: space-between;
@@ -545,6 +560,12 @@ body.error-page.error-page-409 .seismo-arm {
 
 body.error-page.error-page-409 .seismo-arm:hover {
   filter: brightness(1.05);
+}
+
+@media (max-width: 640px) {
+  body.error-page.error-page-409 .seismo-instruction {
+    font-size: 22px;
+  }
 }
 
 body.error-page.error-page-409 .anxiety-log,

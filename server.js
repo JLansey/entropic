@@ -1,6 +1,8 @@
 const http = require("http");
+const https = require("https");
 const fs = require("fs");
 const path = require("path");
+const os = require("os");
 const { SYSTEM_PROMPT } = require("./clod-system-prompt");
 
 try {
@@ -16,12 +18,28 @@ try {
   });
 } catch (e) { }
 
-const PORT = 8077;
+const PORT = Number(process.env.PORT) || 8077;
+const HTTPS_PORT = Number(process.env.HTTPS_PORT) || 8443;
+const HTTPS_ENABLED = process.env.HTTPS === "1" || process.env.HTTPS === "true";
+const HTTPS_KEY_FILE = process.env.HTTPS_KEY_FILE || path.join(__dirname, ".local-ssl", "dev-key.pem");
+const HTTPS_CERT_FILE = process.env.HTTPS_CERT_FILE || path.join(__dirname, ".local-ssl", "dev-cert.pem");
 const CLAUDE_KEY = process.env.ANTHROPIC_API_KEY || process.env.CLAUDE_API_KEY || "";
 const CLAUDE_MODEL = process.env.CLAUDE_MODEL || "claude-sonnet-4-6";
 const RATE_LIMIT_TOTAL = Number(process.env.RATE_LIMIT_TOTAL) || 200;
 const DEFAULT_GA_MEASUREMENT_ID = "G-LK9C1Z4W11";
 const GA_MEASUREMENT_ID = (process.env.GA_MEASUREMENT_ID || DEFAULT_GA_MEASUREMENT_ID).trim();
+
+function getLanIps() {
+  const interfaces = os.networkInterfaces();
+  const results = [];
+  Object.values(interfaces).forEach((entries) => {
+    (entries || []).forEach((entry) => {
+      if (!entry || entry.internal) return;
+      if (entry.family === "IPv4") results.push(entry.address);
+    });
+  });
+  return [...new Set(results)];
+}
 
 function normalizeContentBlock(content) {
   if (typeof content === "string") return content;
@@ -230,7 +248,7 @@ function normalizeLoggedIp(ip) {
   return ip || "unknown";
 }
 
-const server = http.createServer(async (req, res) => {
+async function handleRequest(req, res) {
   // Serve index.html for shareable conversation URLs (only if conversation exists)
   if (req.method === "GET" && /^\/c\/[A-Za-z0-9_-]{4,16}$/.test(req.url.split('?')[0])) {
     const convoId = req.url.split('?')[0].slice(3);
@@ -383,8 +401,60 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(200, { "Content-Type": types[ext] || "text/plain" });
     res.end(data);
   });
+}
+
+const server = http.createServer((req, res) => {
+  handleRequest(req, res).catch((error) => {
+    console.error("Request error:", error);
+    if (!res.headersSent) {
+      res.writeHead(500, { "Content-Type": "text/plain" });
+    }
+    res.end("Internal server error");
+  });
 });
 
+function startHttpsServer() {
+  if (!HTTPS_ENABLED) return;
+
+  let key;
+  let cert;
+  try {
+    key = fs.readFileSync(HTTPS_KEY_FILE);
+    cert = fs.readFileSync(HTTPS_CERT_FILE);
+  } catch (error) {
+    console.warn(
+      `HTTPS requested, but cert files were not found.\n`
+      + `Expected key: ${HTTPS_KEY_FILE}\n`
+      + `Expected cert: ${HTTPS_CERT_FILE}\n`
+      + `Run ./scripts/dev-cert.sh to generate them.`
+    );
+    return;
+  }
+
+  const httpsServer = https.createServer({ key, cert }, (req, res) => {
+    handleRequest(req, res).catch((error) => {
+      console.error("HTTPS request error:", error);
+      if (!res.headersSent) {
+        res.writeHead(500, { "Content-Type": "text/plain" });
+      }
+      res.end("Internal server error");
+    });
+  });
+
+  httpsServer.listen(HTTPS_PORT, "0.0.0.0", () => {
+    const lanIps = getLanIps();
+    console.log(`Entropic HTTPS is live at https://localhost:${HTTPS_PORT}`);
+    lanIps.forEach((ip) => {
+      console.log(`LAN HTTPS: https://${ip}:${HTTPS_PORT}`);
+    });
+  });
+}
+
 server.listen(PORT, "0.0.0.0", () => {
-  console.log(`Entropic is live at http://0.0.0.0:${PORT}`);
+  console.log(`Entropic HTTP is live at http://localhost:${PORT}`);
+  getLanIps().forEach((ip) => {
+    console.log(`LAN HTTP: http://${ip}:${PORT}`);
+  });
 });
+
+startHttpsServer();
