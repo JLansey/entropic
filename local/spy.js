@@ -187,10 +187,10 @@ function renderSession(s, labels) {
   const header = `<div class="session-head" data-ip="${esc(s.ip)}">
     <div class="who">${flag}<strong><span class="session-label-text">${who}</span></strong><span class="muted session-ip"${!label ? ' style="display:none"' : ''}> (${esc(s.ip)})</span>
       <input class="session-label-input" type="text" value="${esc(label)}" placeholder="name…" maxlength="40">
-      <button class="session-edit-btn" type="button" title="Edit label">✎</button>
       <button class="session-save-btn" type="button">save</button>
       <button class="session-cancel-btn" type="button">cancel</button>
-      ${convoLink}</div>
+      ${convoLink}
+      <button class="session-edit-btn" type="button" title="Edit label">✎</button></div>
     <div class="meta">${esc(fmtDate(s.startTs))} · ${s.entries.length} msg${s.entries.length === 1 ? "" : "s"}${s.entries.length > 1 ? ` · ${fmtDuration(dur)}` : ""}</div>
   </div>`;
 
@@ -445,9 +445,8 @@ function renderPage({ messages, userCounts, countryCounts, labels, ipCountry, to
 
   /* Session label editing */
   .session-label-input { display: none; width: 120px; background: #0c120e; color: #efe; border: 1px solid var(--border); padding: 4px 8px; border-radius: 4px; font: inherit; font-size: 0.9rem; }
-  .session-edit-btn { background: transparent; border: none; color: var(--muted); font-size: 0.85rem; padding: 2px 6px; opacity: 0; transition: opacity 0.15s; cursor: pointer; }
-  .session-head:hover .session-edit-btn { opacity: 0.7; }
-  .session-edit-btn:hover { opacity: 1 !important; color: #8f8; }
+  .session-edit-btn { background: transparent; border: none; color: #5bc0be; font-size: 0.95rem; padding: 0 2px; opacity: 0.55; cursor: pointer; vertical-align: middle; transition: opacity 0.15s; line-height: 1; margin-left: 2px; }
+  .session-edit-btn:hover { background: transparent; border-color: transparent; opacity: 1; }
   .session-save-btn, .session-cancel-btn { display: none; font-size: 0.75rem; padding: 4px 10px; }
   .session-head.editing .session-label-text { display: none; }
   .session-head.editing .session-label-input { display: inline-block; }

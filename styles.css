@@ -736,9 +736,16 @@ footer a { color: #b85c38; text-decoration: none; }
   .nav-links { gap: 14px; }
   .nav-links a { display: none; }
   .nav-logo { font-size: 18px; }
-  .chat-input-area { padding: 8px; gap: 6px; }
-  .chat-input-area textarea { padding: 10px 12px; font-size: 14px; min-width: 0; min-height: 40px; }
-  .chat-input-area button { width: 40px; height: 40px; }
+  .chat-input-area { padding: 8px; position: relative; }
+  .chat-input-area textarea { padding: 10px 48px 10px 12px; font-size: 14px; min-width: 0; min-height: 40px; }
+  .chat-input-area button { 
+    width: 36px; 
+    height: 36px; 
+    border-radius: 50%; 
+    position: absolute; 
+    right: 12px; 
+    bottom: 10px; 
+  }
 }
 
 /* Theme Toggle */
