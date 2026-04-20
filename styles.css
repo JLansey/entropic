@@ -260,12 +260,13 @@ nav {
 .msg.bot h1,.msg.bot h2,.msg.bot h3 { font-size: 14px; margin: 8px 0 4px; }
 .chat-input-area {
   display: flex;
+  align-items: flex-end;
   border-top: 1px solid #eee;
   padding: 12px;
   gap: 8px;
   background: white;
 }
-.chat-input-area input {
+.chat-input-area textarea {
   flex: 1;
   border: 1px solid #ddd;
   border-radius: 12px;
@@ -274,21 +275,26 @@ nav {
   font-family: inherit;
   outline: none;
   transition: border-color 0.2s;
+  resize: none;
+  overflow-y: hidden;
+  min-height: 44px;
+  max-height: 150px;
+  line-height: 1.4;
 }
-.chat-input-area input:focus { border-color: #b85c38; }
+.chat-input-area textarea:focus { border-color: #b85c38; }
 .chat-input-area button {
   background: #b85c38;
   color: white;
   border: none;
   border-radius: 12px;
-  padding: 12px 24px;
-  font-size: 14px;
-  font-weight: 600;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  font-family: inherit;
   transition: background 0.2s;
   flex-shrink: 0;
-  white-space: nowrap;
 }
 .chat-input-area button:hover { background: #a04e30; }
 
@@ -731,8 +737,8 @@ footer a { color: #b85c38; text-decoration: none; }
   .nav-links a { display: none; }
   .nav-logo { font-size: 18px; }
   .chat-input-area { padding: 8px; gap: 6px; }
-  .chat-input-area input { padding: 10px 12px; font-size: 14px; min-width: 0; }
-  .chat-input-area button { padding: 10px 16px; font-size: 13px; }
+  .chat-input-area textarea { padding: 10px 12px; font-size: 14px; min-width: 0; min-height: 40px; }
+  .chat-input-area button { width: 40px; height: 40px; }
 }
 
 /* Theme Toggle */

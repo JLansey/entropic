@@ -381,6 +381,16 @@ async function animateReply(msgEl, fullText, userText, shouldRewrite) {
 const chatMessages = document.getElementById("chatMessages");
 const chatInput = document.getElementById("chatInput");
 
+chatInput.addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 150) + 'px';
+  if (this.scrollHeight > 150) {
+    this.style.overflowY = 'auto';
+  } else {
+    this.style.overflowY = 'hidden';
+  }
+});
+
 // ── Smart auto-scroll: don't yank the user back to the bottom while typing ──
 let userHasScrolledUp = false;
 
@@ -400,7 +410,12 @@ function forceScrollToBottom() {
   chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-chatInput.addEventListener("keydown", (e) => { if (e.key === "Enter") sendMessage(); });
+chatInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
 
 (function restorePendingMessage() {
   const pending = sessionStorage.getItem('pendingMessage');
@@ -445,6 +460,8 @@ async function sendMessage() {
 
   addMessage(text, "user");
   chatInput.value = "";
+  chatInput.style.height = 'auto';
+  chatInput.style.overflowY = 'hidden';
   const typing = addMessage("", "bot typing");
   typing.innerHTML = '<span class="spinner">·</span><span class="thinking-text"></span>';
   const spinnerEl = typing.querySelector('.spinner');

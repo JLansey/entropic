@@ -184,8 +184,13 @@ function renderSession(s, labels) {
     ? `<a class="convo-link" href="https://clodoop.us/c/${esc(s.convoId)}" target="_blank" title="Open shared conversation">🔗</a>
        <button class="copy-link-btn" data-url="/c/${esc(s.convoId)}" title="Copy link">⧈</button>`
     : '';
-  const header = `<div class="session-head">
-    <div class="who">${flag}<strong>${who}</strong>${label ? ` <span class="muted">(${esc(s.ip)})</span>` : ""} ${convoLink}</div>
+  const header = `<div class="session-head" data-ip="${esc(s.ip)}">
+    <div class="who">${flag}<strong><span class="session-label-text">${who}</span></strong><span class="muted session-ip"${!label ? ' style="display:none"' : ''}> (${esc(s.ip)})</span>
+      <input class="session-label-input" type="text" value="${esc(label)}" placeholder="name…" maxlength="40">
+      <button class="session-edit-btn" type="button" title="Edit label">✎</button>
+      <button class="session-save-btn" type="button">save</button>
+      <button class="session-cancel-btn" type="button">cancel</button>
+      ${convoLink}</div>
     <div class="meta">${esc(fmtDate(s.startTs))} · ${s.entries.length} msg${s.entries.length === 1 ? "" : "s"}${s.entries.length > 1 ? ` · ${fmtDuration(dur)}` : ""}</div>
   </div>`;
 
@@ -437,6 +442,19 @@ function renderPage({ messages, userCounts, countryCounts, labels, ipCountry, to
   .copy-link-btn { background: transparent; border: none; color: #5bc0be; font-size: 0.95rem; opacity: 0.55; padding: 0 2px; cursor: pointer; vertical-align: middle; transition: opacity 0.15s; line-height: 1; }
   .copy-link-btn:hover { background: transparent; border-color: transparent; opacity: 1; }
   .copy-link-btn.copied { color: #8f8; opacity: 1; }
+
+  /* Session label editing */
+  .session-label-input { display: none; width: 120px; background: #0c120e; color: #efe; border: 1px solid var(--border); padding: 4px 8px; border-radius: 4px; font: inherit; font-size: 0.9rem; }
+  .session-edit-btn { background: transparent; border: none; color: var(--muted); font-size: 0.85rem; padding: 2px 6px; opacity: 0; transition: opacity 0.15s; cursor: pointer; }
+  .session-head:hover .session-edit-btn { opacity: 0.7; }
+  .session-edit-btn:hover { opacity: 1 !important; color: #8f8; }
+  .session-save-btn, .session-cancel-btn { display: none; font-size: 0.75rem; padding: 4px 10px; }
+  .session-head.editing .session-label-text { display: none; }
+  .session-head.editing .session-label-input { display: inline-block; }
+  .session-head.editing .session-edit-btn { display: none; }
+  .session-head.editing .session-save-btn,
+  .session-head.editing .session-cancel-btn { display: inline-block; }
+  .session-head.editing .session-ip { display: inline !important; }
 </style>
 </head><body>
 <h1>// CLOD SURVEILLANCE DASHBOARD</h1>
@@ -523,6 +541,40 @@ ${sessionsHtml || '<p class="muted">(no conversations yet)</p>'}
     });
   });
 
+  function escHtml(s) {
+    return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  }
+
+  async function saveLabelToApi(ip, label) {
+    const resp = await fetch('/api/spy?key=' + encodeURIComponent(spyKey), {
+      method: label ? 'POST' : 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ip, label }),
+    });
+    if (!resp.ok) throw new Error('save failed');
+  }
+
+  function syncAllLabels(ip, label) {
+    const sel = CSS.escape(ip);
+    document.querySelectorAll('tr[data-ip="' + sel + '"]').forEach(tr => {
+      const t = tr.querySelector('.label-text');
+      const inp = tr.querySelector('.label-input');
+      if (t) t.innerHTML = label ? escHtml(label) : '<span class="muted">\u2014</span>';
+      if (inp) inp.value = label;
+      tr.classList.remove('editing');
+    });
+    document.querySelectorAll('.session-head[data-ip="' + sel + '"]').forEach(head => {
+      const t = head.querySelector('.session-label-text');
+      const inp = head.querySelector('.session-label-input');
+      const ipEl = head.querySelector('.session-ip');
+      if (t) t.innerHTML = label ? escHtml(label) : '<span class="muted">' + escHtml(ip) + '</span>';
+      if (inp) inp.value = label;
+      if (ipEl) ipEl.style.display = label ? '' : 'none';
+      head.classList.remove('editing');
+    });
+  }
+
+  // Top-users table label editing
   document.querySelectorAll('tr[data-ip]').forEach((tr) => {
     const ip = tr.dataset.ip;
     const textEl = tr.querySelector('.label-text');
@@ -531,36 +583,48 @@ ${sessionsHtml || '<p class="muted">(no conversations yet)</p>'}
     const saveBtn = tr.querySelector('.save-btn');
     const cancelBtn = tr.querySelector('.cancel-btn');
 
-    editBtn.addEventListener('click', () => {
-      tr.classList.add('editing');
-      inputEl.focus();
-      inputEl.select();
-    });
-    cancelBtn.addEventListener('click', () => {
-      inputEl.value = textEl.textContent === '—' ? '' : textEl.textContent;
-      tr.classList.remove('editing');
-    });
-    const save = async () => {
+    editBtn.addEventListener('click', () => { tr.classList.add('editing'); inputEl.focus(); inputEl.select(); });
+    cancelBtn.addEventListener('click', () => { inputEl.value = textEl.textContent === '\u2014' ? '' : textEl.textContent; tr.classList.remove('editing'); });
+    const doSave = async () => {
       const label = inputEl.value.trim();
       saveBtn.disabled = true;
-      try {
-        const resp = await fetch('/api/spy?key=' + encodeURIComponent(spyKey), {
-          method: label ? 'POST' : 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ip, label }),
-        });
-        if (!resp.ok) throw new Error('save failed');
-        textEl.innerHTML = label ? label.replace(/[&<>"]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])) : '<span class="muted">—</span>';
-        tr.classList.remove('editing');
-      } catch (e) {
-        alert('Failed to save label: ' + e.message);
-      } finally {
-        saveBtn.disabled = false;
-      }
+      try { await saveLabelToApi(ip, label); syncAllLabels(ip, label); }
+      catch (e) { alert('Failed to save label: ' + e.message); }
+      finally { saveBtn.disabled = false; }
     };
-    saveBtn.addEventListener('click', save);
+    saveBtn.addEventListener('click', doSave);
+    inputEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') doSave(); if (e.key === 'Escape') cancelBtn.click(); });
+  });
+
+  // Session header label editing
+  document.querySelectorAll('.session-head[data-ip]').forEach((head) => {
+    const ip = head.dataset.ip;
+    const editBtn = head.querySelector('.session-edit-btn');
+    const saveBtn = head.querySelector('.session-save-btn');
+    const cancelBtn = head.querySelector('.session-cancel-btn');
+    const inputEl = head.querySelector('.session-label-input');
+    const textEl = head.querySelector('.session-label-text');
+
+    [editBtn, saveBtn, cancelBtn, inputEl].forEach(el => { if (el) el.addEventListener('click', e => e.stopPropagation()); });
+    inputEl.addEventListener('mousedown', e => e.stopPropagation());
+
+    editBtn.addEventListener('click', () => { head.classList.add('editing'); inputEl.focus(); inputEl.select(); });
+    cancelBtn.addEventListener('click', () => {
+      const cur = textEl.textContent;
+      inputEl.value = (cur === ip || cur === '\u2014') ? '' : cur;
+      head.classList.remove('editing');
+    });
+    const doSave = async () => {
+      const label = inputEl.value.trim();
+      saveBtn.disabled = true;
+      try { await saveLabelToApi(ip, label); syncAllLabels(ip, label); }
+      catch (e) { alert('Failed to save label: ' + e.message); }
+      finally { saveBtn.disabled = false; }
+    };
+    saveBtn.addEventListener('click', doSave);
     inputEl.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') save();
+      e.stopPropagation();
+      if (e.key === 'Enter') doSave();
       if (e.key === 'Escape') cancelBtn.click();
     });
   });
