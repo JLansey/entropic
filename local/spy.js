@@ -136,7 +136,7 @@ function fmtDuration(ms) {
 }
 
 function renderTopUsers(userCounts, labels, ipCountry) {
-  const rows = userCounts.map((u) => {
+  const rows = userCounts.slice(0, 15).map((u) => {
     const label = labels[u.member] || "";
     const country = ipCountry[u.member] || "";
     return `<tr data-ip="${esc(u.member)}">
@@ -271,8 +271,7 @@ function renderSession(s, labels) {
   </details>`;
 }
 
-function renderPage({ messages, userCounts, countryCounts, labels, ipCountry, total, shown, hideLocalhost, hiddenLocalhostCount }) {
-  const sessions = groupSessions(messages);
+function renderPage({ sessions, userCounts, countryCounts, labels, ipCountry, total, messageCount, sessionCount, page, pages, query, hideLocalhost, hiddenLocalhostCount }) {
   const sessionsHtml = sessions.map((s) => renderSession(s, labels)).join("\n");
   const topUsersHtml = renderTopUsers(userCounts, labels, ipCountry);
   const countryHtml = renderCountryCounts(countryCounts);
@@ -282,6 +281,7 @@ function renderPage({ messages, userCounts, countryCounts, labels, ipCountry, to
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Clod Spy Dashboard</title>
+<link rel="icon" type="image/svg+xml" href="/favicon-spy.svg">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
@@ -454,15 +454,48 @@ function renderPage({ messages, userCounts, countryCounts, labels, ipCountry, to
   .session-head.editing .session-save-btn,
   .session-head.editing .session-cancel-btn { display: inline-block; }
   .session-head.editing .session-ip { display: inline !important; }
+
+  /* Search */
+  .search-input {
+    background: #101712;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--fg);
+    font: inherit;
+    font-size: 0.92rem;
+    padding: 10px 14px;
+    width: 260px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-input:focus { border-color: #4a7a5a; box-shadow: 0 0 0 2px rgba(74,122,90,0.2); }
+  .search-input::placeholder { color: var(--muted); }
+
+  /* Pagination */
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin: 32px 0 16px;
+  }
+  .pagination button:disabled { opacity: 0.3; cursor: default; }
+  .pagination button:disabled:hover { background: #1a2a20; border-color: var(--border); }
+  .page-info { color: var(--muted); font-family: ui-monospace, monospace; font-size: 0.82rem; }
+  .no-results { color: var(--muted); text-align: center; padding: 48px 0; font-size: 0.95rem; }
 </style>
 </head><body>
 <h1>// CLOD SURVEILLANCE DASHBOARD</h1>
 <div class="toolbar">
-  <p class="muted">Total messages: ${total} · showing ${shown} most recent${hiddenLocalhostCount ? ` · ${hiddenLocalhostCount} localhost hidden` : ""} · ${sessions.length} sessions</p>
-  <label class="filter-toggle">
-    <input id="hide-localhost-toggle" type="checkbox" ${hideLocalhost ? "checked" : ""}>
-    Hide localhost messages
-  </label>
+  <p class="muted">${total} messages · ${sessionCount} sessions${hiddenLocalhostCount ? ` · ${hiddenLocalhostCount} localhost hidden` : ""}${query ? ` · <strong>${sessions.length} match${sessions.length !== 1 ? "es" : ""} for &ldquo;${esc(query)}&rdquo;</strong>` : ""}</p>
+  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+    <input id="search-input" class="search-input" type="text" value="${esc(query)}" placeholder="Search all conversations… ( / )" autocomplete="off" />
+    ${query ? '<button id="clear-search" type="button" style="padding:8px 12px;">✕ Clear</button>' : ''}
+    <label class="filter-toggle">
+      <input id="hide-localhost-toggle" type="checkbox" ${hideLocalhost ? "checked" : ""}>
+      Hide localhost
+    </label>
+  </div>
 </div>
 
 <div class="panels">
@@ -476,8 +509,13 @@ function renderPage({ messages, userCounts, countryCounts, labels, ipCountry, to
   </div>
 </div>
 
-<h2>Recent Conversations</h2>
-${sessionsHtml || '<p class="muted">(no conversations yet)</p>'}
+<h2>${query ? "Search Results" : "Recent Conversations"}</h2>
+${sessionsHtml || (query ? '<p class="no-results">No conversations match your search.</p>' : '<p class="muted">(no conversations yet)</p>')}
+${pages > 1 ? `<div class="pagination">
+  <button id="prev-page" type="button" ${page <= 1 ? "disabled" : ""}>← Prev</button>
+  <span class="page-info">Page ${page} of ${pages}</span>
+  <button id="next-page" type="button" ${page >= pages ? "disabled" : ""}>Next →</button>
+</div>` : ""}
 
 <script>
   // Read the auth key from the URL rather than baking it into HTML.
@@ -627,6 +665,41 @@ ${sessionsHtml || '<p class="muted">(no conversations yet)</p>'}
       if (e.key === 'Escape') cancelBtn.click();
     });
   });
+
+  // Search & Pagination (server-side via URL params)
+  (function() {
+    var searchEl = document.getElementById('search-input');
+    var clearBtn = document.getElementById('clear-search');
+    var prevBtn = document.getElementById('prev-page');
+    var nextBtn = document.getElementById('next-page');
+
+    function nav(overrides) {
+      var p = new URLSearchParams(location.search);
+      Object.keys(overrides).forEach(function(k) {
+        if (overrides[k]) p.set(k, overrides[k]); else p.delete(k);
+      });
+      location.search = '?' + p.toString();
+    }
+
+    searchEl.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') nav({ q: searchEl.value.trim(), page: '' });
+      if (e.key === 'Escape') {
+        if (searchEl.value) nav({ q: '', page: '' });
+        else searchEl.blur();
+      }
+    });
+
+    if (clearBtn) clearBtn.addEventListener('click', function() { nav({ q: '', page: '' }); });
+    if (prevBtn) prevBtn.addEventListener('click', function() { nav({ page: ${page} > 1 ? String(${page} - 1) : '' }); });
+    if (nextBtn) nextBtn.addEventListener('click', function() { nav({ page: String(${page} + 1) }); });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === '/' && document.activeElement !== searchEl && !e.ctrlKey && !e.metaKey && document.activeElement.tagName !== 'INPUT') {
+        e.preventDefault();
+        searchEl.focus();
+      }
+    });
+  })();
 </script>
 </body></html>`;
 }
@@ -664,10 +737,13 @@ exports.handler = async (event) => {
       return await handleSetLabel(event, method);
     }
 
-    const count = parseInt(params.n) || 200;
     const hideLocalhost = params.hideLocalhost !== "0" && params.hideLocalhost !== "false";
+    const query = (params.q || "").trim();
+    const pageParam = Math.max(1, parseInt(params.page) || 1);
+    const perPage = 20;
+
     const [msgsRaw, userCountsRaw, countryCountsRaw, labelsRaw, ipCountryRaw, total] = await Promise.all([
-      redisGet(`LRANGE/msgs/0/${count - 1}`).then((r) => r || []),
+      redisGet("LRANGE/msgs/0/-1").then((r) => r || []),
       redisGet("ZREVRANGE/user_counts/0/49/WITHSCORES").then((r) => r || []),
       redisGet("ZREVRANGE/country_counts/0/19/WITHSCORES").then((r) => r || []),
       redisGet("HGETALL/ip_labels").then((r) => r || []),
@@ -693,17 +769,39 @@ exports.handler = async (event) => {
       };
     }
 
+    let sessions = groupSessions(messages);
+    const sessionCount = sessions.length;
+
+    if (query) {
+      const ql = query.toLowerCase();
+      sessions = sessions.filter((s) => {
+        const label = (labels[s.ip] || "").toLowerCase();
+        return label.includes(ql) || s.entries.some((e) =>
+          (e.user && e.user.toLowerCase().includes(ql)) ||
+          (e.bot && e.bot.toLowerCase().includes(ql))
+        );
+      });
+    }
+
+    const totalPages = Math.max(1, Math.ceil(sessions.length / perPage));
+    const currentPage = Math.min(pageParam, totalPages);
+    const pagedSessions = sessions.slice((currentPage - 1) * perPage, currentPage * perPage);
+
     return {
       statusCode: 200,
       headers: { "Content-Type": "text/html" },
       body: renderPage({
-        messages,
+        sessions: pagedSessions,
         userCounts,
         countryCounts,
         labels,
         ipCountry,
         total,
-        shown: messages.length,
+        messageCount: messages.length,
+        sessionCount,
+        page: currentPage,
+        pages: totalPages,
+        query,
         hideLocalhost,
         hiddenLocalhostCount,
       }),
