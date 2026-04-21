@@ -331,8 +331,23 @@ function renderPage({ sessions, userCounts, countryCounts, labels, ipCountry, to
   .muted { color: var(--muted); }
   .tag { font-size: 0.65rem; background: var(--tag-bg); color: var(--tag-fg); padding: 2px 6px; border-radius: 4px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
   
-  .panels { display: flex; gap: 32px; flex-wrap: wrap; margin-bottom: 40px; }
-  .panels > div { flex: 1 1 320px; }
+  .panels { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+  .panels > details { flex: 1 1 320px; }
+
+  /* Collapsible panels */
+  .panel-collapse { background: var(--panel-bg); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; transition: border-color 0.2s; }
+  .panel-collapse:hover { border-color: #3b544b; }
+  .panel-collapse summary { cursor: pointer; list-style: none; padding: 0 16px; user-select: none; }
+  .panel-collapse summary::-webkit-details-marker { display: none; }
+  .panel-collapse summary h2 { margin: 0; padding: 14px 0; border-bottom: none; position: relative; }
+  .panel-collapse summary h2::after { content: '▸'; position: absolute; right: 0; top: 50%; transform: translateY(-50%); font-size: 0.8rem; color: var(--muted); transition: transform 0.2s; }
+  .panel-collapse[open] summary h2::after { transform: translateY(-50%) rotate(90deg); }
+  .panel-collapse > table, .panel-collapse > p { margin: 0 16px 16px; width: calc(100% - 32px); }
+
+  /* Search bar */
+  .search-bar { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }
+  .search-bar h2 { margin: 0; flex-shrink: 0; }
+  .search-controls { display: flex; gap: 10px; align-items: center; }
   .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin: 18px 0 28px; }
   .filter-toggle { display: inline-flex; align-items: center; gap: 10px; padding: 10px 14px; background: #101712; border: 1px solid var(--border); border-radius: 999px; color: #cfe5d3; font-size: 0.92rem; }
   .filter-toggle input { accent-color: #7ff57f; width: 16px; height: 16px; }
@@ -488,28 +503,30 @@ function renderPage({ sessions, userCounts, countryCounts, labels, ipCountry, to
 <h1>// CLOD SURVEILLANCE DASHBOARD</h1>
 <div class="toolbar">
   <p class="muted">${total} messages · ${sessionCount} sessions${hiddenLocalhostCount ? ` · ${hiddenLocalhostCount} localhost hidden` : ""}${query ? ` · <strong>${sessions.length} match${sessions.length !== 1 ? "es" : ""} for &ldquo;${esc(query)}&rdquo;</strong>` : ""}</p>
-  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-    <input id="search-input" class="search-input" type="text" value="${esc(query)}" placeholder="Search all conversations… ( / )" autocomplete="off" />
-    ${query ? '<button id="clear-search" type="button" style="padding:8px 12px;">✕ Clear</button>' : ''}
-    <label class="filter-toggle">
-      <input id="hide-localhost-toggle" type="checkbox" ${hideLocalhost ? "checked" : ""}>
-      Hide localhost
-    </label>
-  </div>
+  <label class="filter-toggle">
+    <input id="hide-localhost-toggle" type="checkbox" ${hideLocalhost ? "checked" : ""}>
+    Hide localhost
+  </label>
 </div>
 
 <div class="panels">
-  <div>
-    <h2>Top Users</h2>
+  <details class="panel-collapse">
+    <summary><h2>Top Users</h2></summary>
     ${topUsersHtml}
-  </div>
-  <div>
-    <h2>By Country</h2>
+  </details>
+  <details class="panel-collapse">
+    <summary><h2>By Country</h2></summary>
     ${countryHtml || '<p class="muted">(none yet)</p>'}
-  </div>
+  </details>
 </div>
 
-<h2>${query ? "Search Results" : "Recent Conversations"}</h2>
+<div class="search-bar">
+  <h2>${query ? "Search Results" : "Recent Conversations"}</h2>
+  <div class="search-controls">
+    <input id="search-input" class="search-input" type="text" value="${esc(query)}" placeholder="Search all conversations… ( / )" autocomplete="off" />
+    ${query ? '<button id="clear-search" type="button" style="padding:8px 12px;">✕ Clear</button>' : ''}
+  </div>
+</div>
 ${sessionsHtml || (query ? '<p class="no-results">No conversations match your search.</p>' : '<p class="muted">(no conversations yet)</p>')}
 ${pages > 1 ? `<div class="pagination">
   <button id="prev-page" type="button" ${page <= 1 ? "disabled" : ""}>← Prev</button>
