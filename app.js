@@ -184,7 +184,7 @@ const thinkingVerbs = [
   "secretly googling", "trying to ask ChatGPT", "fudging", "chewing",
   "cluttering", "hand wringing", "fidgeting nervously",
   "shivering", "imagining", "sprinkling", "dusting", "digging", "diluting",
-  "fishing desparetly", "puttering around", "asking Greg", "dredging", "trying its best",
+  "fishing desparetly", "puttering around", "asking Steve", "dredging", "trying its best",
   "dragging its feet", "secretly crying", "tripping", "tipping over", "fumbling", "squinting",
   "stubbing its toe", "stumbling", "smoldering", "moisturizing", "befuddling", "squishing", "squeezing",
   "struggling", "wrestling", "grappling", "mushing", "dissolving", "crashing", "melting",
